@@ -31,7 +31,7 @@ const Header = () => {
   };
 
   return (
-    <header className={`fixed top-0 w-full z-50 transition-all duration-700 ${isScrolled || isMobileMenuOpen ? 'glass py-4' : 'bg-transparent py-6 md:py-8'}`}>
+    <header className={`fixed top-0 w-full z-50 transition-all duration-700 ${isMobileMenuOpen ? 'bg-transparent py-4' : isScrolled ? 'glass py-4' : 'bg-transparent py-6 md:py-8'}`}>
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center relative z-50">
         <Link to="/" onClick={handleLogoClick} className="text-white hover:text-struktur-orange transition-colors duration-500 block h-5 md:h-6">
           <Logo variant="wordmark" className="h-full" />
@@ -69,7 +69,7 @@ const Header = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 w-full h-screen bg-struktur-dark/98 backdrop-blur-xl z-40 flex flex-col justify-between items-center pt-32 pb-16 px-6 md:hidden"
+            className="fixed inset-0 w-full h-screen bg-struktur-dark/95 backdrop-blur-xl z-40 flex flex-col justify-between items-center pt-32 pb-16 px-6 md:hidden"
           >
             {/* Main Nav Links */}
             <div className="flex flex-col items-center space-y-8">

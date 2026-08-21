@@ -21,7 +21,7 @@ const Hero = () => {
             src={strukturAssets.home.hero} 
             alt="Struktur Grenoble Rooftop" 
             fetchPriority="high"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-[75%_center] md:object-center"
           />
         </motion.div>
         {/* Dark overlay for text readability */}
