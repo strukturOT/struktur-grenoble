@@ -28,7 +28,7 @@ const SiteLayout = () => {
   return (
     <SmoothScroll>
       <ScrollToTop />
-      <div className="min-h-screen bg-struktur-dark text-struktur-light selection:bg-struktur-orange selection:text-white flex flex-col">
+      <div className="min-h-screen bg-theme-canvas text-theme-ink selection:bg-struktur-orange selection:text-white flex flex-col">
         <Header />
         <main className="flex-grow">
           <Outlet />

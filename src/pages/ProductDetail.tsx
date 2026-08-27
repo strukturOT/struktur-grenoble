@@ -15,7 +15,7 @@ const ProductDetail = () => {
     return (
       <div className="pt-32 pb-24 md:pt-48 px-6 text-center min-h-screen flex flex-col justify-center items-center">
         <h1 className="text-3xl font-display mb-4">Produit introuvable</h1>
-        <Link to="/nouveautes" className="text-struktur-orange hover:text-white transition-colors uppercase tracking-widest text-sm border-b border-struktur-orange hover:border-white pb-1">
+        <Link to="/nouveautes" className="text-struktur-orange hover:text-theme-ink transition-colors uppercase tracking-widest text-sm border-b border-struktur-orange hover:border-theme-ink pb-1">
           Retour aux nouveautés
         </Link>
       </div>
@@ -44,7 +44,7 @@ const ProductDetail = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: idx * 0.2 }}
-              className="w-full bg-struktur-light"
+              className="w-full bg-theme-surface"
             >
               <img src={img} alt={`${product.name} vue ${idx + 1}`} className="w-full h-auto object-cover" />
             </motion.div>
@@ -69,7 +69,7 @@ const ProductDetail = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-sm tracking-widest uppercase text-white/50 mb-10"
+              className="text-sm tracking-widest uppercase text-theme-ink/50 mb-10"
             >
               Disponible en boutique
             </motion.p>
@@ -82,13 +82,13 @@ const ProductDetail = () => {
                 transition={{ delay: 0.4 }}
                 className="mb-10"
               >
-                <h4 className="text-xs tracking-[0.2em] uppercase text-white/70 mb-4">Coloris</h4>
+                <h4 className="text-xs tracking-[0.2em] uppercase text-theme-ink/70 mb-4">Coloris</h4>
                 <div className="flex gap-4">
                   {product.colors.map((color, idx) => (
                     <button 
                       key={idx}
                       title={color.name}
-                      className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${idx === 0 ? 'border-white' : 'border-transparent'}`}
+                      className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${idx === 0 ? 'border-theme-ink' : 'border-transparent'}`}
                       style={{ backgroundColor: color.hex }}
                     />
                   ))}
@@ -104,7 +104,7 @@ const ProductDetail = () => {
               className="mb-12"
             >
               <div className="flex justify-between items-end mb-4">
-                <h4 className="text-xs tracking-[0.2em] uppercase text-white/70">Tailles</h4>
+                <h4 className="text-xs tracking-[0.2em] uppercase text-theme-ink/70">Tailles</h4>
                 <span className="text-[10px] text-struktur-orange uppercase tracking-wider">À confirmer en boutique</span>
               </div>
               <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-4 gap-3">
@@ -114,8 +114,8 @@ const ProductDetail = () => {
                     onClick={() => setSelectedSize(size)}
                     className={`py-3 text-sm font-medium transition-colors border ${
                       selectedSize === size 
-                        ? 'bg-white text-black border-white' 
-                        : 'border-white/20 text-white hover:border-white/50'
+                        ? 'bg-theme-ink text-theme-canvas border-theme-ink'
+                        : 'border-theme-ink/20 text-theme-ink hover:border-theme-ink/50'
                     }`}
                   >
                     {size}
@@ -133,7 +133,7 @@ const ProductDetail = () => {
               <button className="w-full bg-struktur-orange text-white py-5 font-medium uppercase tracking-widest text-xs sm:text-sm hover:bg-[#ff5511] transition-colors">
                 Demander ma taille
               </button>
-              <p className="text-center text-[10px] text-white/40 uppercase tracking-widest mt-4">
+              <p className="text-center text-[10px] text-theme-ink/40 uppercase tracking-widest mt-4">
                 Réservation sans obligation d'achat
               </p>
             </motion.div>
@@ -143,13 +143,13 @@ const ProductDetail = () => {
       </div>
 
       {/* Related Products */}
-      <div className="mt-32 pt-16 border-t border-white/10 px-6 md:px-0">
+      <div className="mt-32 pt-16 border-t border-theme-ink/10 px-6 md:px-0">
         <h3 className="text-2xl md:text-3xl font-display mb-10">Aussi disponible en boutique</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8">
           {relatedProducts.map((p) => (
             p.detailPath ? (
               <Link key={p.id} to={p.detailPath} className="group block">
-                <div className="aspect-[4/5] overflow-hidden bg-struktur-light mb-4">
+                <div className="aspect-[4/5] overflow-hidden bg-theme-surface mb-4">
                   <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                 </div>
                 <p className="text-[10px] uppercase tracking-widest text-struktur-orange mb-1">{p.brand}</p>
@@ -157,7 +157,7 @@ const ProductDetail = () => {
               </Link>
             ) : (
               <Link key={p.id} to="/le-shop" className="group block">
-                <div className="aspect-[4/5] overflow-hidden bg-struktur-light mb-4">
+                <div className="aspect-[4/5] overflow-hidden bg-theme-surface mb-4">
                   <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                 </div>
                 <p className="text-[10px] uppercase tracking-widest text-struktur-orange mb-1">{p.brand}</p>

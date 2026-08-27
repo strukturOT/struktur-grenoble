@@ -17,7 +17,7 @@ const NotFound = () => {
       <div className="mt-8">
         <Link 
           to="/"
-          className="inline-block border border-white/20 px-8 py-4 text-xs tracking-[0.2em] uppercase font-medium hover:bg-white hover:text-black transition-colors"
+          className="inline-block border border-theme-ink/20 px-8 py-4 text-xs tracking-[0.2em] uppercase font-medium hover:bg-theme-ink hover:text-theme-canvas transition-colors"
         >
           Retour à l'accueil
         </Link>

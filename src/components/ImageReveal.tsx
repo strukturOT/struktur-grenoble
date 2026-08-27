@@ -34,7 +34,7 @@ const ImageReveal: React.FC<ImageRevealProps> = ({ src, alt, className = '', del
           initial={{ y: 0 }}
           animate={isInView ? { y: "-100%" } : { y: 0 }}
           transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1], delay: delay }}
-          className="absolute inset-0 bg-struktur-dark origin-bottom z-10"
+          className="absolute inset-0 bg-theme-canvas origin-bottom z-10"
         />
       )}
     </div>

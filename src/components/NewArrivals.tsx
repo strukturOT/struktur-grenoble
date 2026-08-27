@@ -24,7 +24,7 @@ const NewArrivals = () => {
           />
           <TextReveal 
             text="Notre dernière sélection en boutique."
-            className="text-base md:text-lg text-white/70 font-light"
+            className="text-base md:text-lg text-theme-ink/70 font-light"
             delay={0.15}
           />
         </div>
@@ -35,7 +35,7 @@ const NewArrivals = () => {
           transition={{ duration: 0.8, delay: 0.3 }}
           className="hidden md:block"
         >
-          <Link to="/nouveautes" className="text-xs tracking-[0.2em] uppercase text-white/50 border-b border-white/20 pb-1 hover:text-white hover:border-white transition-all">
+          <Link to="/nouveautes" className="text-xs tracking-[0.2em] uppercase text-theme-ink/50 border-b border-theme-ink/20 pb-1 hover:text-theme-ink hover:border-theme-ink transition-all">
             Voir toute la sélection
           </Link>
         </motion.div>
@@ -52,7 +52,7 @@ const NewArrivals = () => {
             className="group flex flex-col justify-between"
           >
             <div>
-              <div className="aspect-[4/5] bg-struktur-light overflow-hidden relative mb-4 md:mb-6 rounded-none">
+              <div className="aspect-[4/5] bg-theme-surface overflow-hidden relative mb-4 md:mb-6 rounded-none">
                 <motion.img 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
@@ -88,7 +88,7 @@ const NewArrivals = () => {
                 <h3 className="font-display text-lg md:text-2xl mb-1.5 group-hover:text-struktur-orange transition-colors duration-300">
                   {product.name}
                 </h3>
-                <p className="text-xs md:text-sm text-white/50 font-light mb-4">
+                <p className="text-xs md:text-sm text-theme-ink/50 font-light mb-4">
                   {product.variant} — {product.sizes.length} tailles
                 </p>
               </div>
@@ -99,14 +99,14 @@ const NewArrivals = () => {
               {product.detailPath ? (
                 <Link 
                   to={product.detailPath}
-                  className="block w-full text-center border border-white/20 text-white/90 py-3 text-xs uppercase tracking-widest font-medium active:bg-white active:text-black transition-colors"
+                  className="block w-full text-center border border-theme-ink/20 text-theme-ink/90 py-3 text-xs uppercase tracking-widest font-medium active:bg-theme-ink active:text-theme-canvas transition-colors"
                 >
                   Voir le produit
                 </Link>
               ) : (
                 <Link 
                   to="/le-shop"
-                  className="block w-full text-center border border-white/20 text-white/90 py-3 text-xs uppercase tracking-widest font-medium active:bg-white active:text-black transition-colors"
+                  className="block w-full text-center border border-theme-ink/20 text-theme-ink/90 py-3 text-xs uppercase tracking-widest font-medium active:bg-theme-ink active:text-theme-canvas transition-colors"
                 >
                   Disponible au shop
                 </Link>
@@ -117,7 +117,7 @@ const NewArrivals = () => {
       </div>
       
       <div className="mt-12 text-center md:hidden">
-        <Link to="/nouveautes" className="inline-block text-xs tracking-[0.2em] uppercase text-white/50 border-b border-white/20 pb-1 hover:text-white transition-all">
+        <Link to="/nouveautes" className="inline-block text-xs tracking-[0.2em] uppercase text-theme-ink/50 border-b border-theme-ink/20 pb-1 hover:text-theme-ink transition-all">
           Voir toute la sélection
         </Link>
       </div>

@@ -4,7 +4,7 @@ import { brandNames } from '../data/struktur';
 
 const BrandsMarquee = () => {
   return (
-    <section className="py-10 md:py-20 overflow-hidden border-y border-struktur-dark/5 bg-struktur-light">
+    <section className="py-10 md:py-20 overflow-hidden border-y border-theme-section-ink/5 bg-theme-section">
       <div className="flex w-[300%] sm:w-[200%] md:w-[150%]">
         <motion.div 
           animate={{ x: ["0%", "-50%"] }}
@@ -14,7 +14,7 @@ const BrandsMarquee = () => {
           {/* Double the array for seamless looping */}
           {[...brandNames, ...brandNames].map((brand, index) => (
             <div key={index} className="flex items-center">
-              <span className="text-2xl sm:text-4xl md:text-6xl font-display font-bold uppercase text-struktur-dark/15 px-4 sm:px-8 hover:text-struktur-orange transition-colors duration-300">
+              <span className="text-2xl sm:text-4xl md:text-6xl font-display font-bold uppercase text-theme-section-ink/20 px-4 sm:px-8 hover:text-struktur-orange transition-colors duration-300">
                 {brand}
               </span>
               <span className="text-lg sm:text-2xl text-struktur-orange">•</span>

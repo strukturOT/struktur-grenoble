@@ -35,20 +35,20 @@ const KulturSection = () => {
           
           <TextReveal 
             text="Plus qu'une boutique, une destination. Nous sélectionnons avec exigence des marques pointues, des matières nobles et des silhouettes modernes pour construire un vestiaire intemporel." 
-            className="text-base text-white/70 leading-relaxed max-w-sm mb-10"
+            className="text-base text-theme-ink/70 leading-relaxed max-w-sm mb-10"
             delay={0.4}
           />
 
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.6 }}>
             <MagneticButton to="/marques">
-              <span className="text-xs tracking-widest uppercase border-b border-white/30 pb-1 hover:border-struktur-orange transition-colors">Découvrir nos marques</span>
+              <span className="text-xs tracking-widest uppercase border-b border-theme-ink/30 pb-1 hover:border-struktur-orange transition-colors">Découvrir nos marques</span>
             </MagneticButton>
           </motion.div>
         </div>
 
         <div className="w-full md:w-7/12 order-1 md:order-2">
           {/* Main Large Image */}
-          <div className="aspect-[4/5] relative overflow-hidden bg-struktur-light">
+          <div className="aspect-[4/5] relative overflow-hidden bg-theme-surface">
             <motion.div style={{ y: y1 }} className="absolute -top-[10%] left-0 w-full h-[120%]">
               <ImageReveal 
                 src={strukturAssets.editorial.rooftopSeated} 
@@ -62,7 +62,7 @@ const KulturSection = () => {
 
       <div className="flex flex-col md:flex-row gap-8 items-end justify-end w-full">
         <div className="w-full md:w-1/3 mb-12 md:mb-0">
-          <div className="aspect-square relative overflow-hidden bg-struktur-light">
+          <div className="aspect-square relative overflow-hidden bg-theme-surface">
             <motion.div style={{ y: y3 }} className="absolute -top-[10%] left-0 w-full h-[120%]">
               <ImageReveal 
                 src={strukturAssets.products.crossbodyTerracotta} 
@@ -74,7 +74,7 @@ const KulturSection = () => {
         </div>
 
         <div className="w-full md:w-5/12">
-          <div className="aspect-[3/4] relative overflow-hidden bg-struktur-light">
+          <div className="aspect-[3/4] relative overflow-hidden bg-theme-surface">
             <motion.div style={{ y: y2 }} className="absolute -top-[10%] left-0 w-full h-[120%]">
               <ImageReveal 
                 src={strukturAssets.editorial.rooftopTennis} 

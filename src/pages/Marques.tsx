@@ -20,7 +20,7 @@ const Marques = () => {
         />
         <TextReveal 
           text="Une sélection indépendante." 
-          className="text-lg md:text-xl text-white/70 font-light" 
+          className="text-lg md:text-xl text-theme-ink/70 font-light"
           delay={0.15}
         />
       </div>
@@ -44,7 +44,7 @@ const Marques = () => {
                 <h2 className="text-4xl md:text-6xl font-display leading-[1.1] mb-4">
                   {brand.name}
                 </h2>
-                <p className="text-white/50 text-sm uppercase tracking-widest">
+                <p className="text-theme-ink/50 text-sm uppercase tracking-widest">
                   {brand.category}
                 </p>
               </motion.div>
@@ -55,14 +55,14 @@ const Marques = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.3 }}
               >
-                <Link to="/nouveautes" className="inline-block text-xs uppercase tracking-[0.2em] border-b border-white/20 pb-1 hover:text-struktur-orange hover:border-struktur-orange transition-colors">
+                <Link to="/nouveautes" className="inline-block text-xs uppercase tracking-[0.2em] border-b border-theme-ink/20 pb-1 hover:text-struktur-orange hover:border-struktur-orange transition-colors">
                   Découvrir la sélection
                 </Link>
               </motion.div>
             </div>
 
             <div className="w-full md:w-1/2">
-              <div className="aspect-[4/5] bg-struktur-light overflow-hidden relative">
+              <div className="aspect-[4/5] bg-theme-surface overflow-hidden relative">
                 {brand.image && (
                   <ImageReveal src={brand.image} alt={brand.name} className="w-full h-full object-cover" />
                 )}
@@ -74,7 +74,7 @@ const Marques = () => {
       </div>
 
       {/* Directory */}
-      <div className="px-6 md:px-12 max-w-7xl mx-auto border-t border-white/10 pt-20">
+      <div className="px-6 md:px-12 max-w-7xl mx-auto border-t border-theme-ink/10 pt-20">
         <div className="mb-12">
           <TextReveal 
             text="Index des marques" 
@@ -90,12 +90,12 @@ const Marques = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-10%" }}
               transition={{ duration: 0.5, delay: (idx % 3) * 0.1 }}
-              className="group border-b border-white/5 pb-4"
+              className="group border-b border-theme-ink/5 pb-4"
             >
               <h3 className="text-2xl font-display mb-2 group-hover:text-struktur-orange transition-colors">
                 {brand.name}
               </h3>
-              <p className="text-white/40 text-xs uppercase tracking-widest">
+              <p className="text-theme-ink/40 text-xs uppercase tracking-widest">
                 {brand.category}
               </p>
             </motion.div>

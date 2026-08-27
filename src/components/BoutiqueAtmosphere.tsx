@@ -12,11 +12,11 @@ const BoutiqueAtmosphere = () => {
   ];
 
   return (
-    <section className="py-16 md:py-32 px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5">
+    <section className="py-16 md:py-32 px-6 md:px-12 max-w-7xl mx-auto border-t border-theme-ink/5">
       <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-center">
         <div className="w-full lg:w-1/2 relative z-10">
           <div className="relative">
-            <div className="aspect-[4/3] overflow-hidden group bg-struktur-light">
+            <div className="aspect-[4/3] overflow-hidden group bg-theme-surface">
               <ImageReveal src={strukturAssets.shop.interiorWide} alt="Boutique Interior" className="w-full h-full" />
             </div>
             {/* Accompanying smaller image */}
@@ -25,7 +25,7 @@ const BoutiqueAtmosphere = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 1, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-              className="md:absolute md:-bottom-16 md:-right-12 md:w-1/2 md:aspect-[3/4] mt-6 md:mt-0 w-3/4 aspect-[4/3] overflow-hidden md:border-8 md:border-struktur-dark md:bg-struktur-light"
+              className="md:absolute md:-bottom-16 md:-right-12 md:w-1/2 md:aspect-[3/4] mt-6 md:mt-0 w-3/4 aspect-[4/3] overflow-hidden md:border-8 md:border-theme-canvas md:bg-theme-surface"
             >
               <ImageReveal src={strukturAssets.shop.mirrorCream} alt="Boutique Details" className="w-full h-full" delay={0.2} />
             </motion.div>
@@ -45,7 +45,7 @@ const BoutiqueAtmosphere = () => {
           />
           <TextReveal 
             text="Briques apparentes, bois brut, et un agencement pensé pour mettre en valeur chaque pièce et chaque créateur."
-            className="text-white/70 mb-8 md:mb-12 text-base md:text-lg font-light leading-relaxed max-w-lg"
+            className="text-theme-ink/70 mb-8 md:mb-12 text-base md:text-lg font-light leading-relaxed max-w-lg"
             delay={0.35}
           />
 
@@ -64,7 +64,7 @@ const BoutiqueAtmosphere = () => {
                 </div>
                 <div>
                   <h4 className="font-bold font-display text-lg md:text-xl mb-1 md:mb-2 tracking-wide group-hover:text-struktur-orange transition-colors duration-500">{point.title}</h4>
-                  <p className="text-white/50 text-sm md:text-base font-light">{point.desc}</p>
+                  <p className="text-theme-ink/50 text-sm md:text-base font-light">{point.desc}</p>
                 </div>
               </motion.div>
             ))}

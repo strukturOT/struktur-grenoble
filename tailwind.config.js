@@ -13,6 +13,13 @@ export default {
           gray: '#1C1C1C',
           light: '#F5F5F5',
           muted: '#8A8A8A'
+        },
+        theme: {
+          canvas: 'rgb(var(--theme-canvas) / <alpha-value>)',
+          ink: 'rgb(var(--theme-ink) / <alpha-value>)',
+          surface: 'rgb(var(--theme-surface) / <alpha-value>)',
+          section: 'rgb(var(--theme-section) / <alpha-value>)',
+          'section-ink': 'rgb(var(--theme-section-ink) / <alpha-value>)'
         }
       },
       fontFamily: {

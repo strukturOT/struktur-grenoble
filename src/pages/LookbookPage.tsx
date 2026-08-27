@@ -7,7 +7,7 @@ import ImageReveal from '../components/ImageReveal';
 // Custom parallax image component for the lookbook
 const ParallaxImage = ({ item, yOffset, className }: { item: any, yOffset: any, className: string }) => {
   return (
-    <div className={`relative overflow-hidden group bg-struktur-light ${className}`}>
+    <div className={`relative overflow-hidden group bg-theme-surface ${className}`}>
       <motion.div style={{ y: yOffset }} className="absolute -top-[15%] left-0 w-full h-[130%]">
         <ImageReveal src={item.image} alt={item.label} className="w-full h-full object-cover" />
       </motion.div>
@@ -43,7 +43,7 @@ const LookbookPage = () => {
         />
         <TextReveal 
           text="L'allure Struktur. Automne / Hiver." 
-          className="text-lg md:text-xl text-white/70 font-light" 
+          className="text-lg md:text-xl text-theme-ink/70 font-light"
           delay={0.15}
         />
       </div>
@@ -65,7 +65,7 @@ const LookbookPage = () => {
         <div className="flex flex-col md:flex-row gap-4 md:gap-8 lg:gap-16 items-start mb-4 md:mb-16">
           <div className="w-full md:w-5/12 hidden md:block mt-24 pl-12 lg:pl-24">
             <div className="max-w-sm">
-              <TextReveal text="Des silhouettes pensées pour le quotidien. L'équilibre entre confort, technique et élégance brute." className="text-xl text-white/70 font-light leading-relaxed" />
+              <TextReveal text="Des silhouettes pensées pour le quotidien. L'équilibre entre confort, technique et élégance brute." className="text-xl text-theme-ink/70 font-light leading-relaxed" />
             </div>
           </div>
           <div className="w-full md:w-6/12 ml-auto">

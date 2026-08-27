@@ -5,37 +5,99 @@
 @tailwind utilities;
 
 @layer base {
+  :root,
+  html[data-theme='dark'] {
+    --theme-canvas: 10 10 10;
+    --theme-ink: 245 245 245;
+    --theme-surface: 28 28 28;
+    --theme-section: 245 245 245;
+    --theme-section-ink: 10 10 10;
+    color-scheme: dark;
+  }
+
+  html[data-theme='light'] {
+    --theme-canvas: 246 243 237;
+    --theme-ink: 24 23 21;
+    --theme-surface: 232 227 218;
+    --theme-section: 231 225 214;
+    --theme-section-ink: 24 23 21;
+    color-scheme: light;
+  }
+
   html {
     scroll-behavior: smooth;
+    background: rgb(var(--theme-canvas));
   }
+
   body {
-    @apply bg-struktur-dark text-struktur-light font-sans antialiased overflow-x-hidden;
+    background-color: rgb(var(--theme-canvas));
+    color: rgb(var(--theme-ink));
+    @apply font-sans antialiased overflow-x-hidden;
   }
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-display tracking-tight;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 2px solid #e64f22;
+    outline-offset: 4px;
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-black/40 backdrop-blur-md border border-white/10;
+    background: rgb(var(--theme-canvas) / 0.78);
+    border-color: rgb(var(--theme-ink) / 0.1);
+    @apply backdrop-blur-md border;
   }
   .text-balance {
     text-wrap: balance;
   }
 }
 
-/* Custom scrollbar */
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke !important;
+  transition-duration: 420ms !important;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* Preserve comfortable small-text contrast on the warm light canvas. */
+html[data-theme='light'] .text-theme-ink\/50,
+html[data-theme='light'] .text-theme-ink\/40 {
+  color: rgb(var(--theme-ink) / 0.62);
+}
+
+html[data-theme='light'] .text-theme-ink\/30 {
+  color: rgb(var(--theme-ink) / 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theme-aware scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0A0A0A;
+  background: rgb(var(--theme-canvas));
 }
 ::-webkit-scrollbar-thumb {
-  background: #1C1C1C;
+  background: rgb(var(--theme-ink) / 0.18);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #333;
+  background: rgb(var(--theme-ink) / 0.32);
 }

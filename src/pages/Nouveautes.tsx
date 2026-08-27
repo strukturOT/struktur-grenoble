@@ -29,19 +29,19 @@ const Nouveautes = () => {
         />
         <TextReveal 
           text="La sélection du moment." 
-          className="text-lg md:text-xl text-white/70 font-light" 
+          className="text-lg md:text-xl text-theme-ink/70 font-light"
           delay={0.15}
         />
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-4 md:gap-8 mb-12 md:mb-16 border-b border-white/10 pb-6">
+      <div className="flex flex-wrap gap-4 md:gap-8 mb-12 md:mb-16 border-b border-theme-ink/10 pb-6">
         {filters.map((filter) => (
           <button
             key={filter.id}
             onClick={() => setActiveFilter(filter.id as typeof activeFilter)}
             className={`text-xs md:text-sm tracking-[0.2em] uppercase transition-colors relative pb-2 ${
-              activeFilter === filter.id ? 'text-struktur-orange' : 'text-white/50 hover:text-white'
+              activeFilter === filter.id ? 'text-struktur-orange' : 'text-theme-ink/50 hover:text-theme-ink'
             }`}
           >
             {filter.label}
@@ -69,7 +69,7 @@ const Nouveautes = () => {
               className="group flex flex-col justify-between"
             >
               <div>
-                <div className="aspect-[4/5] bg-struktur-light overflow-hidden relative mb-4 md:mb-6 rounded-none">
+                <div className="aspect-[4/5] bg-theme-surface overflow-hidden relative mb-4 md:mb-6 rounded-none">
                   <motion.img 
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.98 }}
@@ -105,7 +105,7 @@ const Nouveautes = () => {
                   <h3 className="font-display text-lg md:text-2xl mb-1.5 group-hover:text-struktur-orange transition-colors duration-300">
                     {product.name}
                   </h3>
-                  <p className="text-xs md:text-sm text-white/50 font-light mb-4">
+                  <p className="text-xs md:text-sm text-theme-ink/50 font-light mb-4">
                     {product.variant}
                   </p>
                 </div>
@@ -116,14 +116,14 @@ const Nouveautes = () => {
                 {product.detailPath ? (
                   <Link 
                     to={product.detailPath}
-                    className="block w-full text-center border border-white/20 text-white/90 py-3 text-xs uppercase tracking-widest font-medium active:bg-white active:text-black transition-colors"
+                    className="block w-full text-center border border-theme-ink/20 text-theme-ink/90 py-3 text-xs uppercase tracking-widest font-medium active:bg-theme-ink active:text-theme-canvas transition-colors"
                   >
                     Voir
                   </Link>
                 ) : (
                   <Link 
                     to="/le-shop"
-                    className="block w-full text-center border border-white/20 text-white/90 py-3 text-xs uppercase tracking-widest font-medium active:bg-white active:text-black transition-colors"
+                    className="block w-full text-center border border-theme-ink/20 text-theme-ink/90 py-3 text-xs uppercase tracking-widest font-medium active:bg-theme-ink active:text-theme-canvas transition-colors"
                   >
                     Disponible au shop
                   </Link>
@@ -135,7 +135,7 @@ const Nouveautes = () => {
       </motion.div>
       
       {filteredProducts.length === 0 && (
-        <div className="py-20 text-center text-white/50 font-light">
+        <div className="py-20 text-center text-theme-ink/50 font-light">
           Aucun produit dans cette catégorie pour le moment.
         </div>
       )}

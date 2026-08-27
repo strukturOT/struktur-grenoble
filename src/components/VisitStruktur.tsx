@@ -5,7 +5,7 @@ import TextReveal from './TextReveal';
 
 const VisitStruktur = () => {
   return (
-    <section className="py-24 md:py-32 px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5">
+    <section className="py-24 md:py-32 px-6 md:px-12 max-w-7xl mx-auto border-t border-theme-ink/5">
       <div className="flex flex-col md:flex-row gap-12 md:gap-24">
         
         {/* Left: Intro */}
@@ -22,7 +22,7 @@ const VisitStruktur = () => {
           />
           <TextReveal 
             text="Notre équipe est là pour vous conseiller et vous présenter nos dernières pièces, sneakers et accessoires en exclusivité."
-            className="text-white/70 text-lg font-light max-w-md"
+            className="text-theme-ink/70 text-lg font-light max-w-md"
             delay={0.3}
           />
         </div>
@@ -37,14 +37,14 @@ const VisitStruktur = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <h4 className="text-xs tracking-[0.2em] uppercase text-white/50 mb-4 border-b border-white/10 pb-2">Adresse</h4>
-            <p className="text-lg font-light text-white mb-1">{storeInfo.address.street}</p>
-            <p className="text-lg font-light text-white/70 mb-4">{storeInfo.address.postal} {storeInfo.address.city}</p>
+            <h4 className="text-xs tracking-[0.2em] uppercase text-theme-ink/50 mb-4 border-b border-theme-ink/10 pb-2">Adresse</h4>
+            <p className="text-lg font-light text-theme-ink mb-1">{storeInfo.address.street}</p>
+            <p className="text-lg font-light text-theme-ink/70 mb-4">{storeInfo.address.postal} {storeInfo.address.city}</p>
             <a 
               href={storeInfo.googleMaps} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-struktur-orange text-sm tracking-wide uppercase border-b border-struktur-orange pb-0.5 hover:text-white hover:border-white transition-colors"
+              className="text-struktur-orange text-sm tracking-wide uppercase border-b border-struktur-orange pb-0.5 hover:text-theme-ink hover:border-theme-ink transition-colors"
             >
               Itinéraire Google Maps
             </a>
@@ -57,13 +57,13 @@ const VisitStruktur = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.5 }}
           >
-            <h4 className="text-xs tracking-[0.2em] uppercase text-white/50 mb-4 border-b border-white/10 pb-2">Contact</h4>
-            <p className="text-lg font-light text-white mb-4">{storeInfo.phone}</p>
+            <h4 className="text-xs tracking-[0.2em] uppercase text-theme-ink/50 mb-4 border-b border-theme-ink/10 pb-2">Contact</h4>
+            <p className="text-lg font-light text-theme-ink mb-4">{storeInfo.phone}</p>
             <a 
               href={storeInfo.instagram} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-struktur-orange text-sm tracking-wide uppercase border-b border-struktur-orange pb-0.5 hover:text-white hover:border-white transition-colors"
+              className="text-struktur-orange text-sm tracking-wide uppercase border-b border-struktur-orange pb-0.5 hover:text-theme-ink hover:border-theme-ink transition-colors"
             >
               Suivez-nous
             </a>
@@ -77,12 +77,12 @@ const VisitStruktur = () => {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="sm:col-span-2"
           >
-            <h4 className="text-xs tracking-[0.2em] uppercase text-white/50 mb-4 border-b border-white/10 pb-2">Horaires d'ouverture</h4>
+            <h4 className="text-xs tracking-[0.2em] uppercase text-theme-ink/50 mb-4 border-b border-theme-ink/10 pb-2">Horaires d'ouverture</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
               {storeInfo.hours.map((dayInfo, idx) => (
                 <div key={idx} className="flex justify-between items-center py-1">
-                  <span className="text-white/70 font-light">{dayInfo.day}</span>
-                  <span className={`font-medium ${dayInfo.hours === 'Fermé' ? 'text-struktur-orange' : 'text-white'}`}>
+                  <span className="text-theme-ink/70 font-light">{dayInfo.day}</span>
+                  <span className={`font-medium ${dayInfo.hours === 'Fermé' ? 'text-struktur-orange' : 'text-theme-ink'}`}>
                     {dayInfo.hours}
                   </span>
                 </div>

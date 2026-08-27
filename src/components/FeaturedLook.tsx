@@ -30,7 +30,7 @@ const FeaturedLook = () => {
         </div>
       </div>
 
-      <div ref={containerRef} className="relative w-full aspect-[4/5] md:aspect-[21/9] overflow-hidden group bg-struktur-light mb-8">
+      <div ref={containerRef} className="relative w-full aspect-[4/5] md:aspect-[21/9] overflow-hidden group bg-theme-surface mb-8">
         <motion.div style={{ y }} className="absolute -top-[15%] left-0 w-full h-[130%]">
           <img 
             src={strukturAssets.lookbook.streetGraffiti}
@@ -52,7 +52,7 @@ const FeaturedLook = () => {
       <div className="flex justify-center md:justify-end">
         <Link 
           to="/lookbook"
-          className="group flex items-center gap-4 text-xs tracking-[0.2em] uppercase font-medium border border-white/20 px-8 py-4 hover:bg-white hover:text-black transition-colors"
+          className="group flex items-center gap-4 text-xs tracking-[0.2em] uppercase font-medium border border-theme-ink/20 px-8 py-4 hover:bg-theme-ink hover:text-theme-canvas transition-colors"
         >
           Voir le lookbook
           <span className="transform group-hover:translate-x-2 transition-transform duration-300">→</span>
