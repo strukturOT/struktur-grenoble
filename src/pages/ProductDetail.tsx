@@ -1,173 +1,61 @@
-import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { Check, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { products } from '../data/struktur';
+import { useCart } from '../cart/CartProvider';
 import TextReveal from '../components/TextReveal';
+import { useProduct } from '../hooks/useProducts';
+import { formatMoney, productPrice } from '../lib/commerce';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 const ProductDetail = () => {
   const { slug } = useParams();
-  const product = products.find(p => p.slug === slug);
-  
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const { product, loading, error } = useProduct(slug);
+  const { addLine } = useCart();
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  const [wasAdded, setWasAdded] = useState(false);
 
-  // If product not found, show a simple message
+  useEffect(() => {
+    setSelectedVariantId(null);
+    setWasAdded(false);
+  }, [slug]);
+
+  if (loading) return <div className="min-h-screen px-6 pb-24 pt-32 md:px-12 md:pt-40"><div className="mx-auto max-w-7xl animate-pulse bg-theme-surface" style={{ aspectRatio: '4 / 3' }} /></div>;
+
   if (!product) {
     return (
-      <div className="pt-32 pb-24 md:pt-48 px-6 text-center min-h-screen flex flex-col justify-center items-center">
-        <h1 className="text-3xl font-display mb-4">Produit introuvable</h1>
-        <Link to="/nouveautes" className="text-struktur-orange hover:text-theme-ink transition-colors uppercase tracking-widest text-sm border-b border-struktur-orange hover:border-theme-ink pb-1">
-          Retour aux nouveautés
-        </Link>
+      <div className="flex min-h-screen flex-col items-center justify-center px-6 pb-24 pt-32 text-center">
+        <h1 className="font-display text-3xl">{error ? 'Produit indisponible' : 'Produit introuvable'}</h1>
+        <p className="mt-3 max-w-md text-sm font-light text-theme-ink/60">{isSupabaseConfigured ? 'Cette pièce n’est plus disponible dans la boutique en ligne.' : 'Le catalogue sera disponible après la configuration de la boutique.'}</p>
+        <Link to="/boutique" className="mt-8 border-b border-struktur-orange pb-1 text-sm uppercase tracking-widest text-struktur-orange transition-colors hover:border-theme-ink hover:text-theme-ink">Retour à la boutique</Link>
       </div>
     );
   }
 
-  // Get related products (just first 3 that aren't this one)
-  const relatedProducts = products.filter(p => p.id !== product.id).slice(0, 3);
-  
-  // Use specific images array if available, otherwise just use main image twice for demo
-  const images = product.images && product.images.length > 0 
-    ? product.images 
-    : [product.image, product.image];
+  const selectedVariant = product.variants.find((variant) => variant.id === selectedVariantId) ?? product.variants[0];
+  const chosenPrice = selectedVariant?.priceCents ?? productPrice(product);
+  const isAvailable = (selectedVariant?.stockQuantity ?? 0) > 0;
+
+  const handleAddToCart = () => {
+    if (!selectedVariant || !isAvailable) return;
+    addLine({ variantId: selectedVariant.id, productId: product.id, name: product.name, brand: product.brand, variantName: selectedVariant.name, imageUrl: product.images[0]?.imageUrl ?? null, priceCents: chosenPrice, currency: product.currency });
+    setWasAdded(true);
+  };
 
   return (
-    <div className="pt-24 md:pt-32 pb-24 px-0 md:px-12 max-w-7xl mx-auto min-h-screen">
-      
-      {/* Product Main Section */}
-      <div className="flex flex-col md:flex-row gap-8 md:gap-16 lg:gap-24">
-        
-        {/* Left: Image Gallery */}
-        <div className="w-full md:w-3/5 lg:w-2/3 flex flex-col gap-4 md:gap-6 px-6 md:px-0">
-          {images.map((img, idx) => (
-            <motion.div 
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: idx * 0.2 }}
-              className="w-full bg-theme-surface"
-            >
-              <img src={img} alt={`${product.name} vue ${idx + 1}`} className="w-full h-auto object-cover" />
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Right: Info Sticky Container */}
-        <div className="w-full md:w-2/5 lg:w-1/3 px-6 md:px-0 relative">
-          <div className="md:sticky md:top-32 flex flex-col pt-8 md:pt-0">
-            
-            <TextReveal 
-              text={product.brand}
-              className="text-xs tracking-[0.3em] uppercase text-struktur-orange font-semibold mb-2"
-            />
-            <TextReveal 
-              text={product.name}
-              className="text-3xl md:text-4xl lg:text-5xl font-display leading-[1.1] mb-4"
-              delay={0.1}
-            />
-            
-            <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="text-sm tracking-widest uppercase text-theme-ink/50 mb-10"
-            >
-              Disponible en boutique
-            </motion.p>
-
-            {/* Colors (if available) */}
-            {product.colors && product.colors.length > 0 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="mb-10"
-              >
-                <h4 className="text-xs tracking-[0.2em] uppercase text-theme-ink/70 mb-4">Coloris</h4>
-                <div className="flex gap-4">
-                  {product.colors.map((color, idx) => (
-                    <button 
-                      key={idx}
-                      title={color.name}
-                      className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${idx === 0 ? 'border-theme-ink' : 'border-transparent'}`}
-                      style={{ backgroundColor: color.hex }}
-                    />
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Sizes */}
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="mb-12"
-            >
-              <div className="flex justify-between items-end mb-4">
-                <h4 className="text-xs tracking-[0.2em] uppercase text-theme-ink/70">Tailles</h4>
-                <span className="text-[10px] text-struktur-orange uppercase tracking-wider">À confirmer en boutique</span>
-              </div>
-              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-4 gap-3">
-                {product.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`py-3 text-sm font-medium transition-colors border ${
-                      selectedSize === size 
-                        ? 'bg-theme-ink text-theme-canvas border-theme-ink'
-                        : 'border-theme-ink/20 text-theme-ink hover:border-theme-ink/50'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* CTA */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-            >
-              <button className="w-full bg-struktur-orange text-white py-5 font-medium uppercase tracking-widest text-xs sm:text-sm hover:bg-[#ff5511] transition-colors">
-                Demander ma taille
-              </button>
-              <p className="text-center text-[10px] text-theme-ink/40 uppercase tracking-widest mt-4">
-                Réservation sans obligation d'achat
-              </p>
-            </motion.div>
-
-          </div>
-        </div>
+    <div className="mx-auto min-h-screen max-w-7xl px-6 pb-24 pt-28 md:px-12 md:pb-32 md:pt-36">
+      <div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-16">
+        <div className="md:col-span-7"><div className="grid gap-4 md:gap-6">{product.images.length > 0 ? product.images.map((image, index) => <motion.div key={image.id} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: index * 0.08 }} className="aspect-[4/5] overflow-hidden bg-theme-surface"><img src={image.imageUrl} alt={image.altText || `${product.name}, vue ${index + 1}`} className="h-full w-full object-cover" /></motion.div>) : <div className="flex aspect-[4/5] items-end bg-theme-surface p-6 text-xs uppercase tracking-[0.22em] text-theme-ink/35">Visuel à venir</div>}</div></div>
+        <div className="md:col-span-5"><div className="md:sticky md:top-32">
+          {product.brand && <TextReveal text={product.brand} className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-struktur-orange" />}
+          <TextReveal text={product.name} className="text-4xl font-display leading-[1.05] md:text-6xl" delay={0.08} />
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className="mt-5 text-xl font-light md:text-2xl">{formatMoney(chosenPrice, product.currency)}</motion.p>
+          {product.description && <p className="mt-8 max-w-lg text-base font-light leading-relaxed text-theme-ink/65">{product.description}</p>}
+          <div className="mt-10 border-y border-theme-ink/10 py-6"><div className="mb-4 flex items-end justify-between"><p className="text-xs font-medium uppercase tracking-[0.2em]">Choisir une taille</p><p className="text-[10px] uppercase tracking-[0.15em] text-theme-ink/45">Stock en direct</p></div><div className="grid grid-cols-4 gap-2">{product.variants.map((variant) => { const active = selectedVariant?.id === variant.id; const soldOut = variant.stockQuantity < 1; return <button type="button" key={variant.id} disabled={soldOut} onClick={() => { setSelectedVariantId(variant.id); setWasAdded(false); }} className={`min-h-12 border px-2 text-xs transition-colors ${active ? 'border-theme-ink bg-theme-ink text-theme-canvas' : 'border-theme-ink/20 hover:border-theme-ink/60'} ${soldOut ? 'cursor-not-allowed opacity-30 line-through' : ''}`}>{variant.name || variant.sku}</button>; })}</div></div>
+          <button type="button" disabled={!isAvailable || !selectedVariant} onClick={handleAddToCart} className={`mt-6 flex w-full items-center justify-center gap-3 py-5 text-xs font-medium uppercase tracking-[0.2em] transition-colors ${isAvailable ? wasAdded ? 'bg-theme-ink text-theme-canvas' : 'bg-struktur-orange text-white hover:bg-[#ff5511]' : 'cursor-not-allowed bg-theme-ink/10 text-theme-ink/35'}`}>{wasAdded ? <Check size={16} /> : <ShoppingBag size={16} />}{!isAvailable ? 'Indisponible' : wasAdded ? 'Ajouté au panier' : 'Ajouter au panier'}</button>
+          <p className="mt-4 text-center text-[10px] uppercase tracking-[0.16em] text-theme-ink/45">Livraison et paiement sécurisés bientôt disponibles</p>
+        </div></div>
       </div>
-
-      {/* Related Products */}
-      <div className="mt-32 pt-16 border-t border-theme-ink/10 px-6 md:px-0">
-        <h3 className="text-2xl md:text-3xl font-display mb-10">Aussi disponible en boutique</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8">
-          {relatedProducts.map((p) => (
-            p.detailPath ? (
-              <Link key={p.id} to={p.detailPath} className="group block">
-                <div className="aspect-[4/5] overflow-hidden bg-theme-surface mb-4">
-                  <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                </div>
-                <p className="text-[10px] uppercase tracking-widest text-struktur-orange mb-1">{p.brand}</p>
-                <p className="font-display text-lg group-hover:text-struktur-orange transition-colors">{p.name}</p>
-              </Link>
-            ) : (
-              <Link key={p.id} to="/le-shop" className="group block">
-                <div className="aspect-[4/5] overflow-hidden bg-theme-surface mb-4">
-                  <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                </div>
-                <p className="text-[10px] uppercase tracking-widest text-struktur-orange mb-1">{p.brand}</p>
-                <p className="font-display text-lg group-hover:text-struktur-orange transition-colors">{p.name}</p>
-              </Link>
-            )
-          ))}
-        </div>
-      </div>
-
     </div>
   );
 };

@@ -59,9 +59,6 @@ const BoutiqueAtmosphere = () => {
                 key={idx} 
                 className="flex gap-5 md:gap-6 group"
               >
-                <div className="text-struktur-orange font-display text-xl md:text-3xl font-light opacity-60 group-hover:opacity-100 transition-opacity duration-500">
-                  0{idx + 1}
-                </div>
                 <div>
                   <h4 className="font-bold font-display text-lg md:text-xl mb-1 md:mb-2 tracking-wide group-hover:text-struktur-orange transition-colors duration-500">{point.title}</h4>
                   <p className="text-theme-ink/50 text-sm md:text-base font-light">{point.desc}</p>

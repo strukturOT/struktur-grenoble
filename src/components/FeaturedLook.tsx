@@ -44,7 +44,7 @@ const FeaturedLook = () => {
 
         {/* Content on top of image */}
         <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 z-10">
-          <p className="text-white font-medium text-lg md:text-2xl mb-2">Look 005 / Rue</p>
+          <p className="text-white font-medium text-lg md:text-2xl mb-2">Rue</p>
           <p className="text-white/70 text-sm tracking-wide uppercase">Daily Paper Hoodie & Chino</p>
         </div>
       </div>

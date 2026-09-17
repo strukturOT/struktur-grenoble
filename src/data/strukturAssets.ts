@@ -25,6 +25,13 @@ export const strukturAssets = {
     denimJacket: '/images/struktur-v2/products/struktur-product-denim-jacket.webp',
   },
 
+  boutique: {
+    collectionOneHero: '/images/struktur-v2/boutique/collection-01-hero.jpg',
+    dickiesJacket: '/images/struktur-v2/boutique/collection-01-dickies-jacket.jpg',
+    dickiesPants: '/images/struktur-v2/boutique/collection-01-dickies-pants.jpg',
+    merrellShoes: '/images/struktur-v2/boutique/collection-01-merrell.jpg',
+  },
+
   brands: {
     newAmsterdam: '/images/struktur-v2/brands/struktur-brand-new-amsterdam.webp',
   },

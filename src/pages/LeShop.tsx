@@ -1,9 +1,12 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
+import type { FormEvent } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { storeInfo } from '../data/struktur';
 import { strukturAssets } from '../data/strukturAssets';
 import TextReveal from '../components/TextReveal';
 import ImageReveal from '../components/ImageReveal';
+import { useAuth } from '../auth/AuthProvider';
+import { sendContactMessage } from '../lib/commerce';
 
 const LeShop = () => {
   const containerRef = useRef(null);
@@ -85,6 +88,8 @@ const LeShop = () => {
       </div>
 
       {/* Visit Info */}
+      <ContactForm />
+
       <section className="bg-theme-section text-theme-section-ink py-24 md:py-32 px-6 md:px-12">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-16 md:gap-24">
           
@@ -151,6 +156,28 @@ const LeShop = () => {
 
     </div>
   );
+};
+
+const ContactForm = () => {
+  const { user, profile } = useAuth();
+  const [fullName, setFullName] = useState(profile?.fullName ?? '');
+  const [email, setEmail] = useState(user?.email ?? '');
+  const [message, setMessage] = useState('');
+  const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setState('sending');
+    try {
+      await sendContactMessage({ fullName, email, message, userId: user?.id });
+      setMessage('');
+      setState('sent');
+    } catch {
+      setState('error');
+    }
+  };
+
+  return <section className="bg-[#161617] px-6 py-24 text-[#f2f0ec] md:px-12 md:py-32"><div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24"><div><p className="text-xs font-semibold uppercase tracking-[0.28em] text-struktur-orange">Contact</p><h2 className="mt-5 text-5xl font-display leading-none md:text-6xl">Une question<br />sur une pièce ?</h2><p className="mt-6 max-w-sm font-light leading-relaxed text-white/55">Écrivez directement à l’équipe. Votre message arrive dans l’espace de gestion Struktur.</p></div><form onSubmit={submit} className="grid gap-5 sm:grid-cols-2"><label className="text-[10px] uppercase tracking-[0.16em] text-white/50">Nom<input required value={fullName} onChange={(event) => setFullName(event.target.value)} className="mt-2 w-full border border-white/15 bg-transparent px-4 py-3 text-base normal-case tracking-normal outline-none transition-colors focus:border-struktur-orange" /></label><label className="text-[10px] uppercase tracking-[0.16em] text-white/50">E-mail<input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full border border-white/15 bg-transparent px-4 py-3 text-base normal-case tracking-normal outline-none transition-colors focus:border-struktur-orange" /></label><label className="sm:col-span-2 text-[10px] uppercase tracking-[0.16em] text-white/50">Message<textarea required minLength={2} maxLength={5000} value={message} onChange={(event) => setMessage(event.target.value)} rows={5} className="mt-2 w-full resize-y border border-white/15 bg-transparent px-4 py-3 text-base normal-case tracking-normal outline-none transition-colors focus:border-struktur-orange" /></label>{state === 'sent' && <p className="sm:col-span-2 text-sm text-green-300">Message envoyé. Nous vous répondrons rapidement.</p>}{state === 'error' && <p className="sm:col-span-2 text-sm text-struktur-orange">L’envoi a échoué. Réessayez dans un instant.</p>}<button disabled={state === 'sending'} className="w-fit bg-struktur-orange px-7 py-4 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-[#ff5511] disabled:opacity-50">{state === 'sending' ? 'Envoi…' : 'Envoyer le message'}</button></form></div></section>;
 };
 
 export default LeShop;

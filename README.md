@@ -1,32 +1,58 @@
-# React + TypeScript + Vite
+# Struktur Grenoble
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React, TypeScript and Vite storefront for Struktur Grenoble. The catalogue, stock, customer accounts and administration are driven by Supabase; no product inventory is hard-coded in the application.
 
-Currently, two official plugins are available:
+## Run locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Connect Supabase
+
+1. Create a Supabase project.
+2. Run [001_commerce_foundation.sql](supabase/migrations/001_commerce_foundation.sql) in the Supabase SQL Editor.
+3. Copy `.env.example` to `.env.local` and add the project URL and **publishable** key.
+4. In Authentication → URL Configuration, add your local and production URLs as redirect URLs.
+5. Sign up with the account that will administer the shop, then promote that profile in SQL Editor:
+
+```sql
+update public.profiles
+set role = 'admin'
+where id = '<the-auth-user-uuid>';
+```
+
+6. Start the site and visit `/admin` to create your real products, stock, variants and images.
+
+Do not put a Supabase `secret`/`service_role` key in Vite environment variables. The browser only uses the public key; Row Level Security controls what it can access.
+
+## Routes
+
+- `/boutique` — live catalogue of published products
+- `/produit/:slug` — live product details, variant stock and cart action
+- `/panier` — persistent client-side cart
+- `/compte` — Supabase authentication and customer order history
+- `/admin` — role-protected product and order administration
+
+## Data model and security
+
+The migration creates profiles, categories, products, variants, product images, carts, addresses, orders, order items, settings and the `product-images` Storage bucket. It enables Row Level Security on every exposed table.
+
+- Visitors can read only active products and their images/variants.
+- Customers can access only their own profile, addresses, cart and orders.
+- Only users whose `profiles.role` is `admin` can manage catalogue content, images, stock and orders.
+- Orders cannot be inserted from the browser. A verified payment webhook must create/mark an order as paid on the server.
+
+## Important payment decision
+
+The checkout route is intentionally non-charging until a payment provider is chosen and configured. Payment capture, tax, delivery zones, returns policy and stock reservation must be implemented server-side with provider webhooks; implementing those in the browser would be unsafe and could create unpaid or duplicated orders.
+
+Once you choose the payment provider (for example Stripe), add its secret key only to a Supabase Edge Function or another trusted server environment—never to this app.
+
+## Commands
+
+- `npm run dev` — start development server
+- `npm run build` — type-check and create production build
+- `npm run preview` — preview production build
+- `npm run lint` — run Oxlint

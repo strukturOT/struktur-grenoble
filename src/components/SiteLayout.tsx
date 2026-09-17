@@ -25,6 +25,20 @@ const ScrollToTop = () => {
 };
 
 const SiteLayout = () => {
+  const { pathname } = useLocation();
+  const isAdminRoute = pathname.startsWith('/admin');
+
+  if (isAdminRoute) {
+    return (
+      <SmoothScroll>
+        <ScrollToTop />
+        <main>
+          <Outlet />
+        </main>
+      </SmoothScroll>
+    );
+  }
+
   return (
     <SmoothScroll>
       <ScrollToTop />

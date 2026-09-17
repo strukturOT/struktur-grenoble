@@ -1,5 +1,6 @@
 // Central STRUKTUR V2 Data
-// Store info, navigation, brands, products, lookbook
+// Store information, brand storytelling and lookbook content.
+// Commerce inventory lives in Supabase; see src/lib/commerce.ts.
 
 import { strukturAssets } from './strukturAssets';
 
@@ -33,6 +34,7 @@ export const storeInfo = {
 
 export const navigation = [
   { name: 'Nouveautés', path: '/nouveautes' },
+  { name: 'Boutique', path: '/boutique' },
   { name: 'Marques', path: '/marques' },
   { name: 'Lookbook', path: '/lookbook' },
   { name: 'Le Shop', path: '/le-shop' },
@@ -65,134 +67,6 @@ export const brands: Brand[] = [
 
 export const brandNames = brands.map((b) => b.name);
 
-// ─── Products ────────────────────────────────────────────────
-
-export type ProductCategory = 'sneakers' | 'vetements' | 'accessoires';
-
-export interface ProductColor {
-  name: string;
-  hex: string;
-}
-
-export interface Product {
-  id: number;
-  brand: string;
-  name: string;
-  slug: string;
-  category: ProductCategory;
-  image: string;
-  images?: string[];
-  sizes: string[];
-  colors?: ProductColor[];
-  variant?: string;
-  detailPath?: string;
-}
-
-export const products: Product[] = [
-  {
-    id: 1,
-    brand: 'Saucony',
-    name: 'ProGrid Omni 9',
-    slug: 'saucony-omni-9',
-    category: 'sneakers',
-    image: strukturAssets.products.sauconyOmni9Stone,
-    images: [
-      strukturAssets.products.sauconyOmni9Stone,
-      strukturAssets.products.sauconyOmni9Deck,
-      strukturAssets.products.sauconyOmni9Display,
-      strukturAssets.products.sauconyOmni9Display2,
-    ],
-    sizes: ['40', '41', '42', '43', '44'],
-    colors: [
-      { name: 'White / Lime', hex: '#C8D96F' },
-      { name: 'Silver / Blue', hex: '#8FA4C8' },
-      { name: 'Grey / Multi', hex: '#B0A89A' },
-    ],
-    variant: 'White / Lime',
-    detailPath: '/produit/saucony-omni-9',
-  },
-  {
-    id: 2,
-    brand: 'Norse Projects',
-    name: 'Veste workwear',
-    slug: 'norse-projects-veste-workwear',
-    category: 'vetements',
-    image: strukturAssets.editorial.greyJacket,
-    sizes: ['S', 'M', 'L', 'XL'],
-    variant: 'Camel',
-  },
-  {
-    id: 3,
-    brand: 'NN07',
-    name: 'Sac crossbody',
-    slug: 'nn07-sac-crossbody',
-    category: 'accessoires',
-    image: strukturAssets.products.crossbodyTerracotta,
-    sizes: ['TU'],
-    variant: 'Terracotta',
-  },
-  {
-    id: 4,
-    brand: 'Wilson',
-    name: 'Ensemble corduroy',
-    slug: 'wilson-ensemble-corduroy',
-    category: 'vetements',
-    image: strukturAssets.shop.mirrorCream,
-    sizes: ['M', 'L', 'XL'],
-    variant: 'Cream',
-  },
-  {
-    id: 5,
-    brand: 'Hélas',
-    name: 'Sweat brodé',
-    slug: 'helas-sweat-brode',
-    category: 'vetements',
-    image: strukturAssets.editorial.blackSweater,
-    sizes: ['S', 'M', 'L'],
-    variant: 'Noir',
-  },
-  {
-    id: 6,
-    brand: 'OAS',
-    name: 'Maille texturée',
-    slug: 'oas-maille-texturee',
-    category: 'vetements',
-    image: strukturAssets.products.oasPatternedSet,
-    sizes: ['M', 'L'],
-    variant: 'Cream',
-  },
-  {
-    id: 7,
-    brand: 'New Amsterdam',
-    name: 'Set urbain',
-    slug: 'new-amsterdam-set-urbain',
-    category: 'vetements',
-    image: strukturAssets.products.denimJacket,
-    sizes: ['S', 'M', 'L', 'XL'],
-    variant: 'Light Blue',
-  },
-  {
-    id: 8,
-    brand: 'Gabba',
-    name: 'Cardigan layered',
-    slug: 'gabba-cardigan-layered',
-    category: 'vetements',
-    image: strukturAssets.shop.modelBlackYellow,
-    sizes: ['S', 'M', 'L', 'XL'],
-    variant: 'Black / Yellow',
-  },
-  {
-    id: 9,
-    brand: 'Daily Paper',
-    name: 'Hoodie & chino',
-    slug: 'daily-paper-hoodie-chino',
-    category: 'vetements',
-    image: strukturAssets.lookbook.streetGraffiti,
-    sizes: ['M', 'L', 'XL'],
-    variant: 'Grey / Cream',
-  },
-];
-
 // ─── Lookbook ────────────────────────────────────────────────
 
 export interface LookbookItem {
@@ -204,14 +78,14 @@ export interface LookbookItem {
 }
 
 export const lookbookItems: LookbookItem[] = [
-  { id: 1, image: strukturAssets.home.hero, label: 'LOOK 001', location: 'GRENOBLE', aspect: 'landscape' },
-  { id: 2, image: strukturAssets.moto.orangeEditorial, label: 'KULTUR 002', location: 'OFF-ROAD', aspect: 'portrait' },
-  { id: 3, image: strukturAssets.editorial.alleyCamel, label: 'LOOK 003', location: 'VIEILLE VILLE', aspect: 'portrait' },
-  { id: 4, image: strukturAssets.shop.foosball, label: 'KULTUR 004', location: 'IN STORE', aspect: 'portrait' },
-  { id: 5, image: strukturAssets.lookbook.streetGraffiti, label: 'LOOK 005', location: 'RUE', aspect: 'portrait' },
-  { id: 6, image: strukturAssets.lookbook.lifestyleScooter, label: 'KULTUR 006', location: 'GRENOBLE', aspect: 'portrait' },
-  { id: 7, image: strukturAssets.editorial.rooftopTennis, label: 'KULTUR 007', location: 'ROOFTOP', aspect: 'portrait' },
-  { id: 8, image: strukturAssets.shop.interiorWide2, label: 'LOOK 008', location: 'STRUKTUR', aspect: 'portrait' },
-  { id: 9, image: strukturAssets.editorial.knitTerracottaBag, label: 'LOOK 009', location: 'RUE', aspect: 'portrait' },
-  { id: 10, image: strukturAssets.shop.interiorWide, label: 'KULTUR 010', location: 'STRUKTUR', aspect: 'portrait' },
+  { id: 1, image: strukturAssets.home.hero, label: 'LOOK', location: 'GRENOBLE', aspect: 'landscape' },
+  { id: 2, image: strukturAssets.moto.orangeEditorial, label: 'KULTUR', location: 'OFF-ROAD', aspect: 'portrait' },
+  { id: 3, image: strukturAssets.editorial.alleyCamel, label: 'LOOK', location: 'VIEILLE VILLE', aspect: 'portrait' },
+  { id: 4, image: strukturAssets.shop.foosball, label: 'KULTUR', location: 'IN STORE', aspect: 'portrait' },
+  { id: 5, image: strukturAssets.lookbook.streetGraffiti, label: 'LOOK', location: 'RUE', aspect: 'portrait' },
+  { id: 6, image: strukturAssets.lookbook.lifestyleScooter, label: 'KULTUR', location: 'GRENOBLE', aspect: 'portrait' },
+  { id: 7, image: strukturAssets.editorial.rooftopTennis, label: 'KULTUR', location: 'ROOFTOP', aspect: 'portrait' },
+  { id: 8, image: strukturAssets.shop.interiorWide2, label: 'LOOK', location: 'STRUKTUR', aspect: 'portrait' },
+  { id: 9, image: strukturAssets.editorial.knitTerracottaBag, label: 'LOOK', location: 'RUE', aspect: 'portrait' },
+  { id: 10, image: strukturAssets.shop.interiorWide, label: 'KULTUR', location: 'STRUKTUR', aspect: 'portrait' },
 ];

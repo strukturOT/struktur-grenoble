@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Moon, Sun, X } from 'lucide-react';
+import { Menu, Moon, ShoppingBag, Sun, UserRound, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { navigation, storeInfo } from '../data/struktur';
 import { Logo } from './Logo';
 import { useTheme } from '../theme/themeContext';
+import { useAuth } from '../auth/AuthProvider';
+import { useCart } from '../cart/CartProvider';
 
 const ThemeToggle = ({ overImage = false, showLabel = false }: { overImage?: boolean; showLabel?: boolean }) => {
   const { theme, toggleTheme } = useTheme();
@@ -52,6 +54,8 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
+  const { itemCount } = useCart();
   const isOverHero = location.pathname === '/' && !isScrolled && !isMobileMenuOpen;
 
   useEffect(() => {
@@ -99,10 +103,22 @@ const Header = () => {
             ))}
           </nav>
           <span className={`h-4 w-px ${isOverHero ? 'bg-white/20' : 'bg-theme-ink/15'}`} />
+          <Link to="/panier" aria-label={`Panier, ${itemCount} article${itemCount > 1 ? 's' : ''}`} className={`${isOverHero ? 'text-white/70 hover:text-white' : 'text-theme-ink/60 hover:text-theme-ink'} relative transition-colors`}>
+            <ShoppingBag size={17} />
+            {itemCount > 0 && <span className={`absolute -right-2.5 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] ${isOverHero ? 'bg-white text-black' : 'bg-theme-ink text-theme-canvas'}`}>{itemCount}</span>}
+          </Link>
+          <Link to="/compte" aria-label={user ? 'Mon compte' : 'Connexion'} className={`${isOverHero ? 'text-white/70 hover:text-white' : 'text-theme-ink/60 hover:text-theme-ink'} transition-colors`}>
+            <UserRound size={17} />
+          </Link>
           <ThemeToggle overImage={isOverHero} showLabel />
         </div>
 
         <div className="flex items-center gap-4 md:hidden">
+          <Link to="/panier" aria-label={`Panier, ${itemCount} article${itemCount > 1 ? 's' : ''}`} className={`${isOverHero ? 'text-white' : 'text-theme-ink'} relative`}>
+            <ShoppingBag size={20} />
+            {itemCount > 0 && <span className={`absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] ${isOverHero ? 'bg-white text-black' : 'bg-theme-ink text-theme-canvas'}`}>{itemCount}</span>}
+          </Link>
+          <Link to="/compte" aria-label={user ? 'Mon compte' : 'Connexion'} className={`${isOverHero ? 'text-white' : 'text-theme-ink'}`}><UserRound size={20} /></Link>
           <ThemeToggle overImage={isOverHero} />
           <button
             className={`${isOverHero ? 'text-white' : 'text-theme-ink'} relative z-50`}

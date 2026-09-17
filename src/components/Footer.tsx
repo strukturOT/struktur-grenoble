@@ -75,7 +75,7 @@ const Footer = () => {
         <p>&copy; {new Date().getFullYear()} STRUKTUR GRENOBLE. TOUS DROITS RÉSERVÉS.</p>
         <div className="flex gap-6">
           <Link to="/" className="hover:text-theme-ink transition-colors">Accueil</Link>
-          <Link to="/le-shop" className="hover:text-theme-ink transition-colors">La Boutique</Link>
+          <Link to="/boutique" className="hover:text-theme-ink transition-colors">La Boutique</Link>
         </div>
       </motion.div>
     </footer>

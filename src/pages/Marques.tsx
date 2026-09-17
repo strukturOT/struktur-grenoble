@@ -38,9 +38,6 @@ const Marques = () => {
                 transition={{ duration: 0.6 }}
                 className="mb-6 md:mb-10"
               >
-                <span className="text-struktur-orange font-display text-2xl md:text-4xl opacity-50 block mb-4">
-                  0{idx + 1}
-                </span>
                 <h2 className="text-4xl md:text-6xl font-display leading-[1.1] mb-4">
                   {brand.name}
                 </h2>
