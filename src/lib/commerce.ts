@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { optimizeProductImage } from './imageOptimization';
 
 export type ProductStatus = 'draft' | 'active' | 'archived';
 
@@ -139,6 +140,7 @@ export interface NewProductInput {
 
 export async function createProduct(input: NewProductInput, imageFile?: File | null) {
   if (!supabase) throw new Error('Supabase n’est pas configuré.');
+  const optimizedImage = imageFile ? await optimizeProductImage(imageFile) : null;
 
   const { data: product, error: productError } = await supabase
     .from('products')
@@ -169,11 +171,11 @@ export async function createProduct(input: NewProductInput, imageFile?: File | n
   );
   if (variantError) throw variantError;
 
-  if (imageFile) {
-    const extension = imageFile.name.split('.').pop()?.toLowerCase() || 'jpg';
+  if (optimizedImage) {
+    const extension = optimizedImage.name.split('.').pop()?.toLowerCase() || 'webp';
     const filePath = `${product.id}/${crypto.randomUUID()}.${extension}`;
-    const { error: uploadError } = await supabase.storage.from('product-images').upload(filePath, imageFile, {
-      contentType: imageFile.type,
+    const { error: uploadError } = await supabase.storage.from('product-images').upload(filePath, optimizedImage, {
+      contentType: optimizedImage.type,
       upsert: false,
     });
     if (uploadError) throw uploadError;
@@ -195,6 +197,7 @@ export async function createProduct(input: NewProductInput, imageFile?: File | n
 /** Update the editable catalogue fields and retain every existing variant unless it is changed. */
 export async function updateProduct(productId: string, input: NewProductInput, imageFile?: File | null) {
   if (!supabase) throw new Error('Supabase n’est pas configuré.');
+  const optimizedImage = imageFile ? await optimizeProductImage(imageFile) : null;
 
   const { error: productError } = await supabase
     .from('products')
@@ -225,11 +228,11 @@ export async function updateProduct(productId: string, input: NewProductInput, i
     if (error) throw error;
   }
 
-  if (imageFile) {
-    const extension = imageFile.name.split('.').pop()?.toLowerCase() || 'jpg';
+  if (optimizedImage) {
+    const extension = optimizedImage.name.split('.').pop()?.toLowerCase() || 'webp';
     const filePath = `${productId}/${crypto.randomUUID()}.${extension}`;
-    const { error: uploadError } = await supabase.storage.from('product-images').upload(filePath, imageFile, {
-      contentType: imageFile.type,
+    const { error: uploadError } = await supabase.storage.from('product-images').upload(filePath, optimizedImage, {
+      contentType: optimizedImage.type,
       upsert: false,
     });
     if (uploadError) throw uploadError;
