@@ -61,6 +61,8 @@ npx supabase secrets set \
   STRIPE_SHIPPING_RATE_NAME="Livraison standard"
 ```
 
+`STRIPE_SHIPPING_RATE_CENTS` is optional and defaults to `0` (free delivery) until delivery pricing is finalized.
+
 Create a Stripe webhook pointing to:
 
 ```text

@@ -15,8 +15,9 @@ interface CheckoutRequest {
 const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
 const stripe = new Stripe(stripeSecret, { httpClient: Stripe.createFetchHttpClient() });
 
-function requiredInteger(name: string) {
+function optionalInteger(name: string) {
   const value = Deno.env.get(name);
+  if (!value) return 0;
   if (!value || !/^\d+$/.test(value)) throw new Error(`Configuration manquante ou invalide: ${name}`);
   return Number(value);
 }
@@ -51,7 +52,7 @@ Deno.serve(async (request) => {
       return jsonResponse(request, { error: 'Votre panier est invalide.' }, 400);
     }
 
-    const shippingCents = requiredInteger('STRIPE_SHIPPING_RATE_CENTS');
+    const shippingCents = optionalInteger('STRIPE_SHIPPING_RATE_CENTS');
     const shippingName = Deno.env.get('STRIPE_SHIPPING_RATE_NAME')?.trim() || 'Livraison standard';
 
     const rpcLines = body.lines.map((line) => ({
