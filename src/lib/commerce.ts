@@ -374,3 +374,38 @@ export async function getAdminOrders() {
   const { data, error } = await supabase.from('orders').select('id, user_id, order_number, status, payment_status, total_cents, currency, created_at').order('created_at', { ascending: false }).limit(20);
   return { data: ((data ?? []) as Array<Parameters<typeof mapOrder>[0]>).map(mapOrder), error };
 }
+
+export async function startStripeCheckout(
+  lines: Array<{ variantId: string; quantity: number }>,
+  checkoutKey: string,
+) {
+  if (!supabase) throw new Error('Supabase n’est pas configuré.');
+  const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+    body: { lines, checkoutKey },
+  });
+  if (error) {
+    let message = error.message;
+    const context = (error as { context?: Response }).context;
+    if (context) {
+      try {
+        const payload = await context.clone().json() as { error?: string };
+        if (payload.error) message = payload.error;
+      } catch {
+        // Keep the original invocation error when the response is not JSON.
+      }
+    }
+    throw new Error(message);
+  }
+  if (!data?.url) throw new Error('Impossible d’ouvrir la page de paiement.');
+  return data as { url: string; orderId: string };
+}
+
+export async function getCheckoutOrderBySession(sessionId: string) {
+  if (!supabase) return { data: null as StoreOrder | null, error: new Error('Supabase n’est pas configuré.') };
+  const { data, error } = await supabase
+    .from('orders')
+    .select('id, user_id, order_number, status, payment_status, total_cents, currency, created_at')
+    .eq('stripe_checkout_session_id', sessionId)
+    .maybeSingle();
+  return { data: data ? mapOrder(data as Parameters<typeof mapOrder>[0]) : null, error };
+}

@@ -12,7 +12,7 @@ npm run dev
 ## Connect Supabase
 
 1. Create a Supabase project.
-2. Run [001_commerce_foundation.sql](supabase/migrations/001_commerce_foundation.sql) in the Supabase SQL Editor.
+2. Link the project and run `npx supabase db push` to apply every migration in order.
 3. Copy `.env.example` to `.env.local` and add the project URL and **publishable** key.
 4. In Authentication → URL Configuration, add your local and production URLs as redirect URLs.
 5. Sign up with the account that will administer the shop, then promote that profile in SQL Editor:
@@ -44,11 +44,30 @@ The migration creates profiles, categories, products, variants, product images, 
 - Only users whose `profiles.role` is `admin` can manage catalogue content, images, stock and orders.
 - Orders cannot be inserted from the browser. A verified payment webhook must create/mark an order as paid on the server.
 
-## Important payment decision
+## Stripe Checkout
 
-The checkout route is intentionally non-charging until a payment provider is chosen and configured. Payment capture, tax, delivery zones, returns policy and stock reservation must be implemented server-side with provider webhooks; implementing those in the browser would be unsafe and could create unpaid or duplicated orders.
+Payments use Stripe-hosted Checkout. Prices and stock are validated by the `create-checkout-session` Edge Function, inventory is reserved atomically in Postgres, and only the signed `stripe-webhook` can mark an order as paid.
 
-Once you choose the payment provider (for example Stripe), add its secret key only to a Supabase Edge Function or another trusted server environment—never to this app.
+Deploy the functions and configure their server-side secrets:
+
+```bash
+npx supabase functions deploy create-checkout-session
+npx supabase functions deploy stripe-webhook --no-verify-jwt
+npx supabase secrets set \
+  SITE_URL=https://struktur-grenoble.fr \
+  STRIPE_SECRET_KEY=sk_live_replace_me \
+  STRIPE_WEBHOOK_SECRET=whsec_replace_me \
+  STRIPE_SHIPPING_RATE_CENTS=690 \
+  STRIPE_SHIPPING_RATE_NAME="Livraison standard"
+```
+
+Create a Stripe webhook pointing to:
+
+```text
+https://<project-ref>.supabase.co/functions/v1/stripe-webhook
+```
+
+Subscribe it to `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, and `checkout.session.expired`. Never place `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, or the Supabase service-role key in Cloudflare/Vite variables or commit them to Git.
 
 ## Commands
 
