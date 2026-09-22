@@ -19,6 +19,17 @@ export interface ProductImage {
   position: number;
 }
 
+export interface StoreCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  imageUrl: string | null;
+  storagePath: string | null;
+  position: number;
+  productCount: number;
+}
+
 export interface StoreProduct {
   id: string;
   name: string;
@@ -29,6 +40,7 @@ export interface StoreProduct {
   currency: string;
   status: ProductStatus;
   featured: boolean;
+  category: StoreCategory | null;
   images: ProductImage[];
   variants: ProductVariant[];
 }
@@ -43,12 +55,15 @@ interface ProductRow {
   currency: string;
   status: ProductStatus;
   featured: boolean;
+  category_id: string | null;
+  categories?: { id: string; name: string; slug: string; description: string | null; image_url: string | null; storage_path: string | null; position: number } | null;
   product_images?: Array<{ id: string; image_url: string; alt_text: string | null; position: number }>;
   product_variants?: Array<{ id: string; name: string | null; sku: string; price_cents: number | null; stock_quantity: number; position: number }>;
 }
 
 const productSelect = `
-  id, name, slug, brand, description, price_cents, currency, status, featured,
+  id, name, slug, brand, description, price_cents, currency, status, featured, category_id,
+  categories (id, name, slug, description, image_url, storage_path, position),
   product_images (id, image_url, alt_text, position),
   product_variants (id, name, sku, price_cents, stock_quantity, position)
 `;
@@ -63,6 +78,16 @@ const mapProduct = (row: ProductRow): StoreProduct => ({
   currency: row.currency,
   status: row.status,
   featured: row.featured,
+  category: row.categories ? {
+    id: row.categories.id,
+    name: row.categories.name,
+    slug: row.categories.slug,
+    description: row.categories.description,
+    imageUrl: row.categories.image_url,
+    storagePath: row.categories.storage_path,
+    position: row.categories.position,
+    productCount: 0,
+  } : null,
   images: [...(row.product_images ?? [])]
     .sort((a, b) => a.position - b.position)
     .map((image) => ({ id: image.id, imageUrl: image.image_url, altText: image.alt_text, position: image.position })),
@@ -107,6 +132,27 @@ export async function getPublishedProducts(options: { limit?: number; featured?:
   return { data: ((data ?? []) as unknown as ProductRow[]).map(mapProduct), error };
 }
 
+const mapCategory = (row: { id: string; name: string; slug: string; description: string | null; image_url: string | null; storage_path: string | null; position: number; products?: Array<{ id: string }> }): StoreCategory => ({
+  id: row.id,
+  name: row.name,
+  slug: row.slug,
+  description: row.description,
+  imageUrl: row.image_url,
+  storagePath: row.storage_path,
+  position: row.position,
+  productCount: row.products?.length ?? 0,
+});
+
+export async function getPublishedCategories() {
+  if (!supabase) return { data: [] as StoreCategory[], error: null };
+  const { data, error } = await supabase
+    .from('categories')
+    .select('id, name, slug, description, image_url, storage_path, position, products!inner(id)')
+    .order('position', { ascending: true })
+    .order('name', { ascending: true });
+  return { data: ((data ?? []) as unknown as Array<Parameters<typeof mapCategory>[0]>).map(mapCategory), error };
+}
+
 export async function getPublishedProduct(slug: string) {
   if (!supabase) return { data: null as StoreProduct | null, error: null };
 
@@ -136,6 +182,7 @@ export interface NewProductInput {
   }>;
   status: ProductStatus;
   featured: boolean;
+  categoryId: string | null;
 }
 
 export async function createProduct(input: NewProductInput, imageFile?: File | null) {
@@ -153,6 +200,7 @@ export async function createProduct(input: NewProductInput, imageFile?: File | n
       currency: input.currency.toUpperCase(),
       status: input.status,
       featured: input.featured,
+      category_id: input.categoryId,
     })
     .select('id')
     .single();
@@ -210,6 +258,7 @@ export async function updateProduct(productId: string, input: NewProductInput, i
       currency: input.currency.toUpperCase(),
       status: input.status,
       featured: input.featured,
+      category_id: input.categoryId,
     })
     .eq('id', productId);
   if (productError) throw productError;
@@ -260,6 +309,65 @@ export async function getAdminProducts() {
   if (!supabase) return { data: [] as StoreProduct[], error: null };
   const { data, error } = await supabase.from('products').select(productSelect).order('updated_at', { ascending: false });
   return { data: ((data ?? []) as unknown as ProductRow[]).map(mapProduct), error };
+}
+
+export interface NewCategoryInput {
+  name: string;
+  slug: string;
+  description: string;
+  position: number;
+}
+
+export async function getAdminCategories() {
+  if (!supabase) return { data: [] as StoreCategory[], error: null };
+  const { data, error } = await supabase
+    .from('categories')
+    .select('id, name, slug, description, image_url, storage_path, position, products(id)')
+    .order('position', { ascending: true })
+    .order('name', { ascending: true });
+  return { data: ((data ?? []) as unknown as Array<Parameters<typeof mapCategory>[0]>).map(mapCategory), error };
+}
+
+async function uploadCategoryImage(categoryId: string, file: File) {
+  const optimizedImage = await optimizeProductImage(file);
+  if (!supabase) throw new Error('Supabase n’est pas configuré.');
+  const extension = optimizedImage.name.split('.').pop()?.toLowerCase() || 'webp';
+  const storagePath = `${categoryId}/${crypto.randomUUID()}.${extension}`;
+  const { error: uploadError } = await supabase.storage.from('category-images').upload(storagePath, optimizedImage, { contentType: optimizedImage.type, upsert: false });
+  if (uploadError) throw uploadError;
+  const { data } = supabase.storage.from('category-images').getPublicUrl(storagePath);
+  return { imageUrl: data.publicUrl, storagePath };
+}
+
+export async function createCategory(input: NewCategoryInput, imageFile?: File | null) {
+  if (!supabase) throw new Error('Supabase n’est pas configuré.');
+  const { data: category, error } = await supabase.from('categories').insert({ name: input.name, slug: input.slug, description: input.description || null, position: input.position }).select('id').single();
+  if (error || !category) throw error ?? new Error('Impossible de créer la catégorie.');
+  if (imageFile) {
+    const media = await uploadCategoryImage(category.id, imageFile);
+    const { error: imageError } = await supabase.from('categories').update(media).eq('id', category.id);
+    if (imageError) throw imageError;
+  }
+  return category.id;
+}
+
+export async function updateCategory(categoryId: string, input: NewCategoryInput, imageFile?: File | null, previousStoragePath?: string | null) {
+  if (!supabase) throw new Error('Supabase n’est pas configuré.');
+  const { error } = await supabase.from('categories').update({ name: input.name, slug: input.slug, description: input.description || null, position: input.position }).eq('id', categoryId);
+  if (error) throw error;
+  if (imageFile) {
+    const media = await uploadCategoryImage(categoryId, imageFile);
+    const { error: imageError } = await supabase.from('categories').update(media).eq('id', categoryId);
+    if (imageError) throw imageError;
+    if (previousStoragePath) await supabase.storage.from('category-images').remove([previousStoragePath]);
+  }
+}
+
+export async function deleteCategory(category: StoreCategory) {
+  if (!supabase) throw new Error('Supabase n’est pas configuré.');
+  const { error } = await supabase.from('categories').delete().eq('id', category.id);
+  if (error) throw error;
+  if (category.storagePath) await supabase.storage.from('category-images').remove([category.storagePath]);
 }
 
 export async function updateProductStatus(productId: string, status: ProductStatus) {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getPublishedProduct, getPublishedProducts, type StoreProduct } from '../lib/commerce';
+import { getPublishedCategories, getPublishedProduct, getPublishedProducts, type StoreCategory, type StoreProduct } from '../lib/commerce';
 import { isSupabaseConfigured } from '../lib/supabase';
 
 interface ProductsState {
@@ -48,6 +48,22 @@ export function useProduct(slug: string | undefined) {
       active = false;
     };
   }, [slug]);
+
+  return state;
+}
+
+export function useCategories() {
+  const [state, setState] = useState<{ categories: StoreCategory[]; loading: boolean; error: string | null }>({ categories: [], loading: isSupabaseConfigured, error: null });
+
+  useEffect(() => {
+    let active = true;
+    if (!isSupabaseConfigured) return undefined;
+    getPublishedCategories().then(({ data, error }) => {
+      if (!active) return;
+      setState({ categories: data, loading: false, error: error?.message ?? null });
+    });
+    return () => { active = false; };
+  }, []);
 
   return state;
 }

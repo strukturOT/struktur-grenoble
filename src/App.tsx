@@ -34,6 +34,7 @@ function App() {
           <Route path="checkout" element={<Checkout />} />
           <Route path="admin" element={<RequireAdmin><Admin page="overview" /></RequireAdmin>} />
           <Route path="admin/catalogue" element={<RequireAdmin><Admin page="catalogue" /></RequireAdmin>} />
+          <Route path="admin/categories" element={<RequireAdmin><Admin page="categories" /></RequireAdmin>} />
           <Route path="admin/commandes" element={<RequireAdmin><Admin page="orders" /></RequireAdmin>} />
           <Route path="admin/messages" element={<RequireAdmin><Admin page="messages" /></RequireAdmin>} />
           <Route path="admin/clients" element={<RequireAdmin><Admin page="clients" /></RequireAdmin>} />
