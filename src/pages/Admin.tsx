@@ -72,7 +72,7 @@ const Admin = ({ page = 'overview' }: { page?: AdminPage }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0b0c] text-[#f2f0ec]">
+    <div className="admin-light min-h-screen bg-[#0b0b0c] text-[#f2f0ec]">
       <AdminNavigation adminName={profile?.fullName} onRefresh={loadDashboard} isLoading={isLoading} />
       <main className="mx-auto max-w-[1560px] px-5 pb-16 pt-36 md:ml-[248px] md:px-10 md:pt-12 xl:px-14">
         {page === 'overview' && <section className="border-b border-white/10 pb-10">
@@ -115,7 +115,7 @@ const AdminNavigation = ({ adminName, onRefresh, isLoading }: { adminName: strin
   </aside>
 </>;
 
-const AdminNavItem = ({ to, icon, label, end = false }: { to: string; icon: ReactNode; label: string; end?: boolean }) => <NavLink to={to} end={end} className={({ isActive }) => `shrink-0 flex items-center gap-2 px-3 py-2.5 text-xs transition-colors md:gap-3 md:py-3 md:text-sm ${isActive ? 'bg-white/10 text-white' : 'text-white/55 hover:bg-white/5 hover:text-white'}`}>{icon}{label}</NavLink>;
+const AdminNavItem = ({ to, icon, label, end = false }: { to: string; icon: ReactNode; label: string; end?: boolean }) => <NavLink to={to} end={end} className={({ isActive }) => `shrink-0 flex items-center gap-2 px-3 py-2.5 text-xs transition-colors md:gap-3 md:py-3 md:text-sm ${isActive ? 'bg-black/10 text-[#181715]' : 'text-white/55 hover:bg-black/5 hover:text-struktur-orange'}`}>{icon}{label}</NavLink>;
 
 const Metric = ({ label, value, icon, warning = false }: { label: string; value: string | number; icon: ReactNode; warning?: boolean }) => <div className="min-h-32 bg-[#0b0b0c] p-5"><div className={`flex items-center justify-between ${warning ? 'text-struktur-orange' : 'text-white/45'}`}><p className="text-[10px] uppercase tracking-[0.16em]">{label}</p>{icon}</div><p className="mt-6 text-3xl font-display tracking-tight">{value}</p></div>;
 

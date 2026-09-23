@@ -5,21 +5,11 @@
 @tailwind utilities;
 
 @layer base {
-  :root,
-  html[data-theme='dark'] {
-    --theme-canvas: 10 10 10;
-    --theme-ink: 245 245 245;
-    --theme-surface: 28 28 28;
-    --theme-section: 245 245 245;
-    --theme-section-ink: 10 10 10;
-    color-scheme: dark;
-  }
-
-  html[data-theme='light'] {
-    --theme-canvas: 246 243 237;
+  :root {
+    --theme-canvas: 250 249 247;
     --theme-ink: 24 23 21;
-    --theme-surface: 232 227 218;
-    --theme-section: 231 225 214;
+    --theme-surface: 239 236 230;
+    --theme-section: 243 240 234;
     --theme-section-ink: 24 23 21;
     color-scheme: light;
   }
@@ -61,33 +51,17 @@
   }
 }
 
-html.theme-transition *,
-html.theme-transition *::before,
-html.theme-transition *::after {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke !important;
-  transition-duration: 420ms !important;
-  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
-}
-
-/* Preserve comfortable small-text contrast on the warm light canvas. */
-html[data-theme='light'] .text-theme-ink\/50,
-html[data-theme='light'] .text-theme-ink\/40 {
+/* Preserve comfortable small-text contrast on the warm white canvas. */
+.text-theme-ink\/50,
+.text-theme-ink\/40 {
   color: rgb(var(--theme-ink) / 0.62);
 }
 
-html[data-theme='light'] .text-theme-ink\/30 {
+.text-theme-ink\/30 {
   color: rgb(var(--theme-ink) / 0.5);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html.theme-transition *,
-  html.theme-transition *::before,
-  html.theme-transition *::after {
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* Theme-aware scrollbar */
+/* Light-theme scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -101,3 +75,60 @@ html[data-theme='light'] .text-theme-ink\/30 {
 ::-webkit-scrollbar-thumb:hover {
   background: rgb(var(--theme-ink) / 0.32);
 }
+
+/* The back office shares the same permanent light identity as the storefront. */
+.admin-light {
+  background: #faf9f7;
+  color: #181715;
+  color-scheme: light;
+}
+
+.admin-light [class~="bg-[#0b0b0c]"],
+.admin-light [class~="bg-[#0b0b0c]/95"],
+.admin-light [class~="bg-[#121214]"] {
+  background-color: #faf9f7;
+}
+
+.admin-light [class~="bg-white/5"],
+.admin-light [class~="bg-white/[0.02]"] {
+  background-color: rgb(24 23 21 / 0.025);
+}
+
+.admin-light [class~="bg-white/10"] {
+  background-color: rgb(24 23 21 / 0.07);
+}
+
+.admin-light [class~="text-[#f2f0ec]"] { color: #181715; }
+.admin-light [class~="placeholder:text-white/25"]::placeholder { color: rgb(24 23 21 / 0.32); }
+.admin-light [class~="hover:text-white"]:hover { color: #181715; }
+.admin-light [class~="hover:bg-white/5"]:hover { background-color: rgb(24 23 21 / 0.05); }
+
+.admin-light [class~="border-white/10"] { border-color: rgb(24 23 21 / 0.1); }
+.admin-light [class~="border-white/15"] { border-color: rgb(24 23 21 / 0.15); }
+.admin-light [class~="border-white/20"] { border-color: rgb(24 23 21 / 0.2); }
+.admin-light [class~="border-white/30"] { border-color: rgb(24 23 21 / 0.3); }
+
+.admin-light [class~="text-white/25"] { color: rgb(24 23 21 / 0.3); }
+.admin-light [class~="text-white/30"] { color: rgb(24 23 21 / 0.35); }
+.admin-light [class~="text-white/35"] { color: rgb(24 23 21 / 0.42); }
+.admin-light [class~="text-white/40"] { color: rgb(24 23 21 / 0.48); }
+.admin-light [class~="text-white/45"] { color: rgb(24 23 21 / 0.55); }
+.admin-light [class~="text-white/50"] { color: rgb(24 23 21 / 0.6); }
+.admin-light [class~="text-white/55"] { color: rgb(24 23 21 / 0.64); }
+.admin-light [class~="text-white/60"] { color: rgb(24 23 21 / 0.68); }
+.admin-light [class~="text-white/65"] { color: rgb(24 23 21 / 0.72); }
+.admin-light [class~="text-white/70"] { color: rgb(24 23 21 / 0.76); }
+.admin-light [class~="text-white/75"] { color: rgb(24 23 21 / 0.8); }
+.admin-light [class~="text-white/80"] { color: rgb(24 23 21 / 0.84); }
+.admin-light [class~="text-white/85"] { color: rgb(24 23 21 / 0.88); }
+
+/* Keep the contact area in the same white editorial system. */
+[class~="bg-[#161617]"] {
+  background-color: rgb(var(--theme-section));
+  color: rgb(var(--theme-section-ink));
+}
+
+[class~="bg-[#161617]"] [class~="text-white/50"] { color: rgb(var(--theme-section-ink) / 0.62); }
+[class~="bg-[#161617]"] [class~="text-white/55"] { color: rgb(var(--theme-section-ink) / 0.68); }
+[class~="bg-[#161617]"] [class~="border-white/15"] { border-color: rgb(var(--theme-section-ink) / 0.18); }
+[class~="bg-[#161617]"] [class~="bg-struktur-orange"] { color: white; }

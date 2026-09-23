@@ -1,54 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Moon, ShoppingBag, Sun, UserRound, X } from 'lucide-react';
+import { Menu, ShoppingBag, UserRound, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { navigation, storeInfo } from '../data/struktur';
 import { Logo } from './Logo';
-import { useTheme } from '../theme/themeContext';
 import { useAuth } from '../auth/AuthProvider';
 import { useCart } from '../cart/CartProvider';
-
-const ThemeToggle = ({ overImage = false, showLabel = false }: { overImage?: boolean; showLabel?: boolean }) => {
-  const { theme, toggleTheme } = useTheme();
-  const isLight = theme === 'light';
-
-  return (
-    <button
-      type="button"
-      onClick={toggleTheme}
-      aria-label={isLight ? 'Activer le thème sombre' : 'Activer le thème clair'}
-      aria-pressed={isLight}
-      title={isLight ? 'Passer au thème sombre' : 'Passer au thème clair'}
-      className={`group -m-2 flex min-h-11 items-center gap-3 rounded-full p-2 ${
-        overImage ? 'text-white' : 'text-theme-ink'
-      }`}
-    >
-      {showLabel && (
-        <span className="text-[10px] font-medium uppercase tracking-[0.2em] opacity-60">
-          {isLight ? 'Clair' : 'Sombre'}
-        </span>
-      )}
-      <span className={`relative block h-7 w-12 rounded-full border transition-colors ${
-        overImage
-          ? 'border-white/20 bg-white/5 group-hover:border-white/50'
-          : 'border-theme-ink/20 bg-theme-ink/5 group-hover:border-theme-ink/50'
-      }`}>
-        <motion.span
-          aria-hidden="true"
-          animate={{ x: isLight ? 22 : 2 }}
-          transition={{ type: 'spring', stiffness: 500, damping: 32 }}
-          className="absolute left-0 top-[2px] flex h-[22px] w-[22px] items-center justify-center rounded-full bg-current shadow-sm"
-        >
-          {isLight ? (
-            <Sun size={12} className={overImage ? 'text-black' : 'text-theme-canvas'} strokeWidth={2.2} />
-          ) : (
-            <Moon size={11} className={overImage ? 'text-black' : 'text-theme-canvas'} strokeWidth={2.2} />
-          )}
-        </motion.span>
-      </span>
-    </button>
-  );
-};
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -110,7 +67,6 @@ const Header = () => {
           <Link to="/compte" aria-label={user ? 'Mon compte' : 'Connexion'} className={`${isOverHero ? 'text-white/70 hover:text-white' : 'text-theme-ink/60 hover:text-theme-ink'} transition-colors`}>
             <UserRound size={17} />
           </Link>
-          <ThemeToggle overImage={isOverHero} showLabel />
         </div>
 
         <div className="flex items-center gap-4 md:hidden">
@@ -119,7 +75,6 @@ const Header = () => {
             {itemCount > 0 && <span className={`absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] ${isOverHero ? 'bg-white text-black' : 'bg-theme-ink text-theme-canvas'}`}>{itemCount}</span>}
           </Link>
           <Link to="/compte" aria-label={user ? 'Mon compte' : 'Connexion'} className={`${isOverHero ? 'text-white' : 'text-theme-ink'}`}><UserRound size={20} /></Link>
-          <ThemeToggle overImage={isOverHero} />
           <button
             className={`${isOverHero ? 'text-white' : 'text-theme-ink'} relative z-50`}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
