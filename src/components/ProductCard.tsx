@@ -5,6 +5,7 @@ import { formatMoney, productImage, productPrice } from '../lib/commerce';
 
 const ProductCard = ({ product, index = 0 }: { product: StoreProduct; index?: number }) => {
   const image = productImage(product);
+  const colorwayCount = new Set(product.variants.map((variant) => variant.attributes.colorway).filter(Boolean)).size;
 
   return (
     <motion.article
@@ -38,6 +39,7 @@ const ProductCard = ({ product, index = 0 }: { product: StoreProduct; index?: nu
           <div>
             {product.brand && <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-struktur-orange">{product.brand}</p>}
             <h2 className="text-xl font-display leading-tight transition-colors duration-300 group-hover:text-struktur-orange md:text-2xl">{product.name}</h2>
+            {colorwayCount > 1 && <p className="mt-1 text-xs text-theme-ink/50">{colorwayCount} coloris</p>}
           </div>
           <p className="shrink-0 pt-1 text-sm text-theme-ink/65">{formatMoney(productPrice(product), product.currency)}</p>
         </div>

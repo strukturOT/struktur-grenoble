@@ -10,6 +10,7 @@ export interface ProductVariant {
   priceCents: number | null;
   stockQuantity: number;
   position: number;
+  attributes: { colorway?: string; colorCode?: string; size?: string };
 }
 
 export interface ProductImage {
@@ -17,6 +18,7 @@ export interface ProductImage {
   imageUrl: string;
   altText: string | null;
   position: number;
+  colorway: string | null;
 }
 
 export interface StoreCategory {
@@ -66,14 +68,14 @@ interface ProductRow {
   category_id: string | null;
   categories?: { id: string; name: string; slug: string; description: string | null; image_url: string | null; storage_path: string | null; position: number } | null;
   product_images?: Array<{ id: string; image_url: string; alt_text: string | null; position: number }>;
-  product_variants?: Array<{ id: string; name: string | null; sku: string; price_cents: number | null; stock_quantity: number; position: number }>;
+  product_variants?: Array<{ id: string; name: string | null; sku: string; price_cents: number | null; stock_quantity: number; position: number; attributes?: ProductVariant['attributes'] | null }>;
 }
 
 const productSelect = `
   id, name, slug, brand, description, seo_title, seo_description, price_cents, currency, status, featured, category_id, created_at, updated_at,
   categories (id, name, slug, description, image_url, storage_path, position),
   product_images (id, image_url, alt_text, position),
-  product_variants (id, name, sku, price_cents, stock_quantity, position)
+  product_variants (id, name, sku, price_cents, stock_quantity, position, attributes)
 `;
 
 const mapProduct = (row: ProductRow): StoreProduct => ({
@@ -102,7 +104,15 @@ const mapProduct = (row: ProductRow): StoreProduct => ({
   } : null,
   images: [...(row.product_images ?? [])]
     .sort((a, b) => a.position - b.position)
-    .map((image) => ({ id: image.id, imageUrl: image.image_url, altText: image.alt_text, position: image.position })),
+    .map((image) => ({
+      id: image.id,
+      imageUrl: image.image_url,
+      altText: image.alt_text,
+      position: image.position,
+      colorway: row.brand?.toLowerCase() === 'saucony' && image.alt_text?.startsWith(`${row.name} — `)
+        ? image.alt_text.slice(`${row.name} — `.length).split(' — ')[0] || null
+        : null,
+    })),
   variants: [...(row.product_variants ?? [])]
     .sort((a, b) => a.position - b.position)
     .map((variant) => ({
@@ -112,6 +122,7 @@ const mapProduct = (row: ProductRow): StoreProduct => ({
       priceCents: variant.price_cents,
       stockQuantity: variant.stock_quantity,
       position: variant.position,
+      attributes: variant.attributes ?? {},
     })),
 });
 
@@ -193,6 +204,7 @@ export interface NewProductInput {
     sku: string;
     priceCents: number | null;
     stockQuantity: number;
+    attributes?: ProductVariant['attributes'];
   }>;
   status: ProductStatus;
   featured: boolean;
@@ -228,6 +240,7 @@ export async function createProduct(input: NewProductInput, imageFile?: File | n
       sku: variant.sku,
       price_cents: variant.priceCents ?? input.priceCents,
       stock_quantity: variant.stockQuantity,
+      attributes: variant.attributes ?? {},
       position,
     })),
   );
@@ -283,6 +296,7 @@ export async function updateProduct(productId: string, input: NewProductInput, i
       sku: variant.sku,
       price_cents: variant.priceCents ?? input.priceCents,
       stock_quantity: variant.stockQuantity,
+      attributes: variant.attributes ?? {},
       position,
     };
     const { error } = variant.id

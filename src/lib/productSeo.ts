@@ -20,6 +20,13 @@ export const productSeoDescription = (product: StoreProduct) => {
 export const productAnswers = (product: StoreProduct): ProductAnswer[] => {
   const available = product.variants.filter((variant) => variant.stockQuantity > 0);
   const namedVariants = product.variants.map((variant) => variant.name).filter((name): name is string => Boolean(name));
+  const colorways = [...new Set(product.variants.map((variant) => variant.attributes.colorway).filter((colorway): colorway is string => Boolean(colorway)))];
+  const sizeSummary = colorways.length > 0
+    ? colorways.map((colorway) => {
+      const sizes = product.variants.filter((variant) => variant.attributes.colorway === colorway && variant.stockQuantity > 0).map((variant) => variant.attributes.size || variant.name).filter(Boolean);
+      return `${colorway}${sizes.length ? ` (tailles en stock : ${sizes.join(', ')})` : ' (actuellement indisponible)'}`;
+    }).join('; ')
+    : null;
   const answers: ProductAnswer[] = [
     {
       question: `Quel est le prix de ${product.name} ?`,
@@ -27,7 +34,9 @@ export const productAnswers = (product: StoreProduct): ProductAnswer[] => {
     },
     {
       question: `Quelles variantes de ${product.name} sont disponibles ?`,
-      answer: namedVariants.length > 0
+      answer: colorways.length > 0
+        ? `Les coloris disponibles au catalogue sont : ${colorways.join(', ')}. ${sizeSummary}. Le stock est suivi séparément pour chaque coloris et chaque taille.`
+        : namedVariants.length > 0
         ? `Les variantes proposées sont : ${namedVariants.join(', ')}. ${available.length > 0 ? `Actuellement en stock : ${available.map((variant) => variant.name).filter(Boolean).join(', ') || `${available.length} option(s)`}.` : 'Aucune de ces variantes n’est actuellement en stock.'} La fiche produit indique le stock par option.`
         : 'Les options actuellement proposées sont affichées directement sur la fiche produit, avec leur disponibilité en temps réel.',
     },
@@ -54,6 +63,8 @@ export const productJsonLd = (product: StoreProduct, siteUrl: string) => {
     priceCurrency: product.currency,
     price: ((variant.priceCents ?? product.priceCents) / 100).toFixed(2),
     availability: variant.stockQuantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    ...(variant.attributes.colorway ? { color: variant.attributes.colorway } : {}),
+    ...(variant.attributes.size ? { name: `${variant.attributes.colorway || product.name} — EU ${variant.attributes.size}` } : {}),
     itemCondition: 'https://schema.org/NewCondition',
     seller: { '@type': 'Organization', name: 'STRUKTUR Grenoble' },
   })) : [{

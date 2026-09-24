@@ -3,24 +3,30 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import SmoothScroll from './SmoothScroll';
+import { useLenisInstance } from './LenisContext';
 import RouteSeo from './RouteSeo';
 
 const ScrollToTop = () => {
-  const { pathname, hash } = useLocation();
+  const location = useLocation();
+  const lenis = useLenisInstance();
 
   useEffect(() => {
-    if (hash) {
-      // Slight delay to ensure DOM is ready and Lenis can catch the jump
-      setTimeout(() => {
-        const element = document.getElementById(hash.replace('#', ''));
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
+    if (location.hash) {
+      const timeout = window.setTimeout(() => {
+        const element = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+        if (!element) return;
+        if (lenis) lenis.scrollTo(element, { offset: -96 });
+        else element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
+      return () => window.clearTimeout(timeout);
     } else {
-      window.scrollTo(0, 0);
+      const frame = window.requestAnimationFrame(() => {
+        if (lenis) lenis.scrollTo(0, { immediate: true });
+        else window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      });
+      return () => window.cancelAnimationFrame(frame);
     }
-  }, [pathname, hash]);
+  }, [location.key, location.pathname, location.search, location.hash, lenis]);
 
   return null;
 };
