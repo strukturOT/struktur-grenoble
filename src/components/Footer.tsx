@@ -76,6 +76,7 @@ const Footer = () => {
         <div className="flex gap-6">
           <Link to="/" className="hover:text-theme-ink transition-colors">Accueil</Link>
           <Link to="/boutique" className="hover:text-theme-ink transition-colors">La Boutique</Link>
+          <Link to="/journal" className="hover:text-theme-ink transition-colors">Journal</Link>
         </div>
       </motion.div>
     </footer>

@@ -10,10 +10,18 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+.seo
 .env
 .env.*
 !.env.example
 *.local
+
+# Generated during every build from the current Supabase catalogue and site origin.
+public/robots.txt
+public/sitemap*.xml
+public/llms*.txt
+public/feed.xml
+public/_headers
 
 # Editor directories and files
 .vscode/*

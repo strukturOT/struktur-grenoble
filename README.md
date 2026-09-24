@@ -77,3 +77,9 @@ Subscribe it to `checkout.session.completed`, `checkout.session.async_payment_su
 - `npm run build` — type-check and create production build
 - `npm run preview` — preview production build
 - `npm run lint` — run Oxlint
+
+## Search and AI discovery
+
+Every production build generates `robots.txt`, an XML sitemap index with page, category, product, and product-guide maps, `llms.txt`, a full catalogue file, and an RSS feed from Supabase. The build paginates the active product catalogue and reads every category, including empty collections. Product rows whose slug starts with `test-` are deliberately excluded from SEO output. Admin, account, cart, and checkout routes are marked `noindex`.
+
+Until the final domain is chosen, leave `VITE_SITE_URL` unset. Cloudflare Pages uses its deployment URL for canonical and sitemap links and applies `noindex` so temporary previews do not appear in search results. After choosing the domain, set `VITE_SITE_URL` in Cloudflare Pages to the exact HTTPS origin without a trailing slash (for example `https://shop.example.com`). That enables indexing and stable canonical URLs. Generated SEO artifacts are ignored in Git because the build regenerates them for the current deployment and catalogue.

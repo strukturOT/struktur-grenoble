@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import SmoothScroll from './SmoothScroll';
+import RouteSeo from './RouteSeo';
 
 const ScrollToTop = () => {
   const { pathname, hash } = useLocation();
@@ -42,6 +43,7 @@ const SiteLayout = () => {
   return (
     <SmoothScroll>
       <ScrollToTop />
+      <RouteSeo />
       <div className="min-h-screen bg-theme-canvas text-theme-ink selection:bg-struktur-orange selection:text-white flex flex-col">
         <Header />
         <main className="flex-grow">

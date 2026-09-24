@@ -7,6 +7,9 @@ import TextReveal from '../components/TextReveal';
 import { useProduct } from '../hooks/useProducts';
 import { formatMoney, productPrice } from '../lib/commerce';
 import { isSupabaseConfigured } from '../lib/supabase';
+import Seo from '../components/Seo';
+import { breadcrumbJsonLd, productAnswers, productJsonLd, productSeoDescription } from '../lib/productSeo';
+import { SITE_URL } from '../lib/site';
 
 const ProductDetail = () => {
   const { slug } = useParams();
@@ -25,6 +28,7 @@ const ProductDetail = () => {
   if (!product) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center px-6 pb-24 pt-32 text-center">
+        <Seo title="Produit introuvable | STRUKTUR Grenoble" description="Cette fiche produit n’est pas disponible." path={`/produit/${slug || ''}`} noIndex />
         <h1 className="font-display text-3xl">{error ? 'Produit indisponible' : 'Produit introuvable'}</h1>
         <p className="mt-3 max-w-md text-sm font-light text-theme-ink/60">{isSupabaseConfigured ? 'Cette pièce n’est plus disponible dans la boutique en ligne.' : 'Le catalogue sera disponible après la configuration de la boutique.'}</p>
         <Link to="/boutique" className="mt-8 border-b border-struktur-orange pb-1 text-sm uppercase tracking-widest text-struktur-orange transition-colors hover:border-theme-ink hover:text-theme-ink">Retour à la boutique</Link>
@@ -35,6 +39,17 @@ const ProductDetail = () => {
   const selectedVariant = product.variants.find((variant) => variant.id === selectedVariantId) ?? product.variants[0];
   const chosenPrice = selectedVariant?.priceCents ?? productPrice(product);
   const isAvailable = (selectedVariant?.stockQuantity ?? 0) > 0;
+  const answers = productAnswers(product);
+  const productUrl = `${SITE_URL}/produit/${product.slug}`;
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: answers.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    })),
+  };
 
   const handleAddToCart = () => {
     if (!selectedVariant || !isAvailable) return;
@@ -44,6 +59,7 @@ const ProductDetail = () => {
 
   return (
     <div className="mx-auto min-h-screen max-w-7xl px-6 pb-24 pt-28 md:px-12 md:pb-32 md:pt-36">
+      <Seo title={product.seoTitle?.trim() || `${product.name}${product.brand ? ` par ${product.brand}` : ''} | STRUKTUR`} description={productSeoDescription(product)} path={`/produit/${product.slug}`} image={product.images[0]?.imageUrl} type="product" noIndex={product.slug.toLowerCase().startsWith('test-')} jsonLd={[productJsonLd(product, SITE_URL), faqSchema, breadcrumbJsonLd([{ name: 'Accueil', url: SITE_URL }, { name: 'Boutique', url: `${SITE_URL}/boutique` }, { name: product.name, url: productUrl }])]} />
       <div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-16">
         <div className="md:col-span-7"><div className="grid gap-4 md:gap-6">{product.images.length > 0 ? product.images.map((image, index) => <motion.div key={image.id} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: index * 0.08 }} className="aspect-[4/5] overflow-hidden bg-theme-surface"><img src={image.imageUrl} alt={image.altText || `${product.name}, vue ${index + 1}`} className="h-full w-full object-cover" /></motion.div>) : <div className="flex aspect-[4/5] items-end bg-theme-surface p-6 text-xs uppercase tracking-[0.22em] text-theme-ink/35">Visuel à venir</div>}</div></div>
         <div className="md:col-span-5"><div className="md:sticky md:top-32">
@@ -56,6 +72,12 @@ const ProductDetail = () => {
           <p className="mt-4 text-center text-[10px] uppercase tracking-[0.16em] text-theme-ink/45">Livraison et paiement sécurisés bientôt disponibles</p>
         </div></div>
       </div>
+      <section className="mt-20 border-t border-theme-ink/10 pt-14 md:mt-28 md:pt-20">
+        <div className="grid gap-12 md:grid-cols-[0.8fr_1.2fr] md:gap-20">
+          <div><p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-struktur-orange">Guide d’achat</p><h2 className="font-display text-4xl md:text-5xl">Questions sur cette pièce</h2><p className="mt-5 max-w-md text-sm font-light leading-7 text-theme-ink/60">Prix, variantes et disponibilité sont synchronisés avec le catalogue de la boutique.</p><Link to={`/journal/${product.slug}`} className="mt-7 inline-block border-b border-theme-ink/30 pb-1 text-xs uppercase tracking-[0.18em] transition-colors hover:border-struktur-orange hover:text-struktur-orange">Lire le guide complet</Link></div>
+          <div className="divide-y divide-theme-ink/10 border-y border-theme-ink/10">{answers.map((item) => <details key={item.question} className="py-5"><summary className="cursor-pointer list-none pr-8 font-display text-xl marker:content-none">{item.question}</summary><p className="mt-4 max-w-2xl text-sm font-light leading-7 text-theme-ink/65">{item.answer}</p></details>)}</div>
+        </div>
+      </section>
     </div>
   );
 };

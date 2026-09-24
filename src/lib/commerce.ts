@@ -36,10 +36,14 @@ export interface StoreProduct {
   slug: string;
   brand: string | null;
   description: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
   priceCents: number;
   currency: string;
   status: ProductStatus;
   featured: boolean;
+  createdAt: string;
+  updatedAt: string;
   category: StoreCategory | null;
   images: ProductImage[];
   variants: ProductVariant[];
@@ -51,10 +55,14 @@ interface ProductRow {
   slug: string;
   brand: string | null;
   description: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
   price_cents: number;
   currency: string;
   status: ProductStatus;
   featured: boolean;
+  created_at: string;
+  updated_at: string;
   category_id: string | null;
   categories?: { id: string; name: string; slug: string; description: string | null; image_url: string | null; storage_path: string | null; position: number } | null;
   product_images?: Array<{ id: string; image_url: string; alt_text: string | null; position: number }>;
@@ -62,7 +70,7 @@ interface ProductRow {
 }
 
 const productSelect = `
-  id, name, slug, brand, description, price_cents, currency, status, featured, category_id,
+  id, name, slug, brand, description, seo_title, seo_description, price_cents, currency, status, featured, category_id, created_at, updated_at,
   categories (id, name, slug, description, image_url, storage_path, position),
   product_images (id, image_url, alt_text, position),
   product_variants (id, name, sku, price_cents, stock_quantity, position)
@@ -74,10 +82,14 @@ const mapProduct = (row: ProductRow): StoreProduct => ({
   slug: row.slug,
   brand: row.brand,
   description: row.description,
+  seoTitle: row.seo_title,
+  seoDescription: row.seo_description,
   priceCents: row.price_cents,
   currency: row.currency,
   status: row.status,
   featured: row.featured,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
   category: row.categories ? {
     id: row.categories.id,
     name: row.categories.name,
@@ -123,6 +135,7 @@ export async function getPublishedProducts(options: { limit?: number; featured?:
     .from('products')
     .select(productSelect)
     .eq('status', 'active')
+    .not('slug', 'like', 'test-%')
     .order('created_at', { ascending: false });
 
   if (options.featured) query = query.eq('featured', true);
@@ -154,6 +167,7 @@ export async function getPublishedCategories() {
 }
 
 export async function getPublishedProduct(slug: string) {
+  if (slug.toLowerCase().startsWith('test-')) return { data: null as StoreProduct | null, error: null };
   if (!supabase) return { data: null as StoreProduct | null, error: null };
 
   const { data, error } = await supabase

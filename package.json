@@ -4,11 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "npm run seo:generate",
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run seo:generate && tsc -b && vite build && npm run seo:prerender",
     "lint": "oxlint",
     "preview": "vite preview",
-    "assets:convert": "bash scripts/convert-assets.sh"
+    "assets:convert": "bash scripts/convert-assets.sh",
+    "seo:generate": "node scripts/generate-seo.mjs",
+    "seo:prerender": "node scripts/prerender-seo.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

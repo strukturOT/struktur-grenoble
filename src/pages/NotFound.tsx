@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import TextReveal from '../components/TextReveal';
+import Seo from '../components/Seo';
 
 const NotFound = () => {
   return (
     <div className="min-h-screen pt-32 pb-24 md:pt-48 md:pb-32 px-6 md:px-12 flex flex-col items-center justify-center text-center">
+      <Seo title="Page introuvable | STRUKTUR Grenoble" description="Cette page n’existe pas ou n’est plus disponible." path={window.location.pathname} noIndex />
       <TextReveal 
         text="404" 
         className="text-8xl md:text-[10rem] font-display font-bold tracking-tighter text-struktur-orange mb-6" 

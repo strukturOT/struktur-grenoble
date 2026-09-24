@@ -15,6 +15,9 @@ const Compte = lazy(() => import('./pages/Compte'));
 const Panier = lazy(() => import('./pages/Panier'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const Admin = lazy(() => import('./pages/Admin'));
+const CategoryPage = lazy(() => import('./pages/CategoryPage'));
+const Journal = lazy(() => import('./pages/Journal'));
+const ProductJournal = lazy(() => import('./pages/ProductJournal'));
 
 function App() {
   return (
@@ -28,6 +31,9 @@ function App() {
           <Route path="marques" element={<Marques />} />
           <Route path="lookbook" element={<LookbookPage />} />
           <Route path="boutique" element={<Boutique />} />
+          <Route path="categorie/:slug" element={<CategoryPage />} />
+          <Route path="journal" element={<Journal />} />
+          <Route path="journal/:slug" element={<ProductJournal />} />
           <Route path="le-shop" element={<LeShop />} />
           <Route path="compte" element={<Compte />} />
           <Route path="panier" element={<Panier />} />
