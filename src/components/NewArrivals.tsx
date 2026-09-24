@@ -6,7 +6,9 @@ import StorefrontState from './StorefrontState';
 import TextReveal from './TextReveal';
 
 const NewArrivals = () => {
-  const { products, loading, error } = useProducts({ featured: true, limit: 3 });
+  // Always show the three newest published products; this updates automatically
+  // as soon as newer products are added to the live catalogue.
+  const { products, loading, error } = useProducts({ limit: 3 });
 
   return (
     <section className="mx-auto max-w-7xl overflow-hidden px-6 py-16 md:px-12 md:py-32">

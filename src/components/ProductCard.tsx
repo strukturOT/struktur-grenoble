@@ -5,6 +5,7 @@ import { formatMoney, productImage, productPrice } from '../lib/commerce';
 
 const ProductCard = ({ product, index = 0 }: { product: StoreProduct; index?: number }) => {
   const image = productImage(product);
+  const showWholeImage = product.brand?.toLowerCase() === 'saucony';
   const colorwayCount = new Set(product.variants.map((variant) => variant.attributes.colorway).filter(Boolean)).size;
 
   return (
@@ -16,12 +17,12 @@ const ProductCard = ({ product, index = 0 }: { product: StoreProduct; index?: nu
       className="group"
     >
       <Link to={`/produit/${product.slug}`} className="block">
-        <div className="relative mb-5 aspect-[4/5] overflow-hidden bg-theme-surface">
+        <div className={`relative mb-5 aspect-[4/5] overflow-hidden ${showWholeImage ? 'bg-white' : 'bg-theme-surface'}`}>
           {image ? (
             <img
               src={image}
               alt={product.images[0]?.altText || product.name}
-              className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              className={`h-full w-full transition-transform duration-700 ease-out ${showWholeImage ? 'object-contain' : 'object-cover group-hover:scale-105'}`}
               loading="lazy"
             />
           ) : (
