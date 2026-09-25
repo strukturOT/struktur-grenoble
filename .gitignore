@@ -23,6 +23,18 @@ public/llms*.txt
 public/feed.xml
 public/_headers
 
+# Original product-source archives and photography are kept locally; the live
+# storefront reads optimized catalog images from Supabase Storage.
+/Côte&Ciel/
+/Dickies/
+/Dickies 2eme partie/
+/Dickies Premium/
+/NewAmsterdamSurfAssociation/
+/SAUCONY/
+/Merrell/
+/AW26 Struktur/
+/assets/source-images/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
