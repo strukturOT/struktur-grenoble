@@ -51,7 +51,7 @@ export default function CapsuleRail() {
               <img src={capsule.image} srcSet={`${capsule.mobileImage} 900w, ${capsule.image} ${capsule.width}w`} sizes="(min-width: 1024px) 43vw, (min-width: 640px) 62vw, 86vw" alt={capsule.alt} loading="lazy" width={capsule.width} height={capsule.height} className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025] motion-reduce:transform-none" />
             </div>
             <div className="flex items-start justify-between gap-4 pb-1 pt-4">
-              <div><h3 className="font-display text-2xl font-medium md:text-3xl">{capsule.title}</h3><p className="mt-1 text-xs text-theme-ink/65 md:text-sm">{capsule.label}</p></div>
+              <h3 className="font-display text-2xl font-medium md:text-3xl">{capsule.title}</h3>
               <ArrowUpRight aria-hidden="true" className="mt-1 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" size={22} />
             </div>
           </Link>

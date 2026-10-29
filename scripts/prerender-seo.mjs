@@ -67,6 +67,11 @@ async function writeRoute(route, metadata, fallbackMarkup) {
 
 const breadcrumb = (items) => ({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: items.map((item, index) => ({ '@type': 'ListItem', position: index + 1, name: item.name, item: item.url })) });
 
+const brandNames = [...new Map(catalog.products.filter((product) => text(product.brand)).map((product) => {
+  const name = text(product.brand).normalize('NFC');
+  return [name.toLocaleLowerCase('fr'), name];
+})).values()].sort(new Intl.Collator('fr', { sensitivity: 'base', numeric: true }).compare);
+
 const staticPages = [
   { route: '/nouveautes', title: 'Nouveautés streetwear & sneakers | STRUKTUR Grenoble', description: 'Découvrez les dernières pièces streetwear, sneakers et accessoires disponibles chez STRUKTUR Grenoble.', heading: 'Nouveautés', copy: 'La sélection du moment, mise à jour depuis le catalogue STRUKTUR.' },
   { route: '/boutique', title: 'Boutique streetwear & sneakers | STRUKTUR Grenoble', description: 'Achetez la sélection STRUKTUR : vêtements, sneakers et accessoires de marques indépendantes, avec stock affiché en direct.', heading: 'Boutique', copy: 'Vêtements, sneakers et accessoires sélectionnés par STRUKTUR Grenoble.' },
@@ -81,7 +86,7 @@ for (const page of staticPages) {
   const links = page.route === '/journal'
     ? catalog.products.map((product) => `<li><a href="/journal/${html(product.slug)}">Guide ${html(product.name)}</a></li>`).join('')
     : page.route === '/marques'
-      ? catalog.categories.map((category) => `<li><a href="/categorie/${html(category.slug)}">${html(category.name)}</a></li>`).join('')
+      ? brandNames.map((brand) => `<li><a href="/boutique?marque=${html(encodeURIComponent(brand))}">${html(brand)}</a></li>`).join('')
    : page.route === '/boutique'
       ? [
           ...catalog.categories.map((category) => `<li><a href="/categorie/${html(category.slug)}">${html(category.name)}</a></li>`),

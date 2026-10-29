@@ -7,7 +7,7 @@ const NewArrivals = () => {
   const { products, loading, error } = useProducts({ limit: 8, poolSize: 48, order: 'mixed' });
 
   return (
-    <section aria-labelledby="home-selection-title" className="mx-auto max-w-[1600px] px-4 pb-16 pt-3 md:px-10 md:pb-24 lg:px-14">
+    <section aria-labelledby="home-selection-title" className="mx-auto max-w-[1600px] px-4 pb-16 pt-12 md:px-10 md:pb-24 md:pt-20 lg:px-14">
       <div className="mb-7 flex items-end justify-between gap-5 md:mb-10">
         <div>
           <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.1em] text-theme-ink/60">En ce moment</p>

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
-import { ArrowDown, ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { heroCampaigns } from '../data/campaigns';
 
@@ -102,7 +101,7 @@ export default function Hero() {
               <img
                 src={slide.image}
                 srcSet={`${slide.mobileImage} 900w, ${slide.image} ${slide.width}w`}
-                sizes="(min-width: 768px) 69vw, 100vw"
+                sizes="(min-width: 768px) 84vw, 100vw"
                 alt=""
                 width={slide.width}
                 height={slide.height}
@@ -123,12 +122,9 @@ export default function Hero() {
         <motion.div key={campaign.title} initial={motionEnabled ? { opacity: 0, y: 8 } : false} animate={{ opacity: 1, y: 0 }} transition={{ duration: motionEnabled ? 0.5 : 0 }} aria-live="off">
           <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.1em] text-white/85 md:mb-5 md:text-xs">{campaign.label}</p>
           <h2 className="max-w-5xl text-balance font-display text-[clamp(3rem,8vw,8rem)] font-medium leading-[0.98]">{campaign.title}</h2>
-          <div className="mt-5 flex flex-wrap items-center gap-x-7 gap-y-1 md:mt-8">
-            <Link to={campaign.href} className="inline-flex min-h-12 items-center gap-6 bg-white px-6 py-3.5 text-sm font-semibold text-black transition-colors hover:bg-struktur-orange hover:text-white">
-              Explorer la collection <ArrowUpRight size={18} aria-hidden="true" />
-            </Link>
-            <Link to="/#capsules" className="inline-flex min-h-11 items-center gap-2 text-xs font-medium text-white/85 transition-colors hover:text-white">
-              Les capsules <ArrowDown size={16} aria-hidden="true" />
+          <div className="mt-5 md:mt-8">
+            <Link to={campaign.href} className="inline-flex min-h-12 items-center justify-center bg-white px-9 py-4 text-sm font-semibold uppercase tracking-[0.08em] text-black transition-colors hover:bg-struktur-orange hover:text-white">
+              Shop now
             </Link>
           </div>
         </motion.div>

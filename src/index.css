@@ -67,7 +67,7 @@
 .capsule-rail::-webkit-scrollbar-track { background: transparent; }
 
 .hero-carousel {
-  --hero-copy-space: 384px;
+  --hero-copy-space: 336px;
   height: 78svh;
   min-height: max(480px, calc(76.7vw + var(--hero-copy-space)));
   max-height: 900px;
@@ -95,13 +95,13 @@
 }
 @keyframes hero-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
-@media (min-width: 360px) { .hero-carousel { --hero-copy-space: 336px; } }
-@media (min-width: 480px) { .hero-carousel { --hero-copy-space: 288px; } }
+@media (min-width: 360px) { .hero-carousel { --hero-copy-space: 288px; } }
+@media (min-width: 480px) { .hero-carousel { --hero-copy-space: 240px; } }
 
 @media (min-width: 768px) {
   .capsule-rail { scroll-padding-inline: 2.5rem; }
   .hero-carousel { height: 82svh; min-height: 520px; }
-  .hero-artwork-frame { inset: 16px 2vw 70px auto; width: 69%; height: auto; padding: 0; }
+  .hero-artwork-frame { inset: 16px 0 70px; width: 84%; height: auto; margin-inline: auto; padding: 0; }
   .hero-shade { background: linear-gradient(to right, rgb(0 0 0 / 0.55), transparent 65%), linear-gradient(to top, rgb(0 0 0 / 0.7), transparent 50%); }
 }
 
@@ -111,7 +111,7 @@
 
 @media (min-width: 640px) and (max-width: 767px) and (max-height: 600px) {
   .hero-carousel { height: calc(100svh - 72px); min-height: 420px; }
-  .hero-artwork-frame { inset: 16px 2vw 70px auto; width: 69%; height: auto; padding: 0; }
+  .hero-artwork-frame { inset: 16px 0 70px; width: 84%; height: auto; margin-inline: auto; padding: 0; }
 }
 
 @media (min-width: 1024px) {

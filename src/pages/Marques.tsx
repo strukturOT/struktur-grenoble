@@ -1,14 +1,63 @@
-import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useCategories } from '../hooks/useProducts';
+import { useBrands } from '../hooks/useProducts';
+import { brandHref, brandLogo } from '../lib/brands';
 import StorefrontState from '../components/StorefrontState';
 
 export default function Marques() {
-  const { categories, loading, error } = useCategories();
+  const { brands, loading, error } = useBrands();
+
   return (
-    <div className="mx-auto min-h-screen max-w-[1600px] px-4 pb-20 pt-28 md:px-10 md:pb-28 md:pt-36 lg:px-14">
-      <header className="mb-9 md:mb-12"><h1 className="font-display text-4xl font-medium md:text-6xl">Marques & collections.</h1><p className="mt-4 max-w-xl text-sm text-theme-ink/65 md:text-base">Les univers de la sélection STRUKTUR. Explorez les pièces de chaque collection.</p></header>
-      {loading ? <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-7" aria-label="Chargement des collections">{Array.from({ length: 6 }, (_, index) => <div key={index} className="aspect-[4/3] animate-pulse bg-theme-surface motion-reduce:animate-none" />)}</div> : categories.length ? <div className="grid grid-cols-2 gap-x-4 gap-y-9 md:grid-cols-3 md:gap-x-7 md:gap-y-12">{categories.map((category) => <Link key={category.id} to={`/categorie/${category.slug}`} className="group min-w-0"><div className="aspect-[4/3] overflow-hidden bg-white">{category.imageUrl && <img src={category.imageUrl} alt={`La collection ${category.name} chez STRUKTUR`} loading="lazy" className="h-full w-full object-contain transition-transform duration-700 group-hover:scale-[1.025] motion-reduce:transform-none" />}</div><div className="flex items-start justify-between gap-2 pt-4"><div><h2 className="font-display text-xl font-medium md:text-3xl">{category.name}</h2><p className="mt-1 text-xs text-theme-ink/65">{category.productCount} pièce{category.productCount !== 1 ? 's' : ''}</p></div><ArrowUpRight size={19} className="mt-1 shrink-0" aria-hidden="true" /></div></Link>)}</div> : <StorefrontState error={error} emptyLabel="Les collections arrivent bientôt." />}
-    </div>
+    <main className="mx-auto min-h-screen max-w-[1600px] px-4 pb-20 pt-28 md:px-10 md:pb-28 md:pt-36 lg:px-14">
+      <header className="mb-9 md:mb-12">
+        <h1 className="font-display text-4xl font-medium md:text-6xl">Marques.</h1>
+      </header>
+
+      {loading ? (
+        <ul aria-label="Chargement des logos de marques" aria-busy="true" className="grid grid-cols-2 gap-x-8 md:grid-cols-3 md:gap-x-10">
+          {Array.from({ length: 8 }, (_, index) => (
+            <li key={index} className="flex min-h-28 animate-pulse items-center border-b border-theme-ink/15 motion-reduce:animate-none md:min-h-36" />
+          ))}
+        </ul>
+      ) : brands.length ? (
+        <ul aria-label="Marques par ordre alphabétique" className="grid grid-cols-2 gap-x-8 md:grid-cols-3 md:gap-x-10">
+          {brands.map((brand) => {
+            const logo = brandLogo(brand);
+
+            return (
+              <li key={brand} className="min-w-0 border-b border-theme-ink/15">
+                <Link
+                  to={brandHref(brand)}
+                  aria-label={`${brand} — voir les produits`}
+                  title={brand}
+                  className="group flex min-h-28 items-center justify-start overflow-hidden py-5 pr-3 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-theme-ink md:min-h-36 md:py-7"
+                >
+                  {logo ? (
+                    <span className="flex min-h-12 w-full flex-col items-start justify-center gap-1.5 md:min-h-14">
+                      <img
+                        src={logo.src}
+                        alt={brand}
+                        loading="lazy"
+                        decoding="async"
+                        className="max-w-full object-contain transition-transform duration-300 ease-out group-hover:scale-[1.035] motion-reduce:transform-none motion-reduce:transition-none"
+                        style={{
+                          maxWidth: `min(100%, ${logo.maxWidth}px)`,
+                          maxHeight: `${logo.maxHeight}px`,
+                          filter: logo.monochrome ? 'brightness(0)' : undefined,
+                        }}
+                      />
+                      {logo.label && <span className="font-display text-sm font-semibold tracking-tight text-theme-ink sm:text-base">{brand}</span>}
+                    </span>
+                  ) : (
+                    <span className="font-display text-2xl font-semibold tracking-tight text-theme-ink sm:text-3xl">{brand}</span>
+                  )}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <StorefrontState error={error} emptyLabel="Les marques arrivent bientôt." />
+      )}
+    </main>
   );
 }

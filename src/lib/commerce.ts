@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { optimizeProductImage } from './imageOptimization';
+import { brandNames } from './brands';
 
 export type ProductStatus = 'draft' | 'active' | 'archived';
 
@@ -154,6 +155,20 @@ export async function getPublishedProducts(options: { limit?: number; featured?:
 
   const { data, error } = await query;
   return { data: ((data ?? []) as unknown as ProductRow[]).map(mapProduct), error };
+}
+
+export async function getPublishedBrands() {
+  if (!supabase) return { data: [] as string[], error: null };
+  const rows: Array<{ brand: string | null }> = [];
+  for (let offset = 0; ; offset += 1000) {
+    const { data, error } = await supabase.from('products').select('brand')
+      .eq('status', 'active').not('slug', 'like', 'test-%').not('brand', 'is', null)
+      .order('id', { ascending: true }).range(offset, offset + 999);
+    if (error) return { data: [] as string[], error };
+    rows.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  return { data: brandNames(rows), error: null };
 }
 
 const mapCategory = (row: { id: string; name: string; slug: string; description: string | null; image_url: string | null; storage_path: string | null; position: number; products?: Array<{ id: string }> }): StoreCategory => ({

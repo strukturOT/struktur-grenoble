@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getPublishedCategories, getPublishedProduct, getPublishedProducts, type StoreCategory, type StoreProduct } from '../lib/commerce';
+import { getPublishedBrands, getPublishedCategories, getPublishedProduct, getPublishedProducts, type StoreCategory, type StoreProduct } from '../lib/commerce';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { catalogueSeed, mixProductBrands } from '../lib/productOrder';
 
@@ -67,5 +67,18 @@ export function useCategories() {
     return () => { active = false; };
   }, []);
 
+  return state;
+}
+
+export function useBrands() {
+  const [state, setState] = useState<{ brands: string[]; loading: boolean; error: string | null }>({ brands: [], loading: isSupabaseConfigured, error: null });
+  useEffect(() => {
+    let active = true;
+    if (!isSupabaseConfigured) return undefined;
+    getPublishedBrands().then(({ data, error }) => {
+      if (active) setState({ brands: data, loading: false, error: error?.message ?? null });
+    });
+    return () => { active = false; };
+  }, []);
   return state;
 }
