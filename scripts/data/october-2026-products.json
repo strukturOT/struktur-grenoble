@@ -1,0 +1,674 @@
+{
+  "researchedAt": "2026-10-28",
+  "products": [
+    {
+      "brand": "Pierre Bassene World",
+      "sourceLabel": "Camo℗ Field Jacket - Khaki Green",
+      "name": "Camo℗ Field Jacket - Khaki Green",
+      "officialUrl": "https://pierrebassene.world/products/camo-field-jacket-kaki-green",
+      "priceCents": 25000,
+      "currency": "EUR",
+      "description": "Veste de terrain en ripstop imprimé camouflage, doublée de polyester orange, avec capuche et taille réglables, quatre poches avant et deux poches arrière dissimulées; logos brodés.",
+      "sizes": [
+        "ONE (S/M)",
+        "TWO (M/L)",
+        "THREE (XL/2XL)"
+      ],
+      "variantSkus": {
+        "ONE (S/M)": "PBW 02-68-CAMOJCKT",
+        "TWO (M/L)": "PBW 02-68-CAMOJCKT",
+        "THREE (XL/2XL)": "PBW 02-68-CAMOJCKT"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://pierrebassene.world/products/camo-field-jacket-kaki-green?country=FR"
+      ]
+    },
+    {
+      "brand": "Pierre Bassene World",
+      "sourceLabel": "Training℗ Jacket - Heather Grey",
+      "name": "Training℗ Jacket - Heather Grey",
+      "officialUrl": "https://pierrebassene.world/products/training-jacket-heather-grey",
+      "priceCents": 16000,
+      "currency": "EUR",
+      "description": "Veste en coton gris chiné avec passepoil blanc, broderies BrickByBrick℗ et Globe℗, deux poches avant et une poche sur la manche.",
+      "sizes": [
+        "ONE",
+        "TWO",
+        "THREE"
+      ],
+      "variantSkus": {
+        "ONE": "TJ-HG-PBW 01-110",
+        "TWO": "TJ-HG-PBW 01-110",
+        "THREE": "TJ-HG-PBW 01-110"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://pierrebassene.world/products/training-jacket-heather-grey?country=FR"
+      ]
+    },
+    {
+      "brand": "Pierre Bassene World",
+      "sourceLabel": "Elite℗ Padded Camo℗ Ripstop/Sherpa Jacket - Forest Green Camo (Reversible)",
+      "name": "Elite℗ Padded Camo℗ Ripstop/Sherpa Jacket - Forest Green Camo (Reversible)",
+      "officialUrl": "https://pierrebassene.world/products/elite-padded-camo-ripstop-sherpa-jacket-forest-green-camo-reversible",
+      "priceCents": 21000,
+      "currency": "EUR",
+      "description": "Veste réversible avec une face en ripstop camouflage et une face en sherpa crème; poches avant intégrées, surpiqûres contrastées, boutons-pression personnalisés et deux poches intérieures.",
+      "sizes": [
+        "ONE",
+        "TWO",
+        "THREE"
+      ],
+      "variantSkus": {},
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://pierrebassene.world/products/elite-padded-camo-ripstop-sherpa-jacket-forest-green-camo-reversible?country=FR"
+      ]
+    },
+    {
+      "brand": "Pierre Bassene World",
+      "sourceLabel": "The Bricks Chanel℗ T-shirt - Black",
+      "name": "The Bricks Chanel℗ T-shirt - Black",
+      "officialUrl": "https://pierrebassene.world/products/the-bricks-chanel-t-shirt-black",
+      "priceCents": 6000,
+      "currency": "EUR",
+      "description": "T-shirt manches courtes en coton noir, à col rond côtelé, avec logo Brick Channel℗ imprimé devant et logo Globe℗ brodé ton sur ton à gauche.",
+      "sizes": [
+        "Small",
+        "Medium",
+        "Large",
+        "Xlarge",
+        "XXlarge"
+      ],
+      "variantSkus": {
+        "Small": "TBCT-B-PBW 01-99",
+        "Medium": "TBCT-B-PBW 01-99",
+        "Large": "TBCT-B-PBW 01-99",
+        "Xlarge": "TBCT-B-PBW 01-99",
+        "XXlarge": "TBCT-B-PBW 01-99"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://pierrebassene.world/products/the-bricks-chanel-t-shirt-black?country=FR"
+      ]
+    },
+    {
+      "brand": "Pierre Bassene World",
+      "sourceLabel": "Classic Joggers℗ - Heather Grey",
+      "name": "Classic Joggers℗ - Heather Grey",
+      "officialUrl": "https://pierrebassene.world/products/classic-joggers-heather-grey",
+      "priceCents": 13900,
+      "currency": "EUR",
+      "description": "Jogging en coton 460 g avec taille entièrement élastiquée, détails coverstitch, cordon à l’ourlet, logo Globe℗ au genou et broderies au dos.",
+      "sizes": [
+        "XSMALL",
+        "SMALL",
+        "MEDIUM",
+        "LARGE",
+        "XLARGE",
+        "XXLARGE"
+      ],
+      "variantSkus": {
+        "SMALL": "PBW 02-59-HEATHER",
+        "MEDIUM": "PBW 02-59-HEATHER",
+        "LARGE": "PBW 02-59-HEATHER",
+        "XLARGE": "PBW 02-59-HEATHER"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://pierrebassene.world/products/classic-joggers-heather-grey?country=FR"
+      ]
+    },
+    {
+      "brand": "Pierre Bassene World",
+      "sourceLabel": "Mohair Sweater - Charcoal",
+      "name": "Mohair Sweater - Charcoal",
+      "officialUrl": "https://pierrebassene.world/products/mohair-charcoal",
+      "priceCents": 16000,
+      "currency": "EUR",
+      "description": "Pull en maille mohair bicolore charbon à manches longues, avec logo Fingerprint℗ devant et logo Globe℗ au dos.",
+      "sizes": [
+        "One",
+        "Two",
+        "Three"
+      ],
+      "variantSkus": {},
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://pierrebassene.world/products/mohair-charcoal?country=FR"
+      ]
+    },
+    {
+      "brand": "Pierre Bassene World",
+      "sourceLabel": "Field Pants℗ Camo - Khaki Green",
+      "name": "Field Pants℗ Camo - Khaki Green",
+      "officialUrl": "https://pierrebassene.world/products/field-pants-camo-khaki-green",
+      "priceCents": 16000,
+      "currency": "EUR",
+      "description": "Pantalon large en ripstop imprimé camouflage vert forêt, à taille semi-élastiquée, doublure polyester orange et six poches, dont quatre zippées et deux à boutons-pression.",
+      "sizes": [
+        "XSMALL",
+        "SMALL",
+        "MEDIUM",
+        "LARGE",
+        "XLARGE",
+        "XXLARGE"
+      ],
+      "variantSkus": {
+        "XSMALL": "FPC-KG-PBW 01-113",
+        "SMALL": "PBW 04-91-FLDPANTS",
+        "MEDIUM": "PBW 04-91-FLDPANTS",
+        "LARGE": "PBW 04-91-FLDPANTS",
+        "XLARGE": "PBW 04-91-FLDPANTS",
+        "XXLARGE": "FPC-KG-PBW 01-113"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://pierrebassene.world/products/field-pants-camo-khaki-green?country=FR"
+      ]
+    },
+    {
+      "brand": "Hélas",
+      "sourceLabel": "CLASSIC BEANIE BLACK",
+      "name": "CLASSIC BEANIE BLACK",
+      "officialUrl": "https://www.helascaps.com/products/classic-beanie-black-1",
+      "priceCents": 3000,
+      "currency": "EUR",
+      "description": "Bonnet à revers avec logo Umbrella sur étiquette tissée; composition annoncée : 50 % viscose, 30 % polyester et 20 % nylon.",
+      "sizes": [
+        "One size"
+      ],
+      "variantSkus": {
+        "One size": "A06S3D1HDWBNE04U"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://www.helascaps.com/products/classic-beanie-black-1?country=FR"
+      ]
+    },
+    {
+      "brand": "Hélas",
+      "sourceLabel": "CLASSIC BEANIE NAVY",
+      "name": "CLASSIC BEANIE NAVY",
+      "officialUrl": "https://www.helascaps.com/products/classic-beanie-navy",
+      "priceCents": 3000,
+      "currency": "EUR",
+      "description": "Bonnet à revers avec logo Umbrella sur étiquette tissée; composition annoncée : 50 % viscose, 30 % polyester et 20 % nylon.",
+      "sizes": [
+        "One size"
+      ],
+      "variantSkus": {
+        "One size": "A06S3D1HDW003U"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://www.helascaps.com/products/classic-beanie-navy?country=FR"
+      ]
+    },
+    {
+      "brand": "Hélas",
+      "sourceLabel": "CLASSIC CAP WASHED BEIGE",
+      "name": "CLASSIC CAP WASHED BEIGE",
+      "officialUrl": "https://www.helascaps.com/products/classic-cap-washed-beige",
+      "priceCents": 3500,
+      "currency": "EUR",
+      "description": "Casquette six pans délavée, logo brodé au centre devant; sergé 100 % coton.",
+      "sizes": [
+        "One size"
+      ],
+      "variantSkus": {
+        "One size": "A06S3D1HDWCAP04U"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://www.helascaps.com/products/classic-cap-washed-beige?country=FR"
+      ]
+    },
+    {
+      "brand": "Hélas",
+      "sourceLabel": "CLASSIC CAP WASHED BLUE",
+      "name": "CLASSIC CAP WASHED BLUE",
+      "officialUrl": "https://www.helascaps.com/products/classic-cap-washed-blue",
+      "priceCents": 3500,
+      "currency": "EUR",
+      "description": "Casquette six pans délavée, logo brodé au centre devant; sergé 100 % coton.",
+      "sizes": [
+        "One size"
+      ],
+      "variantSkus": {
+        "One size": "A06S3D1HDWCAP03U"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://www.helascaps.com/products/classic-cap-washed-blue?country=FR"
+      ]
+    },
+    {
+      "brand": "Hélas",
+      "sourceLabel": "CLASSIC CAP WASHED DARK GREY",
+      "name": "CLASSIC CAP WASHED DARK GREY",
+      "officialUrl": "https://www.helascaps.com/products/classic-cap-washed-dark-grey",
+      "priceCents": 3500,
+      "currency": "EUR",
+      "description": "Casquette six pans délavée, logo brodé au centre devant; sergé 100 % coton.",
+      "sizes": [
+        "One size"
+      ],
+      "variantSkus": {
+        "One size": "A06S3D1HDWCAP02U"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://www.helascaps.com/products/classic-cap-washed-dark-grey?country=FR"
+      ]
+    },
+    {
+      "brand": "Hélas",
+      "sourceLabel": "CLASSIC CAP WASHED KHAKI GREEN",
+      "name": "CLASSIC CAP WASHED KHAKI GREEN",
+      "officialUrl": "https://www.helascaps.com/products/classic-cap-washed-khaki-green",
+      "priceCents": 3500,
+      "currency": "EUR",
+      "description": "Casquette six pans délavée, logo brodé au centre devant; sergé 100 % coton.",
+      "sizes": [
+        "One size"
+      ],
+      "variantSkus": {
+        "One size": "A06S3D1HDWCAP01U"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://www.helascaps.com/products/classic-cap-washed-khaki-green?country=FR"
+      ]
+    },
+    {
+      "brand": "Hélas",
+      "sourceLabel": "COOG CREWNECK KNIT BLACK MULTICO",
+      "name": "COOG CREWNECK KNIT BLACK MULTICO",
+      "officialUrl": "https://www.helascaps.com/products/coog-crewneck-knit-black-multico",
+      "priceCents": 12000,
+      "currency": "EUR",
+      "description": "Pull col rond en maille avec motif jacquard; composition annoncée : 50 % viscose, 28 % nylon et 22 % PBT.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "variantSkus": {
+        "XS": "A06S3D1KNTCRW02XS",
+        "S": "A06S3D1KNTCRW02S",
+        "M": "A06S3D1KNTCRW02M",
+        "L": "A06S3D1KNTCRW02L",
+        "XL": "A06S3D1KNTCRW02XL"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://www.helascaps.com/products/coog-crewneck-knit-black-multico?country=FR"
+      ]
+    },
+    {
+      "brand": "Hélas",
+      "sourceLabel": "HELAS REP BEANIE BLACK",
+      "name": "HELAS REP BEANIE BLACK",
+      "officialUrl": "https://www.helascaps.com/products/helas-rep-beanie-black",
+      "priceCents": 3500,
+      "currency": "EUR",
+      "description": "Bonnet avec logo Hélas tricoté; composition annoncée : 50 % viscose, 30 % polyester et 20 % nylon.",
+      "sizes": [
+        "One size"
+      ],
+      "variantSkus": {
+        "One size": "A06S3D1HDWBNE02U"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://www.helascaps.com/products/helas-rep-beanie-black?country=FR"
+      ]
+    },
+    {
+      "brand": "Hélas",
+      "sourceLabel": "OLD SCHOOL JEANS PANTS WASHED BLACK",
+      "name": "OLD SCHOOL JEANS PANTS WASHED BLACK",
+      "officialUrl": "https://www.helascaps.com/products/old-school-jeans-pants-washed-black",
+      "priceCents": 11000,
+      "currency": "EUR",
+      "description": "Pantalon en denim 100 % coton, coupe droite ample délavée, avec broderie Hélas sur la poche ticket et broderie Old School sur la poche arrière.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "variantSkus": {
+        "XS": "A06S3D1PNTJEA04XS",
+        "S": "A06S3D1PNTJEA04S",
+        "M": "A06S3D1PNTJEA04M",
+        "L": "A06S3D1PNTJEA04L",
+        "XL": "A06S3D1PNTJEA04XL"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://www.helascaps.com/products/old-school-jeans-pants-washed-black?country=FR"
+      ]
+    },
+    {
+      "brand": "Hélas",
+      "sourceLabel": "OLD SCHOOL JEANS PANTS WASHED OLIVE BROWN",
+      "name": "OLD SCHOOL JEANS PANTS WASHED OLIVE BROWN",
+      "officialUrl": "https://www.helascaps.com/products/old-school-jeans-pants-washed-olive-brown",
+      "priceCents": 11000,
+      "currency": "EUR",
+      "description": "Pantalon en denim 100 % coton, coupe droite ample délavée, avec broderie Hélas sur la poche ticket et broderie Old School sur la poche arrière.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "variantSkus": {
+        "XS": "A06S3D1PNTJEA03XS",
+        "S": "A06S3D1PNTJEA03S",
+        "M": "A06S3D1PNTJEA03M",
+        "L": "A06S3D1PNTJEA03L",
+        "XL": "A06S3D1PNTJEA03XL"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://www.helascaps.com/products/old-school-jeans-pants-washed-olive-brown?country=FR"
+      ]
+    },
+    {
+      "brand": "Hélas",
+      "sourceLabel": "PAULO LS KNIT POLO BLACK",
+      "name": "PAULO LS KNIT POLO BLACK",
+      "officialUrl": "https://www.helascaps.com/products/paulo-ls-knit-polo-black",
+      "priceCents": 11000,
+      "currency": "EUR",
+      "description": "Polo zippé à manches longues en maille, motif à carreaux texturé et logo Umbrella brodé sur la poitrine; 99 % polyester et 1 % élasthanne.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "variantSkus": {
+        "XS": "A06S3D1POLKNT02XS",
+        "S": "A06S3D1POLKNT02S",
+        "M": "A06S3D1POLKNT02M",
+        "L": "A06S3D1POLKNT02L",
+        "XL": "A06S3D1POLKNT02XL"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://www.helascaps.com/products/paulo-ls-knit-polo-black?country=FR"
+      ]
+    },
+    {
+      "brand": "Hélas",
+      "sourceLabel": "PAULO LS KNIT POLO OFF WHITE",
+      "name": "PAULO LS KNIT POLO OFF WHITE",
+      "officialUrl": "https://www.helascaps.com/products/paulo-ls-knit-polo-off-white",
+      "priceCents": 11000,
+      "currency": "EUR",
+      "description": "Polo zippé à manches longues en maille, motif à carreaux texturé et logo Umbrella brodé sur la poitrine; 99 % polyester et 1 % élasthanne.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "variantSkus": {
+        "XS": "A06S3D1POLKNT01XS",
+        "S": "A06S3D1POLKNT01S",
+        "M": "A06S3D1POLKNT01M",
+        "L": "A06S3D1POLKNT01L",
+        "XL": "A06S3D1POLKNT01XL"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://www.helascaps.com/products/paulo-ls-knit-polo-off-white?country=FR"
+      ]
+    },
+    {
+      "brand": "Hélas",
+      "sourceLabel": "UMB COOG HOODIE BLACK",
+      "name": "UMB COOG HOODIE BLACK",
+      "officialUrl": "https://www.helascaps.com/products/umb-coog-hoodie-black",
+      "priceCents": 10000,
+      "currency": "EUR",
+      "description": "Sweat à capuche avec logo imprimé sur la poitrine gauche et au milieu du dos, plus une étiquette Umbrella à la base; 84 % coton et 16 % polyester.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "variantSkus": {
+        "XS": "A06S3D1SWTHDY02XS",
+        "S": "A06S3D1SWTHDY02S",
+        "M": "A06S3D1SWTHDY02M",
+        "L": "A06S3D1SWTHDY02L",
+        "XL": "A06S3D1SWTHDY02XL"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://www.helascaps.com/products/umb-coog-hoodie-black?country=FR"
+      ]
+    },
+    {
+      "brand": "Hélas",
+      "sourceLabel": "UMB COOG LS TEE BLACK",
+      "name": "UMB COOG LS TEE BLACK",
+      "officialUrl": "https://www.helascaps.com/products/umb-coog-ls-tee-black",
+      "priceCents": 5500,
+      "currency": "EUR",
+      "description": "T-shirt à manches longues avec logo imprimé sur la poitrine gauche et au milieu du dos, et étiquette Umbrella à la base; 100 % coton.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "variantSkus": {
+        "XS": "A06S3D1TEELSL02XS",
+        "S": "A06S3D1TEELSL02S",
+        "M": "A06S3D1TEELSL02M",
+        "L": "A06S3D1TEELSL02L",
+        "XL": "A06S3D1TEELSL02XL"
+      },
+      "styleCode": null,
+      "evidenceUrls": [
+        "https://www.helascaps.com/products/umb-coog-ls-tee-black?country=FR"
+      ]
+    },
+    {
+      "brand": "Sorel",
+      "sourceLabel": "CALLSIGN DAYBREAK LX 2178061_397",
+      "name": "Men's Callsign™ Daybreak Lux Sneaker",
+      "officialUrl": "https://www.sorelfootwear.be/ENBE/p/callsign-daybreak-lx-2178061.html",
+      "priceCents": 17000,
+      "currency": "EUR",
+      "description": "Chaussure de randonnée urbaine combinant empeigne en cuir avec empiècement mellowbuck, lacets larges, semelle intérieure Ortholite amovible, semelle intermédiaire EVA et semelle extérieure Vibram XS Trek Evo.",
+      "sizes": [
+        "40 EU",
+        "40.5 EU",
+        "41 EU",
+        "41.5 EU",
+        "42 EU",
+        "42.5 EU",
+        "43 EU",
+        "43.5 EU",
+        "44 EU",
+        "44.5 EU",
+        "45 EU",
+        "46 EU",
+        "47 EU",
+        "48 EU"
+      ],
+      "variantSkus": {},
+      "styleCode": "2178061",
+      "evidenceUrls": [
+        "https://www.sorelfootwear.be/ENBE/p/callsign-daybreak-lx-2178061.html?dwvar_2178061_color=397"
+      ]
+    },
+    {
+      "brand": "Sorel",
+      "sourceLabel": "CALLSIGN DAYBREAK LX 2178061_242",
+      "name": "Men's Callsign™ Daybreak Lux Sneaker",
+      "officialUrl": "https://www.sorelfootwear.be/ENBE/p/callsign-daybreak-lx-2178061.html",
+      "priceCents": 17000,
+      "currency": "EUR",
+      "description": "Chaussure de randonnée urbaine combinant empeigne en cuir avec empiècement mellowbuck, lacets larges, semelle intérieure Ortholite amovible, semelle intermédiaire EVA et semelle extérieure Vibram XS Trek Evo.",
+      "sizes": [
+        "40 EU",
+        "40.5 EU",
+        "41 EU",
+        "41.5 EU",
+        "42 EU",
+        "42.5 EU",
+        "43 EU",
+        "43.5 EU",
+        "44 EU",
+        "44.5 EU",
+        "45 EU",
+        "46 EU",
+        "47 EU",
+        "48 EU"
+      ],
+      "variantSkus": {},
+      "styleCode": "2178061",
+      "evidenceUrls": [
+        "https://www.sorelfootwear.be/ENBE/p/callsign-daybreak-lx-2178061.html?dwvar_2178061_color=242"
+      ]
+    },
+    {
+      "brand": "Sorel",
+      "sourceLabel": "CALLSIGN HORIZON LOW GTX 2142961_010",
+      "name": "Men's CALLSIGN HORIZON™ Low GTX Sneaker",
+      "officialUrl": "https://www.sorelfootwear.be/ENBE/p/callsign-horizon-low-gtx-2142961.html",
+      "priceCents": 20000,
+      "currency": "EUR",
+      "description": "Sneaker étanche en construction GORE-TEX, avec empeigne en daim et cuir certifié LWG, renforts TPU, semelle intérieure Ortholite amovible et semelle Vibram XS Trek Evo.",
+      "sizes": [
+        "40 EU",
+        "40.5 EU",
+        "41 EU",
+        "41.5 EU",
+        "42 EU",
+        "42.5 EU",
+        "43 EU",
+        "43.5 EU",
+        "44 EU",
+        "44.5 EU",
+        "45 EU",
+        "46 EU",
+        "47 EU",
+        "48 EU"
+      ],
+      "variantSkus": {},
+      "styleCode": "2142961",
+      "evidenceUrls": [
+        "https://www.sorelfootwear.be/ENBE/p/callsign-horizon-low-gtx-2142961.html?dwvar_2142961_color=010"
+      ]
+    },
+    {
+      "brand": "Sorel",
+      "sourceLabel": "CALLSIGN HORIZON LOW GTX 2142961_028",
+      "name": "Men's CALLSIGN HORIZON™ Low GTX Sneaker",
+      "officialUrl": "https://www.sorelfootwear.be/ENBE/p/callsign-horizon-low-gtx-2142961.html",
+      "priceCents": 20000,
+      "currency": "EUR",
+      "description": "Sneaker étanche en construction GORE-TEX, avec empeigne en daim et cuir certifié LWG, renforts TPU, semelle intérieure Ortholite amovible et semelle Vibram XS Trek Evo.",
+      "sizes": [
+        "40 EU",
+        "40.5 EU",
+        "41 EU",
+        "41.5 EU",
+        "42 EU",
+        "42.5 EU",
+        "43 EU",
+        "43.5 EU",
+        "44 EU",
+        "44.5 EU",
+        "45 EU",
+        "46 EU",
+        "47 EU",
+        "48 EU"
+      ],
+      "variantSkus": {},
+      "styleCode": "2142961",
+      "evidenceUrls": [
+        "https://www.sorelfootwear.be/ENBE/p/callsign-horizon-low-gtx-2142961.html?dwvar_2142961_color=028"
+      ]
+    },
+    {
+      "brand": "Sorel",
+      "sourceLabel": "DAYSTORM NOMAD GTX 2167551_191",
+      "name": "Men's Daystorm™ Nomad GTX Shoe",
+      "officialUrl": "https://www.sorelfootwear.be/ENBE/p/daystorm-nomad-gtx-2167551.html",
+      "priceCents": 25000,
+      "currency": "EUR",
+      "description": "Chaussure étanche dotée d’une empeigne en cuir pleine fleur, d’une doublure textile, d’une semelle intérieure EVA amovible et d’une semelle extérieure EVA moulée; usage indiqué : pluie intense.",
+      "sizes": [
+        "40 EU",
+        "40.5 EU",
+        "41 EU",
+        "41.5 EU",
+        "42 EU",
+        "42.5 EU",
+        "43 EU",
+        "43.5 EU",
+        "44 EU",
+        "44.5 EU",
+        "45 EU",
+        "46 EU",
+        "47 EU",
+        "48 EU"
+      ],
+      "variantSkus": {},
+      "styleCode": "2167551",
+      "evidenceUrls": [
+        "https://www.sorelfootwear.be/ENBE/p/daystorm-nomad-gtx-2167551.html?dwvar_2167551_color=191"
+      ]
+    },
+    {
+      "brand": "Sorel",
+      "sourceLabel": "SOREL X ARIES DAYSTORM CHUKKA 2201101_010",
+      "name": "Men's SOREL X ARIES Daystorm™ Chukka Boots",
+      "officialUrl": "https://www.sorelfootwear.be/ENBE/p/sorel-x-aries-daystorm-chukka-2201101.html",
+      "priceCents": 27500,
+      "currency": "EUR",
+      "description": "Bottine à tige en cuir pleine fleur, empiècement et languette en cuir à poils, col en véritable shearling, semelle intérieure Ortholite, semelle intermédiaire en caoutchouc et semelle Vibram XS Trek Evo.",
+      "sizes": [
+        "40 EU",
+        "40.5 EU",
+        "41 EU",
+        "41.5 EU",
+        "42 EU",
+        "42.5 EU",
+        "43 EU",
+        "43.5 EU",
+        "44 EU",
+        "44.5 EU",
+        "45 EU",
+        "46 EU",
+        "47 EU",
+        "48 EU"
+      ],
+      "variantSkus": {},
+      "styleCode": "2201101",
+      "evidenceUrls": [
+        "https://www.sorelfootwear.be/ENBE/p/sorel-x-aries-daystorm-chukka-2201101.html?dwvar_2201101_color=010"
+      ]
+    }
+  ]
+}

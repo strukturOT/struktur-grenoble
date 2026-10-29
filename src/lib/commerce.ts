@@ -172,6 +172,8 @@ export async function getPublishedCategories() {
   const { data, error } = await supabase
     .from('categories')
     .select('id, name, slug, description, image_url, storage_path, position, products!inner(id)')
+    .eq('products.status', 'active')
+    .not('products.slug', 'like', 'test-%')
     .order('position', { ascending: true })
     .order('name', { ascending: true });
   return { data: ((data ?? []) as unknown as Array<Parameters<typeof mapCategory>[0]>).map(mapCategory), error };

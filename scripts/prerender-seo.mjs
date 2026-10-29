@@ -80,6 +80,8 @@ for (const page of staticPages) {
   const canonical = `${siteUrl}${page.route}`;
   const links = page.route === '/journal'
     ? catalog.products.map((product) => `<li><a href="/journal/${html(product.slug)}">Guide ${html(product.name)}</a></li>`).join('')
+    : page.route === '/marques'
+      ? catalog.categories.map((category) => `<li><a href="/categorie/${html(category.slug)}">${html(category.name)}</a></li>`).join('')
    : page.route === '/boutique'
       ? [
           ...catalog.categories.map((category) => `<li><a href="/categorie/${html(category.slug)}">${html(category.name)}</a></li>`),
@@ -143,8 +145,8 @@ const homeLinks = catalog.categories.map((category) => '<li><a href="/categorie/
 const homeProducts = catalog.products.map((product) => '<li><a href="/produit/' + html(product.slug) + '">' + html(product.name) + '</a></li>').join('');
 const homeFallback = '<main style="padding:8rem 2rem;max-width:1100px;margin:auto"><h1>STRUKTUR Grenoble — concept store streetwear &amp; sneakers</h1><p>Une sélection indépendante de vêtements, sneakers et accessoires au 45 rue Lesdiguières, 38000 Grenoble.</p><nav aria-label="Navigation principale"><a href="/nouveautes">Nouveautés</a> · <a href="/boutique">Boutique</a> · <a href="/marques">Marques</a> · <a href="/lookbook">Lookbook</a> · <a href="/le-shop">Le shop à Grenoble</a> · <a href="/journal">Journal &amp; guides</a></nav><h2>Collections</h2><ul>' + homeLinks + '</ul><h2>Produits du catalogue</h2><ul>' + homeProducts + '</ul></main>';
 const homeHtml = applyHead(indexHtml, {
-  title: 'STRUKTUR Grenoble | Concept store streetwear & sneakers',
-  description: 'STRUKTUR Grenoble sélectionne vêtements streetwear, sneakers et accessoires premium au 45 rue Lesdiguières, Grenoble.',
+  title: 'STRUKTUR Grenoble | Boutique streetwear, sneakers & accessoires',
+  description: 'Découvrez les vêtements, sneakers et accessoires de la sélection STRUKTUR. Boutique en ligne et au 45 rue Lesdiguières, Grenoble.',
   canonical: homeCanonical,
   image: homeCanonical + '/brand/og-image.webp',
   jsonLd: homeSchema,

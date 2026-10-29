@@ -1,29 +1,33 @@
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import type { StoreProduct } from '../lib/commerce';
 import { formatMoney, productImage, productPrice } from '../lib/commerce';
 
 const ProductCard = ({ product, index = 0 }: { product: StoreProduct; index?: number }) => {
   const image = productImage(product);
-  const showWholeImage = product.brand?.toLowerCase() === 'saucony';
+  const reduceMotion = useReducedMotion();
   const colorwayCount = new Set(product.variants.map((variant) => variant.attributes.colorway).filter(Boolean)).size;
+  const inStock = product.variants.some((variant) => variant.stockQuantity > 0);
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
-      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      viewport={{ once: true, margin: '-6%' }}
-      transition={{ duration: 0.75, delay: (index % 3) * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-      className="group"
+      initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '0px 0px 40px 0px' }}
+      transition={{ duration: 0.45, delay: (index % 4) * 0.04, ease: [0.25, 0.1, 0.25, 1] }}
+      className="product-card group min-w-0"
     >
       <Link to={`/produit/${product.slug}`} className="block">
-        <div className={`relative mb-5 aspect-[4/5] overflow-hidden ${showWholeImage ? 'bg-white' : 'bg-theme-surface'}`}>
+        <div className="relative aspect-[4/5] overflow-hidden bg-white">
           {image ? (
             <img
               src={image}
               alt={product.images[0]?.altText || product.name}
-              className={`h-full w-full transition-transform duration-700 ease-out ${showWholeImage ? 'object-contain' : 'object-cover group-hover:scale-105'}`}
+              className="h-full w-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.025] motion-reduce:transform-none"
               loading="lazy"
+              decoding="async"
+              width={800}
+              height={1000}
             />
           ) : (
             <div className="flex h-full items-end bg-theme-surface p-5 text-[10px] uppercase tracking-[0.22em] text-theme-ink/35">
@@ -36,13 +40,14 @@ const ProductCard = ({ product, index = 0 }: { product: StoreProduct; index?: nu
             </span>
           </div>
         </div>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            {product.brand && <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-struktur-orange">{product.brand}</p>}
-            <h2 className="text-xl font-display leading-tight transition-colors duration-300 group-hover:text-struktur-orange md:text-2xl">{product.name}</h2>
-            {colorwayCount > 1 && <p className="mt-1 text-xs text-theme-ink/50">{colorwayCount} coloris</p>}
+        <div className="px-0.5 pt-3 md:pt-4">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b border-theme-ink/10 pb-2 text-[9px] font-medium uppercase tracking-[0.03em] text-theme-ink/65 sm:text-[10px]">
+            <span>{inStock ? 'En stock' : 'Indisponible'}</span>
+            {colorwayCount > 1 && <span>{colorwayCount} coloris</span>}
           </div>
-          <p className="shrink-0 pt-1 text-sm text-theme-ink/65">{formatMoney(productPrice(product), product.currency)}</p>
+          {product.brand && <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.04em] text-theme-ink/65 md:text-[11px]">{product.brand}</p>}
+          <h2 className="break-words font-sans text-[13px] font-semibold leading-snug tracking-[-0.015em] transition-colors group-hover:text-struktur-orange md:text-base">{product.name}</h2>
+          <p className="mt-1.5 text-sm text-theme-ink md:text-base">{formatMoney(productPrice(product), product.currency)}</p>
         </div>
       </Link>
     </motion.article>

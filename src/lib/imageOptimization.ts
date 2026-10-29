@@ -32,6 +32,8 @@ export async function optimizeProductImage(source: File) {
       if (!context) throw new Error('Votre navigateur ne peut pas optimiser cette image.');
       context.imageSmoothingEnabled = true;
       context.imageSmoothingQuality = 'high';
+      context.fillStyle = '#ffffff';
+      context.fillRect(0, 0, width, height);
       context.drawImage(bitmap, 0, 0, width, height);
 
       for (const quality of [0.84, 0.76, 0.68, 0.6]) {

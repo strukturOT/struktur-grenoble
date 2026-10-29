@@ -4,8 +4,8 @@ import { SITE_URL } from '../lib/site';
 
 const pages: Record<string, { title: string; description: string }> = {
   '/': {
-    title: 'STRUKTUR Grenoble | Concept store streetwear & sneakers',
-    description: 'STRUKTUR Grenoble sélectionne vêtements streetwear, sneakers et accessoires premium au 45 rue Lesdiguières, Grenoble.',
+    title: 'STRUKTUR Grenoble | Boutique streetwear, sneakers & accessoires',
+    description: 'Découvrez les vêtements, sneakers et accessoires de la sélection STRUKTUR. Boutique en ligne et au 45 rue Lesdiguières, Grenoble.',
   },
   '/nouveautes': {
     title: 'Nouveautés streetwear & sneakers | STRUKTUR Grenoble',

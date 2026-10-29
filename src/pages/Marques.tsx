@@ -1,107 +1,14 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { brands } from '../data/struktur';
-import TextReveal from '../components/TextReveal';
-import ImageReveal from '../components/ImageReveal';
+import { useCategories } from '../hooks/useProducts';
+import StorefrontState from '../components/StorefrontState';
 
-const Marques = () => {
-  const featuredBrands = brands.filter(b => b.featured);
-  const directoryBrands = brands.filter(b => !b.featured);
-
+export default function Marques() {
+  const { categories, loading, error } = useCategories();
   return (
-    <div className="pt-32 pb-24 md:pt-48 md:pb-32 min-h-screen">
-      
-      {/* Header */}
-      <div className="px-6 md:px-12 max-w-7xl mx-auto mb-20 md:mb-32">
-        <TextReveal 
-          text="Marques" 
-          className="text-4xl sm:text-5xl md:text-7xl font-display tracking-tight mb-4" 
-        />
-        <TextReveal 
-          text="Une sélection indépendante." 
-          className="text-lg md:text-xl text-theme-ink/70 font-light"
-          delay={0.15}
-        />
-      </div>
-
-      {/* Featured Brands */}
-      <div className="flex flex-col gap-24 md:gap-40 mb-32 md:mb-48">
-        {featuredBrands.map((brand, idx) => (
-          <div key={brand.slug} className={`flex flex-col ${idx % 2 === 1 ? 'md:flex-row-reverse' : 'md:flex-row'} gap-8 md:gap-16 px-6 md:px-12 max-w-7xl mx-auto w-full items-center`}>
-            
-            <div className="w-full md:w-1/2 flex flex-col justify-center">
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-10%" }}
-                transition={{ duration: 0.6 }}
-                className="mb-6 md:mb-10"
-              >
-                <h2 className="text-4xl md:text-6xl font-display leading-[1.1] mb-4">
-                  {brand.name}
-                </h2>
-                <p className="text-theme-ink/50 text-sm uppercase tracking-widest">
-                  {brand.category}
-                </p>
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-              >
-                <Link to="/nouveautes" className="inline-block text-xs uppercase tracking-[0.2em] border-b border-theme-ink/20 pb-1 hover:text-struktur-orange hover:border-struktur-orange transition-colors">
-                  Découvrir la sélection
-                </Link>
-              </motion.div>
-            </div>
-
-            <div className="w-full md:w-1/2">
-              <div className="aspect-[4/5] bg-theme-surface overflow-hidden relative">
-                {brand.image && (
-                  <ImageReveal src={brand.image} alt={brand.name} className="w-full h-full object-cover" />
-                )}
-              </div>
-            </div>
-
-          </div>
-        ))}
-      </div>
-
-      {/* Directory */}
-      <div className="px-6 md:px-12 max-w-7xl mx-auto border-t border-theme-ink/10 pt-20">
-        <div className="mb-12">
-          <TextReveal 
-            text="Index des marques" 
-            className="text-sm tracking-[0.3em] uppercase text-struktur-orange font-semibold" 
-          />
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-          {directoryBrands.map((brand, idx) => (
-            <motion.div 
-              key={brand.slug}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-10%" }}
-              transition={{ duration: 0.5, delay: (idx % 3) * 0.1 }}
-              className="group border-b border-theme-ink/5 pb-4"
-            >
-              <h3 className="text-2xl font-display mb-2 group-hover:text-struktur-orange transition-colors">
-                {brand.name}
-              </h3>
-              <p className="text-theme-ink/40 text-xs uppercase tracking-widest">
-                {brand.category}
-              </p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
+    <div className="mx-auto min-h-screen max-w-[1600px] px-4 pb-20 pt-28 md:px-10 md:pb-28 md:pt-36 lg:px-14">
+      <header className="mb-9 md:mb-12"><h1 className="font-display text-4xl font-medium md:text-6xl">Marques & collections.</h1><p className="mt-4 max-w-xl text-sm text-theme-ink/65 md:text-base">Les univers de la sélection STRUKTUR. Explorez les pièces de chaque collection.</p></header>
+      {loading ? <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-7" aria-label="Chargement des collections">{Array.from({ length: 6 }, (_, index) => <div key={index} className="aspect-[4/3] animate-pulse bg-theme-surface motion-reduce:animate-none" />)}</div> : categories.length ? <div className="grid grid-cols-2 gap-x-4 gap-y-9 md:grid-cols-3 md:gap-x-7 md:gap-y-12">{categories.map((category) => <Link key={category.id} to={`/categorie/${category.slug}`} className="group min-w-0"><div className="aspect-[4/3] overflow-hidden bg-white">{category.imageUrl && <img src={category.imageUrl} alt={`La collection ${category.name} chez STRUKTUR`} loading="lazy" className="h-full w-full object-contain transition-transform duration-700 group-hover:scale-[1.025] motion-reduce:transform-none" />}</div><div className="flex items-start justify-between gap-2 pt-4"><div><h2 className="font-display text-xl font-medium md:text-3xl">{category.name}</h2><p className="mt-1 text-xs text-theme-ink/65">{category.productCount} pièce{category.productCount !== 1 ? 's' : ''}</p></div><ArrowUpRight size={19} className="mt-1 shrink-0" aria-hidden="true" /></div></Link>)}</div> : <StorefrontState error={error} emptyLabel="Les collections arrivent bientôt." />}
     </div>
   );
-};
-
-export default Marques;
+}

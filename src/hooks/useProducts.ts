@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getPublishedCategories, getPublishedProduct, getPublishedProducts, type StoreCategory, type StoreProduct } from '../lib/commerce';
 import { isSupabaseConfigured } from '../lib/supabase';
+import { catalogueSeed, mixProductBrands } from '../lib/productOrder';
 
 interface ProductsState {
   products: StoreProduct[];
@@ -8,22 +9,23 @@ interface ProductsState {
   error: string | null;
 }
 
-export function useProducts({ limit, featured }: { limit?: number; featured?: boolean } = {}) {
+export function useProducts({ limit, featured, order = 'newest', poolSize }: { limit?: number; featured?: boolean; order?: 'newest' | 'mixed'; poolSize?: number } = {}) {
   const [state, setState] = useState<ProductsState>({ products: [], loading: isSupabaseConfigured, error: null });
 
   useEffect(() => {
     let active = true;
     if (!isSupabaseConfigured) return undefined;
 
-    getPublishedProducts({ limit, featured }).then(({ data, error }) => {
+    getPublishedProducts({ limit: order === 'mixed' ? poolSize : limit, featured }).then(({ data, error }) => {
       if (!active) return;
-      setState({ products: data, loading: false, error: error?.message ?? null });
+      const ordered = order === 'mixed' ? mixProductBrands(data, catalogueSeed()) : data;
+      setState({ products: limit ? ordered.slice(0, limit) : ordered, loading: false, error: error?.message ?? null });
     });
 
     return () => {
       active = false;
     };
-  }, [featured, limit]);
+  }, [featured, limit, order, poolSize]);
 
   return state;
 }

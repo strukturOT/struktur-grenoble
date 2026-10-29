@@ -1,29 +1,22 @@
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { ArrowUpRight } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
-import ProductCard from './ProductCard';
-import StorefrontState from './StorefrontState';
-import TextReveal from './TextReveal';
+import ProductGrid from './ProductGrid';
 
 const NewArrivals = () => {
-  // Always show the three newest published products; this updates automatically
-  // as soon as newer products are added to the live catalogue.
-  const { products, loading, error } = useProducts({ limit: 3 });
+  const { products, loading, error } = useProducts({ limit: 8, poolSize: 48, order: 'mixed' });
 
   return (
-    <section className="mx-auto max-w-7xl overflow-hidden px-6 py-16 md:px-12 md:py-32">
-      <div className="mb-10 flex flex-col items-start justify-between gap-4 md:mb-16 md:flex-row md:items-end md:gap-6">
+    <section aria-labelledby="home-selection-title" className="mx-auto max-w-[1600px] px-4 pb-16 pt-3 md:px-10 md:pb-24 lg:px-14">
+      <div className="mb-7 flex items-end justify-between gap-5 md:mb-10">
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-struktur-orange">Just dropped</p>
-          <TextReveal text="Nouveautés" className="mb-3 text-4xl font-display tracking-tight md:mb-4 md:text-6xl" />
-          <TextReveal text="Notre dernière sélection en ligne." className="text-base font-light text-theme-ink/70 md:text-lg" delay={0.15} />
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.1em] text-theme-ink/60">En ce moment</p>
+          <h2 id="home-selection-title" className="font-display text-3xl font-medium md:text-5xl">La sélection.</h2>
         </div>
-        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.3 }} className="hidden md:block">
-          <Link to="/boutique" className="border-b border-theme-ink/20 pb-1 text-xs uppercase tracking-[0.2em] text-theme-ink/50 transition-all hover:border-theme-ink hover:text-theme-ink">Voir toute la sélection</Link>
-        </motion.div>
+        <Link to="/nouveautes" className="inline-flex min-h-11 shrink-0 items-center gap-2 text-xs font-medium transition-colors hover:text-struktur-orange">Les nouveautés <ArrowUpRight size={16} aria-hidden="true" /></Link>
       </div>
-      {loading ? <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">{[0, 1, 2].map((item) => <div key={item} className="aspect-[4/5] animate-pulse bg-theme-surface" />)}</div> : products.length > 0 ? <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">{products.map((product, index) => <ProductCard key={product.id} product={product} index={index} />)}</div> : <StorefrontState error={error} emptyLabel="Les prochaines pièces arrivent bientôt." />}
-      <div className="mt-12 text-center md:hidden"><Link to="/boutique" className="inline-block border-b border-theme-ink/20 pb-1 text-xs uppercase tracking-[0.2em] text-theme-ink/50 transition-all hover:text-theme-ink">Voir toute la sélection</Link></div>
+      <ProductGrid products={products} loading={loading} error={error} emptyLabel="Les prochaines pièces arrivent bientôt." />
+      <div className="mt-10 text-center md:mt-14"><Link to="/boutique" className="inline-flex min-h-12 items-center gap-8 border border-theme-ink/30 px-7 py-3 text-sm font-medium transition-colors hover:bg-theme-ink hover:text-white">Toute la boutique <ArrowUpRight size={17} aria-hidden="true" /></Link></div>
     </section>
   );
 };

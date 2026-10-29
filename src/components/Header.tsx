@@ -1,146 +1,65 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { Menu, ShoppingBag, UserRound, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { navigation, storeInfo } from '../data/struktur';
 import { Logo } from './Logo';
 import { useAuth } from '../auth/AuthProvider';
 import { useCart } from '../cart/CartProvider';
 
-const Header = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
   const { itemCount } = useCart();
-  const isOverHero = location.pathname === '/' && !isScrolled && !isMobileMenuOpen;
+  const reduceMotion = useReducedMotion();
 
+  useEffect(() => { setIsMobileMenuOpen(false); }, [location.pathname, location.search]);
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const desktop = window.matchMedia('(min-width: 768px)');
+    const closeOnDesktop = () => { if (desktop.matches) setIsMobileMenuOpen(false); };
+    desktop.addEventListener('change', closeOnDesktop);
+    return () => desktop.removeEventListener('change', closeOnDesktop);
   }, []);
-
-  // Close mobile menu on route change
   useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location.pathname]);
+    if (!isMobileMenuOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    const previousRootOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') setIsMobileMenuOpen(false); };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.documentElement.style.overflow = previousRootOverflow;
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [isMobileMenuOpen]);
 
-  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (location.pathname === '/') {
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+  const handleLogoClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (location.pathname !== '/') return;
+    event.preventDefault();
+    setIsMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: reduceMotion ? 'instant' : 'smooth' });
   };
 
   return (
-    <header className={`fixed top-0 w-full z-50 transition-all duration-700 ${isMobileMenuOpen ? 'bg-transparent py-4' : isScrolled ? 'glass py-4' : 'bg-transparent py-6 md:py-8'}`}>
-      <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center relative z-50">
-        <Link to="/" onClick={handleLogoClick} className={`${isOverHero ? 'text-white' : 'text-theme-ink'} hover:text-struktur-orange transition-colors duration-500 block h-5 md:h-6`}>
-          <Logo variant="wordmark" className="h-full" />
-        </Link>
-
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-8">
-          <nav className="flex space-x-8">
-            {navigation.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                className={`text-xs font-medium tracking-[0.15em] uppercase transition-colors duration-300 relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-current hover:after:w-full after:transition-all after:duration-500 ${
-                  location.pathname === link.path
-                    ? `${isOverHero ? 'text-white' : 'text-theme-ink'} after:w-full`
-                    : `${isOverHero ? 'text-white/70 hover:text-white' : 'text-theme-ink/60 hover:text-theme-ink'}`
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
-          </nav>
-          <span className={`h-4 w-px ${isOverHero ? 'bg-white/20' : 'bg-theme-ink/15'}`} />
-          <Link to="/panier" aria-label={`Panier, ${itemCount} article${itemCount > 1 ? 's' : ''}`} className={`${isOverHero ? 'text-white/70 hover:text-white' : 'text-theme-ink/60 hover:text-theme-ink'} relative transition-colors`}>
-            <ShoppingBag size={17} />
-            {itemCount > 0 && <span className={`absolute -right-2.5 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] ${isOverHero ? 'bg-white text-black' : 'bg-theme-ink text-theme-canvas'}`}>{itemCount}</span>}
-          </Link>
-          <Link to="/compte" aria-label={user ? 'Mon compte' : 'Connexion'} className={`${isOverHero ? 'text-white/70 hover:text-white' : 'text-theme-ink/60 hover:text-theme-ink'} transition-colors`}>
-            <UserRound size={17} />
-          </Link>
-        </div>
-
-        <div className="flex items-center gap-4 md:hidden">
-          <Link to="/panier" aria-label={`Panier, ${itemCount} article${itemCount > 1 ? 's' : ''}`} className={`${isOverHero ? 'text-white' : 'text-theme-ink'} relative`}>
-            <ShoppingBag size={20} />
-            {itemCount > 0 && <span className={`absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] ${isOverHero ? 'bg-white text-black' : 'bg-theme-ink text-theme-canvas'}`}>{itemCount}</span>}
-          </Link>
-          <Link to="/compte" aria-label={user ? 'Mon compte' : 'Connexion'} className={`${isOverHero ? 'text-white' : 'text-theme-ink'}`}><UserRound size={20} /></Link>
-          <button
-            className={`${isOverHero ? 'text-white' : 'text-theme-ink'} relative z-50`}
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label={isMobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-            aria-expanded={isMobileMenuOpen}
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-theme-ink/10 bg-theme-canvas text-theme-ink">
+      <div className="relative z-50 mx-auto grid h-[72px] max-w-[1600px] grid-cols-[1fr_auto_1fr] items-center px-3 md:flex md:h-20 md:justify-between md:px-10 lg:px-14">
+        <button type="button" className="flex h-11 w-11 items-center justify-center md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} aria-label={isMobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'} aria-controls="mobile-navigation" aria-expanded={isMobileMenuOpen}>{isMobileMenuOpen ? <X size={23} /> : <Menu size={23} />}</button>
+        <Link to="/" aria-label="Accueil STRUKTUR" onClick={handleLogoClick} className="block h-6 transition-colors hover:text-struktur-orange md:h-7"><Logo className="h-full" /></Link>
+        <nav aria-label="Navigation principale" className="hidden items-center gap-5 md:flex lg:gap-8">{navigation.map((link) => <Link key={link.path} to={link.path} aria-current={location.pathname === link.path ? 'page' : undefined} className={`border-b py-1 text-[11px] font-medium uppercase tracking-[0.06em] transition-colors lg:text-xs ${location.pathname === link.path ? 'border-theme-ink' : 'border-transparent text-theme-ink/70 hover:border-theme-ink hover:text-theme-ink'}`}>{link.name}</Link>)}</nav>
+        <div className="flex items-center justify-end md:gap-1">
+          <Link to="/compte" aria-label={user ? 'Mon compte' : 'Connexion'} className="flex h-11 w-11 items-center justify-center transition-colors hover:text-struktur-orange"><UserRound size={20} /></Link>
+          <Link to="/panier" aria-label={`Panier, ${itemCount} article${itemCount > 1 ? 's' : ''}`} className="relative flex h-11 w-11 items-center justify-center transition-colors hover:text-struktur-orange"><ShoppingBag size={20} />{itemCount > 0 && <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-theme-ink px-1 text-[9px] text-white">{itemCount}</span>}</Link>
         </div>
       </div>
-
-      {/* Mobile Menu Overlay */}
       <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 w-full h-screen bg-theme-canvas/95 text-theme-ink backdrop-blur-xl z-40 flex flex-col justify-between items-center pt-32 pb-16 px-6 md:hidden"
-          >
-            {/* Main Nav Links */}
-            <div className="flex flex-col items-center space-y-8">
-              {navigation.map((link, i) => (
-                <motion.div
-                  key={link.name}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ delay: i * 0.08, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-                >
-                  <Link 
-                    to={link.path}
-                    className={`text-3xl font-display tracking-widest uppercase transition-colors ${
-                      location.pathname === link.path ? 'text-struktur-orange' : 'text-theme-ink/90 hover:text-struktur-orange'
-                    }`}
-                  >
-                    {link.name}
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Bottom — Instagram + Grenoble */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="flex flex-col items-center gap-3"
-            >
-              <a 
-                href={storeInfo.instagram}
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-xs tracking-[0.2em] uppercase text-theme-ink/50 hover:text-struktur-orange transition-colors"
-              >
-                Instagram
-              </a>
-              <span className="text-xs tracking-[0.3em] uppercase text-theme-ink/30">
-                {storeInfo.city}
-              </span>
-            </motion.div>
-          </motion.div>
-        )}
+        {isMobileMenuOpen && <motion.div id="mobile-navigation" initial={{ opacity: 0, y: reduceMotion ? 0 : -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: reduceMotion ? 0 : 0.2 }} className="fixed inset-x-0 bottom-0 top-[72px] flex flex-col justify-between overflow-y-auto overscroll-y-contain bg-theme-canvas px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-5 md:hidden">
+          <nav aria-label="Navigation mobile" className="flex flex-col">{navigation.map((link) => <Link key={link.path} to={link.path} onClick={() => setIsMobileMenuOpen(false)} aria-current={location.pathname === link.path ? 'page' : undefined} className={`border-b border-theme-ink/10 py-4 font-display text-3xl font-medium transition-colors ${location.pathname === link.path ? 'text-struktur-orange' : 'hover:text-struktur-orange'}`}>{link.name}</Link>)}</nav>
+          <div className="mt-10 flex items-center justify-between text-xs text-theme-ink/65"><a href={storeInfo.instagram} target="_blank" rel="noopener noreferrer" className="py-3 hover:text-struktur-orange">Instagram</a><span>{storeInfo.city}</span></div>
+        </motion.div>}
       </AnimatePresence>
     </header>
   );
-};
-
-export default Header;
+}
