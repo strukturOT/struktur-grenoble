@@ -7,7 +7,9 @@ const ProductCard = ({ product, index = 0 }: { product: StoreProduct; index?: nu
   const image = productImage(product);
   const reduceMotion = useReducedMotion();
   const colorwayCount = new Set(product.variants.map((variant) => variant.attributes.colorway).filter(Boolean)).size;
-  const inStock = product.variants.some((variant) => variant.stockQuantity > 0);
+  const inStock = product.variants.some((variant) => variant.stockQuantity > 0 && (variant.priceCents ?? product.priceCents) > 0);
+  const priceRange = new Set(product.variants.filter((variant) => !inStock || variant.stockQuantity > 0)
+    .map((variant) => variant.priceCents ?? product.priceCents).filter((price) => price > 0)).size > 1;
 
   return (
     <motion.article
@@ -22,7 +24,7 @@ const ProductCard = ({ product, index = 0 }: { product: StoreProduct; index?: nu
           {image ? (
             <img
               src={image}
-              alt={product.images[0]?.altText || product.name}
+              alt={product.images.find((item) => item.imageUrl === image)?.altText || product.name}
               className="h-full w-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.025] motion-reduce:transform-none"
               loading="lazy"
               decoding="async"
@@ -47,7 +49,7 @@ const ProductCard = ({ product, index = 0 }: { product: StoreProduct; index?: nu
           </div>
           {product.brand && <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.04em] text-theme-ink/65 md:text-[11px]">{product.brand}</p>}
           <h2 className="break-words font-sans text-[13px] font-semibold leading-snug tracking-[-0.015em] transition-colors group-hover:text-struktur-orange md:text-base">{product.name}</h2>
-          <p className="mt-1.5 text-sm text-theme-ink md:text-base">{formatMoney(productPrice(product), product.currency)}</p>
+          <p className="mt-1.5 text-sm text-theme-ink md:text-base">{priceRange ? 'À partir de ' : ''}{formatMoney(productPrice(product), product.currency)}</p>
         </div>
       </Link>
     </motion.article>

@@ -21,6 +21,7 @@ export default function Boutique() {
   if (sort === 'newest') visibleProducts = [...visibleProducts].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
   const categoryHref = (slug?: string) => {
+    if (slug && !activeBrand) return `/categorie/${slug}`;
     const params = new URLSearchParams();
     if (slug) params.set('categorie', slug);
     if (activeBrand) params.set('marque', activeBrand);

@@ -1,0 +1,90 @@
+{
+  "dickies": {
+    "name": "Dickies",
+    "title": "Dickies Grenoble : pantalons, vestes & workwear | STRUKTUR",
+    "description": "Retrouvez Dickies chez STRUKTUR Grenoble : pantalons workwear, vestes, sweats et accessoires. Tailles, prix et stock sur chaque fiche produit.",
+    "intro": "Pantalons de travail, vestes, sweats et accessoires : explorez le vestiaire Dickies sélectionné par STRUKTUR à Grenoble. Choisissez votre modèle, puis consultez les tailles et les coloris proposés sur sa fiche.",
+    "detail": "Un pantalon droit, une coupe ample ou une veste à superposer : comparez les pièces de la sélection et leur disponibilité avant de choisir. Pour voir une coupe ou essayer une taille, retrouvez aussi notre boutique au 45 rue Lesdiguières à Grenoble.",
+    "relatedSlugs": ["dickies-premium", "helas", "new-amsterdam-surf-association"]
+  },
+  "dickies-premium": {
+    "name": "Dickies Premium",
+    "title": "Dickies Premium Grenoble : sélection workwear | STRUKTUR",
+    "description": "Explorez la sélection Dickies Premium de STRUKTUR Grenoble : vestes et pantalons workwear, détails des modèles, tailles et disponibilités.",
+    "intro": "Cette sélection Dickies rassemble les vestes et pantalons workwear présentés dans notre collection Premium. Retrouvez les détails, les photos et les tailles propres à chaque pièce, avec son prix et sa disponibilité.",
+    "detail": "Les coupes et les finitions varient d’un modèle à l’autre. Prenez le temps de comparer les fiches, puis associez votre pièce aux sweats, chemises et accessoires de la collection Dickies. Notre équipe vous accueille également en boutique à Grenoble.",
+    "relatedSlugs": ["dickies", "merrell", "saucony"]
+  },
+  "new-amsterdam-surf-association": {
+    "name": "New Amsterdam Surf Association",
+    "title": "New Amsterdam Surf Association Grenoble | STRUKTUR",
+    "description": "Découvrez New Amsterdam Surf Association chez STRUKTUR Grenoble : t-shirts, chemises, maille et pantalons. Photos, tailles, prix et stock en ligne.",
+    "intro": "Découvrez les vêtements New Amsterdam Surf Association de la sélection STRUKTUR : t-shirts, chemises, maille et pantalons à porter au quotidien. Chaque fiche présente les photos, les options de taille et les disponibilités du modèle.",
+    "detail": "Composez votre silhouette en comparant les volumes, les couleurs et les détails décrits pour chaque pièce. La sélection est consultable en ligne et dans notre concept store du centre de Grenoble, au 45 rue Lesdiguières.",
+    "relatedSlugs": ["daily-paper", "helas", "dickies"]
+  },
+  "merrell": {
+    "name": "Merrell",
+    "title": "Merrell Grenoble : chaussures & sneakers outdoor | STRUKTUR",
+    "description": "Découvrez les chaussures Merrell chez STRUKTUR Grenoble, dont les modèles Moab Speed et Ontario. Coloris, pointures et stock sur les fiches.",
+    "intro": "Explorez les chaussures Merrell sélectionnées par STRUKTUR, entre lignes outdoor et silhouettes à porter en ville. Retrouvez notamment les modèles Moab Speed et Ontario, avec les photos et pointures propres à chaque référence.",
+    "detail": "Pour choisir votre paire, comparez les détails du modèle et sélectionnez une pointure sur sa fiche. Les caractéristiques techniques ne sont indiquées que lorsqu’elles sont précisées pour cette référence. Retrouvez notre sélection de chaussures en boutique à Grenoble.",
+    "relatedSlugs": ["sorel", "saucony", "cote-ciel"]
+  },
+  "saucony": {
+    "name": "Saucony",
+    "title": "Saucony Grenoble : sneakers Shadow & ProGrid | STRUKTUR",
+    "description": "Shoppez les sneakers Saucony chez STRUKTUR Grenoble : Shadow 5000, ProGrid Omni 9 et Guide 7. Choisissez votre coloris et votre pointure disponibles.",
+    "intro": "Retrouvez les sneakers Saucony de notre sélection : Shadow 5000, ProGrid Omni 9 et ProGrid Guide 7. Ouvrez un modèle pour comparer ses coloris, voir les photos correspondantes et choisir votre pointure.",
+    "detail": "Chaque coloris possède ses propres tailles, son prix et son stock. La disponibilité d’une pointure ne vaut pas pour les autres couleurs du même modèle. Pour compléter votre silhouette, explorez nos vêtements et accessoires ou passez dans notre boutique à Grenoble.",
+    "relatedSlugs": ["merrell", "sorel", "dickies"]
+  },
+  "cote-ciel": {
+    "name": "Côte&Ciel",
+    "title": "Côte&Ciel Grenoble : sacs & accessoires | STRUKTUR",
+    "description": "Découvrez les sacs Côte&Ciel chez STRUKTUR Grenoble : sacs à dos, bandoulières et accessoires. Photos, références, prix et disponibilités en ligne.",
+    "intro": "Sacs à dos, sacs à bandoulière et accessoires : découvrez la sélection Côte&Ciel de STRUKTUR Grenoble. Comparez les formes, les coloris et les détails disponibles sur chaque fiche pour trouver le sac qui accompagne votre quotidien.",
+    "detail": "Un même nom de modèle peut exister dans plusieurs matières ou finitions. Vérifiez la référence et les photos de la pièce choisie, ainsi que les informations précisées dans sa description. Notre équipe vous accueille au 45 rue Lesdiguières pour découvrir la sélection en boutique.",
+    "relatedSlugs": ["merrell", "new-amsterdam-surf-association", "daily-paper"]
+  },
+  "daily-paper": {
+    "name": "Daily Paper",
+    "title": "Daily Paper Grenoble : vêtements & streetwear | STRUKTUR",
+    "description": "Explorez Daily Paper chez STRUKTUR Grenoble : t-shirts, sweats, vestes et pantalons. Consultez les photos, tailles, coloris et stocks de chaque pièce.",
+    "intro": "T-shirts graphiques, sweats, vestes et pantalons : découvrez le vestiaire Daily Paper sélectionné par STRUKTUR à Grenoble. Consultez chaque modèle pour retrouver ses photos, sa description et les tailles actuellement proposées.",
+    "detail": "Comparez les coupes, les graphismes et les coloris avant de composer votre tenue. Le prix et le stock sont indiqués par variante sur les fiches produit. Pour un renseignement sur une pièce ou pour découvrir la sélection sur place, retrouvez-nous dans notre boutique du centre de Grenoble.",
+    "relatedSlugs": ["new-amsterdam-surf-association", "pierre-bassene-world", "helas"]
+  },
+  "pierre-bassene-world": {
+    "name": "Pierre Bassene World",
+    "title": "Pierre Bassene World Grenoble : vêtements | STRUKTUR",
+    "description": "Découvrez Pierre Bassene World chez STRUKTUR Grenoble : t-shirts, vestes, pantalons et maille. Détails des pièces, photos, tailles et disponibilité.",
+    "intro": "Découvrez les pièces Pierre Bassene World sélectionnées par STRUKTUR : t-shirts, vestes, pantalons et maille. Retrouvez les silhouettes, les motifs et les détails de chaque référence dans les photos et descriptions du catalogue.",
+    "detail": "Pour choisir une pièce, consultez les tailles proposées et leur disponibilité sur sa fiche. Les variantes peuvent avoir des stocks différents. Explorez également nos autres collections de vêtements ou venez découvrir les pièces en boutique au 45 rue Lesdiguières à Grenoble.",
+    "relatedSlugs": ["daily-paper", "helas", "new-amsterdam-surf-association"]
+  },
+  "helas": {
+    "name": "Hélas",
+    "title": "Hélas Grenoble : vêtements, denim & accessoires | STRUKTUR",
+    "description": "Retrouvez Hélas chez STRUKTUR Grenoble : t-shirts, maille, denim, casquettes et bonnets. Photos des pièces, tailles, prix et stocks en ligne.",
+    "intro": "Découvrez la sélection Hélas de STRUKTUR Grenoble : t-shirts, maille, denim et accessoires, des casquettes aux bonnets. Chaque fiche détaille le modèle et ses variantes, avec les photos et le stock disponible.",
+    "detail": "Associez les hauts et pantalons de la collection ou complétez votre tenue avec un accessoire. Vérifiez les tailles et les coloris proposés avant votre choix : la disponibilité est propre à chaque variante. La sélection est également à découvrir dans notre boutique grenobloise.",
+    "relatedSlugs": ["dickies", "new-amsterdam-surf-association", "saucony"]
+  },
+  "sorel": {
+    "name": "Sorel",
+    "title": "Sorel Grenoble : Callsign, Daystorm & Sorel × Aries | STRUKTUR",
+    "description": "Explorez les chaussures Sorel chez STRUKTUR Grenoble : Callsign, Daystorm et Sorel × Aries. Photos, coloris, pointures et disponibilités.",
+    "intro": "Découvrez les chaussures Sorel de la sélection STRUKTUR, dont les lignes Callsign et Daystorm ainsi que la collaboration Sorel × Aries. Retrouvez les photos, les couleurs et les pointures de chaque référence.",
+    "detail": "Les constructions et les caractéristiques varient selon le modèle : consultez la description de la paire choisie et sélectionnez votre pointure pour vérifier son stock. Retrouvez aussi nos autres collections de chaussures ou venez découvrir la sélection à Grenoble.",
+    "relatedSlugs": ["merrell", "saucony", "cote-ciel"]
+  },
+  "the-goodpeople": {
+    "name": "The GoodPeople",
+    "title": "The GoodPeople Grenoble : vêtements & sélection | STRUKTUR",
+    "description": "Découvrez la sélection The GoodPeople chez STRUKTUR Grenoble : chemises, sweats, t-shirts et pantalons. Photos et disponibilité sur chaque fiche.",
+    "intro": "Explorez les vêtements The GoodPeople de la sélection STRUKTUR : chemises, sweats, t-shirts et pantalons. Retrouvez les détails et les photos propres à chaque modèle sur sa fiche produit.",
+    "detail": "Une pièce affichée dans le catalogue peut être indisponible à la vente. Vérifiez toujours la taille et le stock indiqués sur sa fiche, ou contactez la boutique pour un renseignement. Retrouvez notre concept store au 45 rue Lesdiguières à Grenoble.",
+    "relatedSlugs": ["new-amsterdam-surf-association", "daily-paper", "dickies"]
+  }
+}

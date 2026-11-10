@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "include": [
+    "/produit/*",
+    "/categorie/*",
+    "/sitemap.xml",
+    "/sitemap-products.xml",
+    "/sitemap-categories.xml",
+    "/plan-du-site"
+  ],
+  "exclude": []
+}

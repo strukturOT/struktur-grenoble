@@ -32,3 +32,23 @@
 /journal/progrid-omni-9-saddle-eggshell /journal/progrid-omni-9 301
 /journal/progrid-omni-9-sage-black /journal/progrid-omni-9 301
 /journal/progrid-omni-9-eggshell-quartz /journal/progrid-omni-9 301
+# Normalize trailing slash aliases to the canonical clean URLs.
+/nouveautes/ /nouveautes 301
+/boutique/ /boutique 301
+/marques/ /marques 301
+/lookbook/ /lookbook 301
+/le-shop/ /le-shop 301
+/journal/ /journal 301
+/plan-du-site/ /plan-du-site 301
+/compte/ /compte 301
+/panier/ /panier 301
+/checkout/ /checkout 301
+/admin /app-shell 200
+/compte /app-shell 200
+/panier /app-shell 200
+/checkout /app-shell 200
+/produit/:slug/ /produit/:slug 301
+/categorie/:slug/ /categorie/:slug 301
+/journal/:slug/ /journal/:slug 301
+# Explicit client-only routes. Keep this list narrow: unknown public URLs must 404.
+/admin/* /app-shell 200

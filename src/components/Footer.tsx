@@ -22,10 +22,10 @@ const Footer = () => {
             Streetwear, sneakers & sélection premium au cœur de Grenoble. Un espace indépendant dédié à la culture urbaine.
           </p>
           <div className="flex gap-4">
-            <a href={storeInfo.instagram} target="_blank" rel="noopener noreferrer" className="p-3 border border-theme-ink/10 rounded-full hover:border-struktur-orange hover:text-struktur-orange transition-colors">
+            <a href={storeInfo.instagram} aria-label="STRUKTUR sur Instagram" target="_blank" rel="noopener noreferrer" className="p-3 border border-theme-ink/10 rounded-full hover:border-struktur-orange hover:text-struktur-orange transition-colors">
               <Camera size={20} />
             </a>
-            <a href={storeInfo.googleMaps} target="_blank" rel="noopener noreferrer" className="p-3 border border-theme-ink/10 rounded-full hover:border-struktur-orange hover:text-struktur-orange transition-colors">
+            <a href={storeInfo.googleMaps} aria-label="Itinéraire vers STRUKTUR Grenoble" target="_blank" rel="noopener noreferrer" className="p-3 border border-theme-ink/10 rounded-full hover:border-struktur-orange hover:text-struktur-orange transition-colors">
               <MapPin size={20} />
             </a>
           </div>
@@ -60,6 +60,7 @@ const Footer = () => {
           <h4 className="font-display text-lg mb-6">Nous trouver</h4>
           <p className="text-theme-ink/70 mb-2">{storeInfo.address.street}</p>
           <p className="text-theme-ink/70 mb-6">{storeInfo.address.postal} {storeInfo.address.city}</p>
+          <a href={`tel:+33${storeInfo.phone.replace(/\s/g, '').slice(1)}`} className="mb-4 block w-fit text-sm text-theme-ink/70 underline underline-offset-4 hover:text-struktur-orange">{storeInfo.phone}</a>
           <a href={storeInfo.googleMaps} target="_blank" rel="noopener noreferrer" className="text-sm text-struktur-orange uppercase tracking-widest hover:text-theme-ink transition-colors inline-block pb-1 border-b border-struktur-orange/30 hover:border-theme-ink">
             Itinéraire
           </a>
@@ -74,10 +75,11 @@ const Footer = () => {
         transition={{ duration: 1, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
       >
         <p>&copy; {new Date().getFullYear()} STRUKTUR GRENOBLE. TOUS DROITS RÉSERVÉS.</p>
-        <div className="flex gap-6">
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-3">
           <Link to="/" className="hover:text-theme-ink transition-colors">Accueil</Link>
           <Link to="/boutique" className="hover:text-theme-ink transition-colors">La Boutique</Link>
           <Link to="/journal" className="hover:text-theme-ink transition-colors">Journal</Link>
+          <Link to="/plan-du-site" className="hover:text-theme-ink transition-colors">Plan du site</Link>
         </div>
       </motion.div>
     </footer>

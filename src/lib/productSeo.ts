@@ -1,5 +1,6 @@
 import type { StoreProduct } from './commerce';
 import { formatMoney, productPrice } from './commerce';
+import { buildProductStructuredData } from '../../scripts/product-schema.mjs';
 
 export interface ProductAnswer {
   question: string;
@@ -54,42 +55,7 @@ export const productAnswers = (product: StoreProduct): ProductAnswer[] => {
   return answers;
 };
 
-export const productJsonLd = (product: StoreProduct, siteUrl: string) => {
-  const url = `${siteUrl}/produit/${product.slug}`;
-  const offers = product.variants.length > 0 ? product.variants.map((variant) => ({
-    '@type': 'Offer',
-    url,
-    sku: variant.sku,
-    priceCurrency: product.currency,
-    price: ((variant.priceCents ?? product.priceCents) / 100).toFixed(2),
-    availability: variant.stockQuantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-    ...(variant.attributes.colorway ? { color: variant.attributes.colorway } : {}),
-    ...(variant.attributes.size ? { name: `${variant.attributes.colorway || product.name} — EU ${variant.attributes.size}` } : {}),
-    itemCondition: 'https://schema.org/NewCondition',
-    seller: { '@type': 'Organization', name: 'STRUKTUR Grenoble' },
-  })) : [{
-    '@type': 'Offer',
-    url,
-    priceCurrency: product.currency,
-    price: (product.priceCents / 100).toFixed(2),
-    availability: 'https://schema.org/OutOfStock',
-    itemCondition: 'https://schema.org/NewCondition',
-    seller: { '@type': 'Organization', name: 'STRUKTUR Grenoble' },
-  }];
-
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    '@id': `${url}#product`,
-    name: product.name,
-    description: productSeoDescription(product),
-    image: product.images.map((image) => image.imageUrl),
-    sku: product.variants[0]?.sku,
-    brand: product.brand ? { '@type': 'Brand', name: product.brand } : undefined,
-    category: product.category?.name,
-    offers,
-  };
-};
+export const productJsonLd = (product: StoreProduct, siteUrl: string) => buildProductStructuredData(product, siteUrl);
 
 export const breadcrumbJsonLd = (items: Array<{ name: string; url: string }>) => ({
   '@context': 'https://schema.org',

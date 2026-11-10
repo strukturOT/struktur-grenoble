@@ -18,6 +18,7 @@ const Admin = lazy(() => import('./pages/Admin'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const Journal = lazy(() => import('./pages/Journal'));
 const ProductJournal = lazy(() => import('./pages/ProductJournal'));
+const PlanDuSite = lazy(() => import('./pages/PlanDuSite'));
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
           <Route path="journal" element={<Journal />} />
           <Route path="journal/:slug" element={<ProductJournal />} />
           <Route path="le-shop" element={<LeShop />} />
+          <Route path="plan-du-site" element={<PlanDuSite />} />
           <Route path="compte" element={<Compte />} />
           <Route path="panier" element={<Panier />} />
           <Route path="checkout" element={<Checkout />} />

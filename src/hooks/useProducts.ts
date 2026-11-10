@@ -18,7 +18,12 @@ export function useProducts({ limit, featured, order = 'newest', poolSize }: { l
 
     getPublishedProducts({ limit: order === 'mixed' ? poolSize : limit, featured }).then(({ data, error }) => {
       if (!active) return;
-      const ordered = order === 'mixed' ? mixProductBrands(data, catalogueSeed()) : data;
+      const available = (product: StoreProduct) => product.variants.some((variant) => variant.stockQuantity > 0
+        && (variant.priceCents ?? product.priceCents) > 0);
+      const seed = catalogueSeed();
+      const ordered = order === 'mixed'
+        ? [...mixProductBrands(data.filter(available), seed), ...mixProductBrands(data.filter((product) => !available(product)), seed)]
+        : data;
       setState({ products: limit ? ordered.slice(0, limit) : ordered, loading: false, error: error?.message ?? null });
     });
 

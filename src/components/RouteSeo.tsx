@@ -37,7 +37,7 @@ const privatePaths = ['/admin', '/compte', '/panier', '/checkout'];
 
 export default function RouteSeo() {
   const { pathname } = useLocation();
-  if (pathname.startsWith('/produit/') || pathname.startsWith('/categorie/') || pathname.startsWith('/journal/')) return null;
+  if (pathname === '/plan-du-site' || pathname.startsWith('/produit/') || pathname.startsWith('/categorie/') || pathname.startsWith('/journal/')) return null;
 
   const page = pages[pathname];
   if (page) {
@@ -71,6 +71,7 @@ export default function RouteSeo() {
     return <Seo {...page} path={pathname} jsonLd={jsonLd} />;
   }
 
-  const noIndex = privatePaths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  // Unknown routes must not have an index directive racing the 404 component.
+  const noIndex = !page || privatePaths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
   return <Seo title="STRUKTUR Grenoble" description="Concept store streetwear, sneakers et sélection premium à Grenoble." path={pathname} noIndex={noIndex} />;
 }

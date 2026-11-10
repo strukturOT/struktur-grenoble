@@ -14,24 +14,10 @@ export default function ProductJournal() {
   const answers = productAnswers(product);
   const canonical = `${SITE_URL}/journal/${product.slug}`;
   const description = productSeoDescription(product);
-  const articleSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    '@id': `${canonical}#article`,
-    headline: `Tout savoir sur ${product.name}`,
-    description,
-    image: product.images.map((image) => image.imageUrl),
-    mainEntityOfPage: canonical,
-    author: { '@type': 'Organization', name: 'STRUKTUR Grenoble', url: SITE_URL },
-    publisher: { '@type': 'Organization', name: 'STRUKTUR Grenoble', logo: { '@type': 'ImageObject', url: `${SITE_URL}/brand/struktur-mark.svg` } },
-    datePublished: product.createdAt,
-    dateModified: product.updatedAt,
-    inLanguage: 'fr-FR',
-  };
 
   return (
     <article className="mx-auto min-h-screen max-w-5xl px-6 pb-24 pt-32 md:px-12 md:pb-32 md:pt-44">
-      <Seo title={`Guide ${product.name} | STRUKTUR Grenoble`} description={description} path={`/journal/${product.slug}`} image={productImage(product)} type="article" noIndex={product.slug.toLowerCase().startsWith('test-')} jsonLd={[articleSchema, breadcrumbJsonLd([{ name: 'Accueil', url: SITE_URL }, { name: 'Journal', url: `${SITE_URL}/journal` }, { name: product.name, url: canonical }])]} />
+      <Seo title={`Guide ${product.name} | STRUKTUR Grenoble`} description={description} path={`/produit/${product.slug}`} image={productImage(product)} type="website" noIndex={product.slug.toLowerCase().startsWith('test-')} jsonLd={breadcrumbJsonLd([{ name: 'Accueil', url: SITE_URL }, { name: 'Journal', url: `${SITE_URL}/journal` }, { name: product.name, url: canonical }])} />
       <nav aria-label="Fil d’Ariane" className="mb-10 text-[10px] uppercase tracking-[0.18em] text-theme-ink/45"><Link to="/journal" className="hover:text-struktur-orange">Journal</Link><span className="mx-3">/</span><span>{product.name}</span></nav>
       <header className="max-w-4xl"><p className="mb-5 text-xs font-semibold uppercase tracking-[0.3em] text-struktur-orange">Guide produit · {product.brand || 'STRUKTUR'}</p><h1 className="font-display text-5xl leading-[1.02] md:text-8xl">Tout savoir sur {product.name}</h1><p className="mt-7 max-w-3xl text-xl font-light leading-relaxed text-theme-ink/65">{description}</p></header>
       {productImage(product) && <figure className="my-14 overflow-hidden bg-theme-surface md:my-20"><img src={productImage(product)!} alt={product.images[0]?.altText || product.name} className="max-h-[820px] w-full object-cover" /><figcaption className="px-4 py-3 text-[10px] uppercase tracking-[0.16em] text-theme-ink/45">{product.name} · {product.brand || 'Sélection STRUKTUR'}</figcaption></figure>}

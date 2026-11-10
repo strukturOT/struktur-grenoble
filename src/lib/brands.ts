@@ -10,7 +10,18 @@ export function brandNames(rows: ReadonlyArray<{ brand: string | null }>): strin
   return [...names.values()].sort(new Intl.Collator('fr', { sensitivity: 'base', numeric: true }).compare);
 }
 
-export const brandHref = (name: string) => `/boutique?marque=${encodeURIComponent(name)}`;
+const collectionSlugs: Record<string, string> = {
+  'côte&ciel': 'cote-ciel', 'côte & ciel': 'cote-ciel',
+  'daily paper': 'daily-paper', dickies: 'dickies', hélas: 'helas',
+  merrell: 'merrell', 'new amsterdam surf association': 'new-amsterdam-surf-association',
+  'pierre bassene world': 'pierre-bassene-world', saucony: 'saucony', sorel: 'sorel',
+  'the goodpeople': 'the-goodpeople',
+};
+
+export const brandHref = (name: string) => {
+  const slug = collectionSlugs[brandKey(name)];
+  return slug ? `/categorie/${slug}` : `/boutique?marque=${encodeURIComponent(name)}`;
+};
 
 export type BrandLogo = {
   src: string;

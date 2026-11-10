@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
@@ -6,6 +6,7 @@ import RouteSeo from './RouteSeo';
 
 const ScrollToTop = () => {
   const location = useLocation();
+  const previousLocation = useRef(location);
 
   useEffect(() => {
     const previous = window.history.scrollRestoration;
@@ -14,6 +15,15 @@ const ScrollToTop = () => {
   }, []);
 
   useLayoutEffect(() => {
+    const previous = previousLocation.current;
+    previousLocation.current = location;
+    const before = new URLSearchParams(previous.search);
+    const after = new URLSearchParams(location.search);
+    before.delete('variante');
+    after.delete('variante');
+    // Selecting a shareable size/color keeps the customer at the product controls.
+    if (previous.pathname === location.pathname && previous.hash === location.hash
+      && previous.search !== location.search && before.toString() === after.toString()) return;
     if (location.hash) {
       const frame = window.requestAnimationFrame(() => {
         const element = document.getElementById(decodeURIComponent(location.hash.slice(1)));
@@ -24,7 +34,7 @@ const ScrollToTop = () => {
     } else {
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }
-  }, [location.key, location.pathname, location.search, location.hash]);
+  }, [location]);
 
   return null;
 };

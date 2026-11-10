@@ -14,7 +14,15 @@ export interface ProductVariant {
   priceCents: number | null;
   stockQuantity: number;
   position: number;
-  attributes: { colorway?: string; colorCode?: string; size?: string };
+  attributes: {
+    colorway?: string;
+    colorCode?: string;
+    size?: string;
+    manufacturer_reference?: string;
+    source_gencode?: string;
+    import_status?: 'media_required' | 'verified' | 'stock_zero' | 'identity_review';
+    import_notes?: string;
+  };
 }
 
 export interface ProductImage {
@@ -145,7 +153,13 @@ export const productPrice = (product: StoreProduct) => {
     : Number.isInteger(product.priceCents) && product.priceCents > 0 ? product.priceCents : 0;
 };
 
-export const productImage = (product: StoreProduct) => product.images[0]?.imageUrl ?? null;
+export const productImage = (product: StoreProduct) => {
+  const availableColorway = product.variants.filter((variant) => variant.stockQuantity > 0
+    && (variant.priceCents ?? product.priceCents) > 0 && variant.attributes.colorway)
+    .sort((a, b) => (a.priceCents ?? product.priceCents) - (b.priceCents ?? product.priceCents) || a.position - b.position)[0]?.attributes.colorway;
+  return (availableColorway ? product.images.find((image) => image.colorway === availableColorway)?.imageUrl : null)
+    ?? product.images[0]?.imageUrl ?? null;
+};
 
 export interface CartVariantSnapshot {
   variantId: string;
