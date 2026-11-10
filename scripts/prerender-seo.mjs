@@ -1,17 +1,19 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { catalogPriceCents } from './catalog-price.mjs';
+import { normalizeSiteOrigin } from './site-origin.mjs';
 
 const root = process.cwd();
 const distDir = path.join(root, 'dist');
 const indexHtml = await readFile(path.join(distDir, 'index.html'), 'utf8');
-let catalog = { siteUrl: 'https://struktur-grenoble.fr', products: [], categories: [] };
+let catalog;
 try {
   catalog = JSON.parse(await readFile(path.join(root, '.seo', 'catalog.json'), 'utf8'));
 } catch {
-  console.warn('[seo] No catalogue snapshot found for route prerendering.');
+  throw new Error('[seo] Run seo:generate before prerendering; a current catalogue and site origin are required.');
 }
-const siteUrl = catalog.siteUrl.replace(/\/$/, '');
+const siteUrl = normalizeSiteOrigin(catalog.siteUrl);
+if (typeof catalog.isIndexable !== 'boolean') throw new Error('[seo] Regenerate the catalogue to resolve site indexability.');
 
 const html = (value) => String(value ?? '')
   .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
@@ -39,6 +41,7 @@ const answersFor = (product) => {
 
 function applyHead(source, { title, description, canonical, image, type = 'website', jsonLd }) {
   let output = source
+    .replace(/<meta name="robots"[^>]*>/i, `<meta name="robots" content="${catalog.isIndexable ? 'index, follow, max-image-preview:large' : 'noindex, follow'}" />`)
     .replace(/<title>[\s\S]*?<\/title>/i, `<title>${html(title)}</title>`)
     .replace(/<meta name="description"[\s\S]*?>/i, `<meta name="description" content="${html(description)}" />`)
     .replace(/<meta property="og:title"[\s\S]*?>/i, `<meta property="og:title" content="${html(title)}" />`)

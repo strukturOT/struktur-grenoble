@@ -14,7 +14,7 @@ npm run dev
 1. Create a Supabase project.
 2. Link the project and run `npx supabase db push` to apply every migration in order.
 3. Copy `.env.example` to `.env.local` and add the project URL and **publishable** key.
-4. In Authentication → URL Configuration, set Site URL to the currently deployed storefront and allow its redirects. While the shop is on Cloudflare Pages, use `https://struktur-grenoble.pages.dev` with redirect URL `https://struktur-grenoble.pages.dev/**`. Add only exact local or owned production origins when needed. Keep the existing email-confirmation/provider settings; the account screen handles either immediate sign-in or email confirmation.
+4. In Authentication → URL Configuration, use the official Site URL `https://strukturkultur.fr` and redirect URL `https://strukturkultur.fr/**`. Add only exact local or owned preview origins when needed. Keep the existing email-confirmation/provider settings; the account screen handles either immediate sign-in or email confirmation.
 5. Sign up with the account that will administer the shop, then promote that profile in SQL Editor:
 
 ```sql
@@ -55,7 +55,7 @@ Deploy the functions and configure their server-side secrets:
 npx supabase functions deploy create-checkout-session
 npx supabase functions deploy stripe-webhook --no-verify-jwt
 npx supabase secrets set \
-  SITE_URL=https://struktur-grenoble.pages.dev \
+  SITE_URL=https://strukturkultur.fr \
   STRIPE_SECRET_KEY=sk_live_replace_me \
   STRIPE_WEBHOOK_SECRET=whsec_replace_me
 ```
@@ -64,7 +64,7 @@ Choose the delivery fee later from **Admin → Livraison**. Saving explicitly wr
 
 The checkout function reads and validates that setting for every new checkout, and its read-only GET route returns the same fee for the basket/checkout totals. Invalid data or a failed settings read blocks a new payment. While the setting is absent, the legacy `STRIPE_SHIPPING_RATE_CENTS` and `STRIPE_SHIPPING_RATE_NAME` environment values remain the fallback; an absent amount defaults to `0`, preserving current free delivery. A pending reserved payment keeps its original delivery fee and total when resumed. Delivery remains France-only.
 
-`SITE_URL` must match the actual storefront origin: it controls Checkout CORS and Stripe return URLs. Align it and the Auth Site URL/redirect allowlist when the final domain is connected; do not use a future domain before it serves the shop.
+`SITE_URL` must match the official storefront origin `https://strukturkultur.fr`: it controls Checkout CORS and Stripe return URLs. Keep it aligned with the Auth Site URL and redirect allowlist.
 
 Create a Stripe webhook pointing to:
 
@@ -85,4 +85,4 @@ Subscribe it to `checkout.session.completed`, `checkout.session.async_payment_su
 
 Every production build generates `robots.txt`, an XML sitemap index with page, category, product, and product-guide maps, `llms.txt`, a full catalogue file, and an RSS feed from Supabase. The build paginates the active product catalogue and reads every category, including empty collections. Product rows whose slug starts with `test-` are deliberately excluded from SEO output. Admin, account, cart, and checkout routes are marked `noindex`.
 
-Until the final domain is chosen, leave `VITE_SITE_URL` unset. Cloudflare Pages uses its deployment URL for canonical and sitemap links and applies `noindex` so temporary previews do not appear in search results. After choosing the domain, set `VITE_SITE_URL` in Cloudflare Pages to the exact HTTPS origin without a trailing slash (for example `https://shop.example.com`). That enables indexing and stable canonical URLs. Generated SEO artifacts are ignored in Git because the build regenerates them for the current deployment and catalogue.
+Cloudflare Pages production builds from the configured `main` branch default to the official origin `https://strukturkultur.fr`, with indexing enabled. `VITE_SITE_URL` remains an optional HTTP(S) origin override. Every other Pages branch stays `noindex`, even if it inherits that variable, and uses its deployment URL for preview metadata. Local development is `noindex` unless an explicit origin is configured. The shared build-origin policy supplies Vite, generated SEO files, prerendered pages and browser metadata; browser navigation also keeps Pages-hosted aliases `noindex`. Generated SEO artifacts are ignored in Git because the build regenerates them for the current deployment and catalogue. Do not add a production-only env file as a substitute for this branch policy.

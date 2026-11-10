@@ -1,38 +1,21 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { catalogPriceCents } from './catalog-price.mjs';
+import { loadEnv } from 'vite';
+import { resolveSiteConfig } from './site-origin.mjs';
 
 const root = process.cwd();
 const publicDir = path.join(root, 'public');
 const cacheDir = path.join(root, '.seo');
 const cachePath = path.join(cacheDir, 'catalog.json');
 
-async function loadEnvFile(fileName) {
-  try {
-    const content = await readFile(path.join(root, fileName), 'utf8');
-    for (const line of content.split(/\r?\n/)) {
-      const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);
-      if (!match || process.env[match[1]]) continue;
-      const value = match[2].replace(/^(['"])(.*)\1$/, '$2');
-      process.env[match[1]] = value;
-    }
-  } catch {
-    // CI normally provides environment variables directly.
-  }
-}
-
-await loadEnvFile('.env.local');
-await loadEnvFile('.env');
-
-const configuredSiteUrl = process.env.VITE_SITE_URL;
-// Use the stable Cloudflare Pages project hostname before a custom domain is selected.
-// Deployment-specific CF_PAGES_URL is preferred in Pages builds; localhost must never
-// leak into canonical URLs, sitemaps, llms.txt, or prerendered metadata.
-const defaultPagesUrl = 'https://struktur-grenoble-4f0.pages.dev';
-const siteUrl = (configuredSiteUrl || process.env.CF_PAGES_URL || defaultPagesUrl).replace(/\/$/, '');
-const isIndexable = Boolean(configuredSiteUrl);
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+const modeFlag = process.argv.indexOf('--mode');
+const mode = modeFlag >= 0 ? process.argv[modeFlag + 1]
+  : process.env.npm_lifecycle_event === 'predev' || process.env.NODE_ENV === 'development' ? 'development' : 'production';
+const env = { ...loadEnv(mode, root, 'VITE_'), ...process.env };
+const { siteOrigin: siteUrl, isIndexable } = resolveSiteConfig(env);
+const supabaseUrl = env.VITE_SUPABASE_URL;
+const supabaseKey = env.VITE_SUPABASE_PUBLISHABLE_KEY || env.VITE_SUPABASE_ANON_KEY;
 const today = new Date().toISOString();
 
 const xml = (value) => String(value ?? '')
@@ -119,7 +102,7 @@ categories = categories
 
 await mkdir(publicDir, { recursive: true });
 await mkdir(cacheDir, { recursive: true });
-await writeFile(cachePath, `${JSON.stringify({ generatedAt: today, siteUrl, products, categories }, null, 2)}\n`);
+await writeFile(cachePath, `${JSON.stringify({ generatedAt: today, siteUrl, isIndexable, products, categories }, null, 2)}\n`);
 
 const urlSet = (entries, imageAware = false) => `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${imageAware ? ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"' : ''}>

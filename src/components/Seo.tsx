@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { DEFAULT_OG_IMAGE, SITE_URL } from '../lib/site';
+import { DEFAULT_OG_IMAGE, SITE_IS_INDEXABLE, SITE_URL } from '../lib/site';
 
 type JsonLd = Record<string, unknown> | Array<Record<string, unknown>>;
 
@@ -37,11 +37,13 @@ export default function Seo({ title, description, path = '/', image, type = 'web
   useEffect(() => {
     const canonical = `${SITE_URL}${path === '/' ? '' : path}`;
     const socialImage = image || DEFAULT_OG_IMAGE;
+    const pagesHost = window.location.hostname === 'pages.dev' || window.location.hostname.endsWith('.pages.dev');
+    const robots = noIndex ? 'noindex, nofollow' : !SITE_IS_INDEXABLE || pagesHost ? 'noindex, follow' : 'index, follow, max-image-preview:large';
 
     document.title = title;
     upsertCanonical(canonical);
     upsertMeta('meta[name="description"]', 'name', 'description', description);
-    upsertMeta('meta[name="robots"]', 'name', 'robots', noIndex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large');
+    upsertMeta('meta[name="robots"]', 'name', 'robots', robots);
     upsertMeta('meta[property="og:title"]', 'property', 'og:title', title);
     upsertMeta('meta[property="og:description"]', 'property', 'og:description', description);
     upsertMeta('meta[property="og:url"]', 'property', 'og:url', canonical);
