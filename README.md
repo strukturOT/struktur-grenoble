@@ -14,7 +14,7 @@ npm run dev
 1. Create a Supabase project.
 2. Link the project and run `npx supabase db push` to apply every migration in order.
 3. Copy `.env.example` to `.env.local` and add the project URL and **publishable** key.
-4. In Authentication → URL Configuration, add your local and production URLs as redirect URLs.
+4. In Authentication → URL Configuration, set Site URL to the currently deployed storefront and allow its redirects. While the shop is on Cloudflare Pages, use `https://struktur-grenoble.pages.dev` with redirect URL `https://struktur-grenoble.pages.dev/**`. Add only exact local or owned production origins when needed. Keep the existing email-confirmation/provider settings; the account screen handles either immediate sign-in or email confirmation.
 5. Sign up with the account that will administer the shop, then promote that profile in SQL Editor:
 
 ```sql
@@ -34,6 +34,7 @@ Do not put a Supabase `secret`/`service_role` key in Vite environment variables.
 - `/panier` — persistent client-side cart
 - `/compte` — Supabase authentication and customer order history
 - `/admin` — role-protected product and order administration
+- `/admin/livraison` — admin-only delivery fee and label, in EUR including tax
 
 ## Data model and security
 
@@ -54,14 +55,16 @@ Deploy the functions and configure their server-side secrets:
 npx supabase functions deploy create-checkout-session
 npx supabase functions deploy stripe-webhook --no-verify-jwt
 npx supabase secrets set \
-  SITE_URL=https://struktur-grenoble.fr \
+  SITE_URL=https://struktur-grenoble.pages.dev \
   STRIPE_SECRET_KEY=sk_live_replace_me \
-  STRIPE_WEBHOOK_SECRET=whsec_replace_me \
-  STRIPE_SHIPPING_RATE_CENTS=690 \
-  STRIPE_SHIPPING_RATE_NAME="Livraison standard"
+  STRIPE_WEBHOOK_SECRET=whsec_replace_me
 ```
 
-`STRIPE_SHIPPING_RATE_CENTS` is optional and defaults to `0` (free delivery) until delivery pricing is finalized.
+Choose the delivery fee later from **Admin → Livraison**. Saving explicitly writes `site_settings.shipping` as `{ "amount_cents": 0, "label": "Livraison standard" }` with the entered amount and label; merely opening the page never creates a setting. A zero amount means free delivery. Existing admin RLS restricts these changes to administrators.
+
+The checkout function reads and validates that setting for every new checkout, and its read-only GET route returns the same fee for the basket/checkout totals. Invalid data or a failed settings read blocks a new payment. While the setting is absent, the legacy `STRIPE_SHIPPING_RATE_CENTS` and `STRIPE_SHIPPING_RATE_NAME` environment values remain the fallback; an absent amount defaults to `0`, preserving current free delivery. A pending reserved payment keeps its original delivery fee and total when resumed. Delivery remains France-only.
+
+`SITE_URL` must match the actual storefront origin: it controls Checkout CORS and Stripe return URLs. Align it and the Auth Site URL/redirect allowlist when the final domain is connected; do not use a future domain before it serves the shop.
 
 Create a Stripe webhook pointing to:
 

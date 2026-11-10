@@ -45,9 +45,9 @@ const ProductDetail = () => {
   const colorVariants = hasColorways ? product.variants.filter((variant) => variant.attributes.colorway === currentColorway) : product.variants;
   const selectedVariant = colorVariants.find((variant) => variant.id === selectedVariantId);
   const visibleImages = hasColorways ? product.images.filter((image) => image.colorway === currentColorway) : product.images;
-  const chosenPrice = selectedVariant?.priceCents ?? productPrice(product);
-  const isAvailable = (selectedVariant?.stockQuantity ?? 0) > 0;
-  const hasAvailableSizes = colorVariants.some((variant) => variant.stockQuantity > 0);
+  const chosenPrice = selectedVariant ? selectedVariant.priceCents ?? product.priceCents : productPrice({ ...product, variants: colorVariants });
+  const isAvailable = (selectedVariant?.stockQuantity ?? 0) > 0 && chosenPrice > 0;
+  const hasAvailableSizes = colorVariants.some((variant) => variant.stockQuantity > 0 && (variant.priceCents ?? product.priceCents) > 0);
   const isFootwear = /^(saucony|sorel)$/i.test(product.brand || '');
   const answers = productAnswers(product);
   const productUrl = `${SITE_URL}/produit/${product.slug}`;

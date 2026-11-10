@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { catalogPriceCents } from './catalog-price.mjs';
 
 const root = process.cwd();
 const publicDir = path.join(root, 'public');
@@ -218,7 +219,7 @@ const seoHeaders = [
 await writeFile(path.join(publicDir, '_headers'), stagingHeaders + privateHeaders + seoHeaders);
 
 const productDetails = products.map((product) => {
-  const price = Math.min(product.price_cents, ...product.product_variants.map((variant) => variant.price_cents ?? product.price_cents));
+  const price = catalogPriceCents(product);
   const variants = product.product_variants.map((variant) => `${variant.name || variant.sku} (${variant.stock_quantity > 0 ? 'en stock' : 'indisponible'})`).join(', ');
   return `### ${markdown(product.name)}${product.brand ? ` — ${markdown(product.brand)}` : ''}
 

@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LogOut, Package } from 'lucide-react';
 import { useAuth } from '../auth/AuthProvider';
+import { safeAccountNext } from '../auth/authRedirect';
 import { formatMoney, getCustomerOrders, type StoreOrder } from '../lib/commerce';
 
 const Compte = () => {
@@ -15,17 +16,33 @@ const Compte = () => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [orders, setOrders] = useState<StoreOrder[]>([]);
+  const requestedNext = new URLSearchParams(location.search).get('next');
+  const nextPath = safeAccountNext(requestedNext);
 
   useEffect(() => { if (user) void getCustomerOrders().then(({ data }) => setOrders(data)); }, [user]);
+  useEffect(() => {
+    if (user && requestedNext && nextPath !== '/compte') navigate(nextPath, { replace: true });
+  }, [navigate, nextPath, requestedNext, user]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setMessage(null);
-    const error = mode === 'signin' ? await signIn(email, password) : await signUp(email, password, fullName);
-    if (error) { setMessage(error); return; }
-    if (mode === 'signup') { setMessage('Vérifiez votre e-mail pour confirmer la création de votre compte.'); return; }
-    const next = new URLSearchParams(location.search).get('next') || '/compte';
-    navigate(next);
+    try {
+      if (mode === 'signup') {
+        const result = await signUp(email, password, fullName, nextPath);
+        if (result.error) { setMessage(result.error); return; }
+        if (result.needsEmailConfirmation) {
+          setMessage('Vérifiez votre e-mail pour confirmer la création de votre compte, puis revenez poursuivre votre commande.');
+          return;
+        }
+      } else {
+        const error = await signIn(email, password);
+        if (error) { setMessage(error); return; }
+      }
+      navigate(nextPath, { replace: true });
+    } catch {
+      setMessage('Impossible de vous connecter pour le moment. Réessayez.');
+    }
   };
 
   if (!isConfigured) return <div className="flex min-h-screen items-center justify-center px-6 pb-24 pt-32 text-center"><div className="max-w-lg border border-theme-ink/10 bg-theme-surface p-8"><h1 className="text-3xl font-display">Espace client bientôt disponible.</h1><p className="mt-3 text-sm font-light leading-relaxed text-theme-ink/60">Connectez Supabase pour activer la création de compte, les adresses et l’historique des commandes.</p></div></div>;

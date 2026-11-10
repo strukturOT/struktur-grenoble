@@ -1,6 +1,7 @@
 import Stripe from 'npm:stripe@18.5.0';
 import { corsHeaders, jsonResponse, safeError } from '../_shared/http.ts';
 import { adminClient, userClient } from '../_shared/supabase.ts';
+import { resolveShippingSettings } from '../_shared/shipping.ts';
 
 interface CheckoutLineInput {
   variantId: string;
@@ -10,16 +11,17 @@ interface CheckoutLineInput {
 interface CheckoutRequest {
   checkoutKey?: string;
   lines?: CheckoutLineInput[];
+  expectedShippingCents?: number;
 }
 
 const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
-const stripe = new Stripe(stripeSecret, { httpClient: Stripe.createFetchHttpClient() });
 
-function optionalInteger(name: string) {
-  const value = Deno.env.get(name);
-  if (!value) return 0;
-  if (!value || !/^\d+$/.test(value)) throw new Error(`Configuration manquante ou invalide: ${name}`);
-  return Number(value);
+function currentShipping(admin: ReturnType<typeof adminClient>) {
+  return resolveShippingSettings(async () => {
+    const { data, error } = await admin.from('site_settings').select('value').eq('key', 'shipping').maybeSingle();
+    if (error) throw new Error('Impossible de vérifier les frais de livraison. Réessayez.');
+    return data;
+  }, Deno.env.get('STRIPE_SHIPPING_RATE_CENTS'), Deno.env.get('STRIPE_SHIPPING_RATE_NAME'));
 }
 
 function siteUrl() {
@@ -31,16 +33,19 @@ function siteUrl() {
 
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders(request) });
+  if (request.method === 'GET') {
+    try { return jsonResponse(request, { shipping: await currentShipping(adminClient()) }); }
+    catch { return jsonResponse(request, { error: 'Impossible de vérifier les frais de livraison. Réessayez avant le paiement.' }, 503); }
+  }
   if (request.method !== 'POST') return jsonResponse(request, { error: 'Méthode non autorisée.' }, 405);
 
   let orderId: string | null = null;
   let createdSessionId: string | null = null;
   let createdOrder = false;
+  let stripe: Stripe | null = null;
   const admin = adminClient();
 
   try {
-    if (!stripeSecret) throw new Error('Configuration manquante: STRIPE_SECRET_KEY');
-
     const authorization = request.headers.get('authorization');
     if (!authorization) return jsonResponse(request, { error: 'Connexion requise.' }, 401);
 
@@ -52,8 +57,23 @@ Deno.serve(async (request) => {
       return jsonResponse(request, { error: 'Votre panier est invalide.' }, 400);
     }
 
-    const shippingCents = optionalInteger('STRIPE_SHIPPING_RATE_CENTS');
-    const shippingName = Deno.env.get('STRIPE_SHIPPING_RATE_NAME')?.trim() || 'Livraison standard';
+    const { data: existing, error: existingError } = await admin.from('orders')
+      .select('id, stripe_checkout_url, shipping_cents, created_at').eq('user_id', user.id).eq('checkout_key', body.checkoutKey)
+      .eq('status', 'pending_payment').eq('payment_status', 'pending').maybeSingle();
+    if (existingError) throw existingError;
+    if (existing?.stripe_checkout_url && Date.parse(existing.created_at) + 30 * 60 * 1000 > Date.now()) {
+      if (body.expectedShippingCents !== undefined && body.expectedShippingCents !== existing.shipping_cents) {
+        return jsonResponse(request, { error: 'Cette tentative conserve un autre tarif de livraison. Vérifiez son montant réservé avant de reprendre le paiement.' }, 409);
+      }
+      return jsonResponse(request, { url: existing.stripe_checkout_url, orderId: existing.id });
+    }
+
+    if (!stripeSecret) throw new Error('Configuration manquante: STRIPE_SECRET_KEY');
+    stripe = new Stripe(stripeSecret, { httpClient: Stripe.createFetchHttpClient() });
+    const shipping = await currentShipping(admin);
+    if (body.expectedShippingCents !== undefined && body.expectedShippingCents !== shipping.amount_cents) {
+      return jsonResponse(request, { error: 'Les frais de livraison ont changé. Actualisez le panier avant de payer.' }, 409);
+    }
 
     const rpcLines = body.lines.map((line) => ({
       variant_id: line.variantId,
@@ -65,7 +85,7 @@ Deno.serve(async (request) => {
       p_checkout_key: body.checkoutKey,
       p_email: user.email,
       p_lines: rpcLines,
-      p_shipping_cents: shippingCents,
+      p_shipping_cents: shipping.amount_cents,
       p_currency: 'EUR',
     });
     const result = orderResult as { order_id?: string; created?: boolean } | null;
@@ -79,6 +99,9 @@ Deno.serve(async (request) => {
       .eq('id', orderId)
       .single();
     if (fetchError || !order) throw fetchError ?? new Error('Commande introuvable.');
+    if (body.expectedShippingCents !== undefined && body.expectedShippingCents !== order.shipping_cents) {
+      return jsonResponse(request, { error: 'Cette tentative conserve un autre tarif de livraison. Vérifiez son montant réservé avant de reprendre le paiement.' }, 409);
+    }
 
     if (order.stripe_checkout_url) {
       return jsonResponse(request, { url: order.stripe_checkout_url, orderId: order.id });
@@ -115,7 +138,7 @@ Deno.serve(async (request) => {
       shipping_options: [{
         shipping_rate_data: {
           type: 'fixed_amount',
-          display_name: shippingName,
+          display_name: shipping.label,
           fixed_amount: { amount: order.shipping_cents, currency: order.currency.toLowerCase() },
           tax_behavior: 'inclusive',
         },
@@ -140,7 +163,7 @@ Deno.serve(async (request) => {
     return jsonResponse(request, { url: session.url, orderId: order.id });
   } catch (error) {
     console.error('create-checkout-session', error);
-    if (createdSessionId) {
+    if (createdSessionId && stripe) {
       try { await stripe.checkout.sessions.expire(createdSessionId); } catch (expireError) {
         console.error('Unable to expire Stripe session', expireError);
       }

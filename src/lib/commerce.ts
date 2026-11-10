@@ -1,6 +1,9 @@
 import { supabase } from './supabase';
 import { optimizeProductImage } from './imageOptimization';
 import { brandNames } from './brands';
+import { parseShippingSettings, type ShippingSettings } from '../../supabase/functions/_shared/shipping';
+
+export type { ShippingSettings } from '../../supabase/functions/_shared/shipping';
 
 export type ProductStatus = 'draft' | 'active' | 'archived';
 
@@ -131,14 +134,85 @@ export const formatMoney = (amountCents: number, currency = 'EUR') =>
   new Intl.NumberFormat('fr-FR', { style: 'currency', currency }).format(amountCents / 100);
 
 export const productPrice = (product: StoreProduct) => {
-  const prices = product.variants
-    .map((variant) => variant.priceCents ?? product.priceCents)
-    .filter((price) => Number.isFinite(price));
+  const pricedVariants = product.variants
+    .map((variant) => ({ price: variant.priceCents ?? product.priceCents, inStock: variant.stockQuantity > 0 }))
+    .filter(({ price }) => Number.isInteger(price) && price > 0);
+  const availablePrices = pricedVariants.filter(({ inStock }) => inStock).map(({ price }) => price);
+  const prices = availablePrices.length > 0 ? availablePrices : pricedVariants.map(({ price }) => price);
 
-  return prices.length > 0 ? Math.min(...prices) : product.priceCents;
+  return prices.length > 0
+    ? Math.min(...prices)
+    : Number.isInteger(product.priceCents) && product.priceCents > 0 ? product.priceCents : 0;
 };
 
 export const productImage = (product: StoreProduct) => product.images[0]?.imageUrl ?? null;
+
+export interface CartVariantSnapshot {
+  variantId: string;
+  productId: string;
+  name: string;
+  brand: string | null;
+  variantName: string | null;
+  imageUrl: string | null;
+  priceCents: number;
+  currency: string;
+  stockQuantity: number;
+}
+
+/** Re-read only the public catalogue data needed to verify a saved basket. */
+export async function getCartVariantSnapshots(variantIds: string[]): Promise<CartVariantSnapshot[]> {
+  if (variantIds.length === 0) return [];
+  if (!supabase) throw new Error('La boutique n’est pas configurée.');
+
+  interface CartVariantRow {
+    id: string;
+    product_id: string;
+    name: string | null;
+    sku: string;
+    price_cents: number | null;
+    stock_quantity: number;
+    attributes: ProductVariant['attributes'] | null;
+    products: {
+      id: string;
+      name: string;
+      brand: string | null;
+      price_cents: number;
+      currency: string;
+      product_images: Array<{ image_url: string; position: number; alt_text: string | null }>;
+    };
+  }
+
+  const snapshots: CartVariantSnapshot[] = [];
+  const uniqueIds = [...new Set(variantIds)];
+  for (let offset = 0; offset < uniqueIds.length; offset += 100) {
+    const { data, error } = await supabase.from('product_variants')
+      .select('id, product_id, name, sku, price_cents, stock_quantity, attributes, products!inner(id, name, brand, price_cents, currency, product_images(image_url, position, alt_text))')
+      .in('id', uniqueIds.slice(offset, offset + 100))
+      .eq('products.status', 'active')
+      .not('products.slug', 'like', 'test-%');
+    if (error) throw error;
+
+    for (const row of (data ?? []) as unknown as CartVariantRow[]) {
+      const product = row.products;
+      const images = [...(product.product_images ?? [])].sort((a, b) => a.position - b.position);
+      const colorway = row.attributes?.colorway;
+      const hasColorway = product.brand?.toLowerCase() === 'saucony' && colorway;
+      const image = (hasColorway ? images.find((entry) => entry.alt_text?.startsWith(`${product.name} — ${colorway} — `)) : null) ?? images[0];
+      snapshots.push({
+        variantId: row.id,
+        productId: product.id,
+        name: product.name,
+        brand: product.brand,
+        variantName: hasColorway ? `${colorway} · EU ${row.attributes?.size || row.name || ''}` : row.name,
+        imageUrl: image?.image_url ?? null,
+        priceCents: row.price_cents ?? product.price_cents,
+        currency: product.currency,
+        stockQuantity: row.stock_quantity,
+      });
+    }
+  }
+  return snapshots;
+}
 
 export async function getPublishedProducts(options: { limit?: number; featured?: boolean } = {}) {
   if (!supabase) return { data: [] as StoreProduct[], error: null };
@@ -531,10 +605,11 @@ export async function getAdminOrders() {
 export async function startStripeCheckout(
   lines: Array<{ variantId: string; quantity: number }>,
   checkoutKey: string,
+  expectedShippingCents?: number,
 ) {
   if (!supabase) throw new Error('Supabase n’est pas configuré.');
   const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-    body: { lines, checkoutKey },
+    body: { lines, checkoutKey, ...(expectedShippingCents === undefined ? {} : { expectedShippingCents }) },
   });
   if (error) {
     let message = error.message;
@@ -551,6 +626,61 @@ export async function startStripeCheckout(
   }
   if (!data?.url) throw new Error('Impossible d’ouvrir la page de paiement.');
   return data as { url: string; orderId: string };
+}
+
+export async function getShippingSettings(): Promise<ShippingSettings> {
+  if (!supabase) throw new Error('La boutique n’est pas configurée.');
+  const { data, error } = await supabase.functions.invoke('create-checkout-session', { method: 'GET' });
+  if (error || !data?.shipping) throw new Error('Impossible de vérifier les frais de livraison. Réessayez avant le paiement.');
+  return parseShippingSettings(data.shipping);
+}
+
+export async function saveShippingSettings(input: ShippingSettings): Promise<ShippingSettings> {
+  if (!supabase) throw new Error('La boutique n’est pas configurée.');
+  const setting = parseShippingSettings(input);
+  const { data, error } = await supabase.from('site_settings')
+    .upsert({ key: 'shipping', value: setting, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+    .select('value').single();
+  if (error || !data) throw new Error('Impossible d’enregistrer le tarif de livraison. Vérifiez votre accès administrateur et réessayez.');
+  return parseShippingSettings(data.value);
+}
+
+export const isStripeCheckoutUrl = (value: string) => {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && url.hostname === 'checkout.stripe.com' && (!url.port || url.port === '443') && !url.username && !url.password;
+  } catch { return false; }
+};
+
+export interface PendingCheckout {
+  orderId: string;
+  url: string | null;
+  subtotalCents: number;
+  totalCents: number;
+  shippingCents: number;
+  currency: string;
+  expiresAt: number;
+}
+
+/** The signed-in shopper can resume only their own existing, unchanged basket. */
+export async function getPendingCheckout(checkoutKey: string, userId: string): Promise<PendingCheckout | null> {
+  if (!supabase) throw new Error('La boutique n’est pas configurée.');
+  const { data, error } = await supabase.from('orders')
+    .select('id, stripe_checkout_url, subtotal_cents, shipping_cents, total_cents, currency, created_at')
+    .eq('user_id', userId).eq('checkout_key', checkoutKey)
+    .eq('status', 'pending_payment').eq('payment_status', 'pending').maybeSingle();
+  if (error) throw new Error('Impossible de vérifier votre tentative de paiement. Réessayez.');
+  if (!data) return null;
+  if (data.stripe_checkout_url && !isStripeCheckoutUrl(data.stripe_checkout_url)) throw new Error('Cette page de paiement est indisponible. Réessayez.');
+  return {
+    orderId: data.id,
+    url: data.stripe_checkout_url,
+    subtotalCents: data.subtotal_cents,
+    totalCents: data.total_cents,
+    shippingCents: data.shipping_cents ?? Math.max(0, data.total_cents - data.subtotal_cents),
+    currency: data.currency,
+    expiresAt: new Date(data.created_at).getTime() + 30 * 60 * 1000,
+  };
 }
 
 export async function getCheckoutOrderBySession(sessionId: string) {

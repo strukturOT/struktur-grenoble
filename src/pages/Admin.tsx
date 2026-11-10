@@ -7,9 +7,10 @@ import { useAuth } from '../auth/AuthProvider';
 import { createCategory, createProduct, deleteCategory, formatMoney, getAdminCategories, getAdminCustomers, getAdminMessages, getAdminOrders, getAdminProducts, productImage, updateCategory, type ContactMessage, type ProductStatus, type ProductVariant, type StoreCategory, type StoreCustomer, type StoreOrder, type StoreProduct, updateCustomerRole, updateMessageStatus, updateProduct, updateProductStatus } from '../lib/commerce';
 import { AdminOperations } from '../components/AdminOperations';
 import { formatFileSize } from '../lib/imageOptimization';
+import AdminShipping from '../components/AdminShipping';
 
 type VariantDraft = { id: string; variantId?: string; name: string; sku: string; price: string; stock: string; attributes: ProductVariant['attributes'] };
-export type AdminPage = 'overview' | 'catalogue' | 'categories' | 'orders' | 'messages' | 'clients' | 'access';
+export type AdminPage = 'overview' | 'catalogue' | 'categories' | 'shipping' | 'orders' | 'messages' | 'clients' | 'access';
 
 const createVariant = (): VariantDraft => ({ id: crypto.randomUUID(), name: '', sku: '', price: '', stock: '0', attributes: {} });
 const createInitialForm = () => ({ name: '', slug: '', brand: '', description: '', price: '', currency: 'EUR', status: 'draft' as ProductStatus, featured: false, categoryId: '' });
@@ -25,6 +26,7 @@ const Admin = ({ page = 'overview' }: { page?: AdminPage }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [panelProduct, setPanelProduct] = useState<StoreProduct | null | undefined>(undefined);
   const [panelCategory, setPanelCategory] = useState<StoreCategory | null | undefined>(undefined);
+  const [shippingRefresh, setShippingRefresh] = useState(0);
 
   const loadDashboard = useCallback(async () => {
     setIsLoading(true);
@@ -73,7 +75,7 @@ const Admin = ({ page = 'overview' }: { page?: AdminPage }) => {
 
   return (
     <div className="admin-light min-h-screen bg-[#0b0b0c] text-[#f2f0ec]">
-      <AdminNavigation adminName={profile?.fullName} onRefresh={loadDashboard} isLoading={isLoading} />
+      <AdminNavigation adminName={profile?.fullName} onRefresh={() => { void loadDashboard(); setShippingRefresh((value) => value + 1); }} isLoading={isLoading} />
       <main className="mx-auto max-w-[1560px] px-5 pb-16 pt-36 md:ml-[248px] md:px-10 md:pt-12 xl:px-14">
         {page === 'overview' && <section className="border-b border-white/10 pb-10">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.3em] text-struktur-orange">Struktur · opérations</p>
@@ -97,6 +99,7 @@ const Admin = ({ page = 'overview' }: { page?: AdminPage }) => {
           <SectionHeading eyebrow="Ventes" title="Commandes" detail={`${orders.length} récente${orders.length > 1 ? 's' : ''}`} />
           {isLoading ? <TableSkeleton rows={3} /> : orders.length > 0 ? <div className="overflow-x-auto border-y border-white/10"><table className="w-full min-w-[680px] text-left"><thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.16em] text-white/40"><tr><th className="px-3 py-4 font-medium">Commande</th><th className="px-3 py-4 font-medium">Date</th><th className="px-3 py-4 font-medium">Paiement</th><th className="px-3 py-4 font-medium">Statut</th><th className="px-3 py-4 font-medium">Total</th></tr></thead><tbody>{orders.map((order) => <OrderRow key={order.id} order={order} />)}</tbody></table></div> : <EmptyWorkspace icon={<ShoppingBag size={26} />} title="Aucune commande à afficher." detail="Les commandes apparaîtront ici uniquement après confirmation du paiement sécurisé." />}
         </section>}
+        {page === 'shipping' && <AdminShipping refreshKey={shippingRefresh} />}
         {page === 'messages' && <AdminOperations section="messages" customers={customers} messages={messages} orders={orders} onRoleChange={changeRole} onMessageStatusChange={changeMessageStatus} />}
         {page === 'clients' && <AdminOperations section="clients" customers={customers} messages={messages} orders={orders} onRoleChange={changeRole} onMessageStatusChange={changeMessageStatus} />}
         {page === 'access' && <AdminOperations section="access" customers={customers} messages={messages} orders={orders} onRoleChange={changeRole} onMessageStatusChange={changeMessageStatus} />}
@@ -110,7 +113,7 @@ const Admin = ({ page = 'overview' }: { page?: AdminPage }) => {
 const AdminNavigation = ({ adminName, onRefresh, isLoading }: { adminName: string | null | undefined; onRefresh: () => void; isLoading: boolean }) => <>
   <aside className="fixed inset-x-0 top-0 z-40 flex h-[68px] items-center justify-between border-b border-white/10 bg-[#0b0b0c]/95 px-5 backdrop-blur-md md:inset-y-0 md:left-0 md:right-auto md:h-screen md:w-[248px] md:flex-col md:items-stretch md:border-b-0 md:border-r md:px-6 md:py-8">
     <a href="/" className="font-display text-xl font-bold tracking-[0.18em]">STRUKTUR</a>
-    <nav className="absolute left-0 top-full flex w-screen overflow-x-auto border-b border-white/10 bg-[#0b0b0c]/95 px-2 py-1 backdrop-blur-md md:static md:block md:w-auto md:space-y-1 md:border-0 md:bg-transparent md:px-0 md:py-0"><AdminNavItem to="/admin" end icon={<LayoutDashboard size={16} />} label="Vue d’ensemble" /><AdminNavItem to="/admin/catalogue" icon={<Layers3 size={16} />} label="Catalogue" /><AdminNavItem to="/admin/categories" icon={<Tags size={16} />} label="Catégories" /><AdminNavItem to="/admin/commandes" icon={<ShoppingBag size={16} />} label="Commandes" /><AdminNavItem to="/admin/messages" icon={<Mail size={16} />} label="Messages" /><AdminNavItem to="/admin/clients" icon={<UsersRound size={16} />} label="Clients" /><AdminNavItem to="/admin/acces" icon={<ShieldCheck size={16} />} label="Accès équipe" /></nav>
+    <nav className="absolute left-0 top-full flex w-screen overflow-x-auto border-b border-white/10 bg-[#0b0b0c]/95 px-2 py-1 backdrop-blur-md md:static md:block md:w-auto md:space-y-1 md:border-0 md:bg-transparent md:px-0 md:py-0"><AdminNavItem to="/admin" end icon={<LayoutDashboard size={16} />} label="Vue d’ensemble" /><AdminNavItem to="/admin/catalogue" icon={<Layers3 size={16} />} label="Catalogue" /><AdminNavItem to="/admin/categories" icon={<Tags size={16} />} label="Catégories" /><AdminNavItem to="/admin/livraison" icon={<Package size={16} />} label="Livraison" /><AdminNavItem to="/admin/commandes" icon={<ShoppingBag size={16} />} label="Commandes" /><AdminNavItem to="/admin/messages" icon={<Mail size={16} />} label="Messages" /><AdminNavItem to="/admin/clients" icon={<UsersRound size={16} />} label="Clients" /><AdminNavItem to="/admin/acces" icon={<ShieldCheck size={16} />} label="Accès équipe" /></nav>
     <div className="flex items-center gap-4 md:flex-col md:items-stretch md:gap-5"><button type="button" onClick={onRefresh} aria-label="Actualiser les données" className="inline-flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.16em] text-white/50 transition-colors hover:text-struktur-orange"><RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} /><span className="hidden md:inline">Actualiser</span></button><div className="hidden border-t border-white/10 pt-5 md:block"><p className="text-[10px] uppercase tracking-[0.18em] text-white/35">Connecté en tant que</p><p className="mt-1 truncate text-sm text-white/70">{adminName || 'Administrateur'}</p><a href="/" className="mt-4 inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-white/45 transition-colors hover:text-struktur-orange">Voir le site <ArrowUpRight size={13} /></a></div></div>
   </aside>
 </>;

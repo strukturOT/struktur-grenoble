@@ -14,7 +14,7 @@ export function corsHeaders(request: Request) {
   return {
     'Access-Control-Allow-Origin': allowed.has(origin) ? origin : siteOrigin,
     'Access-Control-Allow-Headers': allowedHeaders,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     Vary: 'Origin',
   };
 }
@@ -22,7 +22,7 @@ export function corsHeaders(request: Request) {
 export function jsonResponse(request: Request, body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders(request), 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders(request), 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
   });
 }
 

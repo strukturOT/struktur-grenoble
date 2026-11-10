@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { catalogPriceCents } from './catalog-price.mjs';
 
 const root = process.cwd();
 const distDir = path.join(root, 'dist');
@@ -26,7 +27,7 @@ const answersFor = (product) => {
   const variants = product.product_variants || [];
   const available = variants.filter((variant) => variant.stock_quantity > 0);
   const named = variants.map((variant) => variant.name).filter(Boolean);
-  const lowestPrice = Math.min(product.price_cents, ...variants.map((variant) => variant.price_cents ?? product.price_cents));
+  const lowestPrice = catalogPriceCents(product);
   const formattedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: product.currency }).format(lowestPrice / 100);
   return [
     { question: `Quel est le prix de ${product.name} ?`, answer: `${product.name} est proposé à partir de ${formattedPrice}. Le prix affiché sur la fiche produit est mis à jour depuis le catalogue STRUKTUR.` },
@@ -105,7 +106,7 @@ for (const product of catalog.products) {
   const offers = (product.product_variants?.length ? product.product_variants : [{ price_cents: product.price_cents, stock_quantity: 0 }]).map((variant) => ({ '@type': 'Offer', url: canonical, sku: variant.sku, priceCurrency: product.currency, price: ((variant.price_cents ?? product.price_cents) / 100).toFixed(2), availability: variant.stock_quantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock', itemCondition: 'https://schema.org/NewCondition', seller: { '@type': 'Organization', name: 'STRUKTUR Grenoble' } }));
   const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: answers.map((item) => ({ '@type': 'Question', name: item.question, acceptedAnswer: { '@type': 'Answer', text: item.answer } })) };
   const schema = [{ '@context': 'https://schema.org', '@type': 'Product', '@id': `${canonical}#product`, name: product.name, description, image: product.product_images.map((item) => item.image_url), sku: product.product_variants?.[0]?.sku, brand: product.brand ? { '@type': 'Brand', name: product.brand } : undefined, category: product.categories?.name, offers }, faqSchema, breadcrumb([{ name: 'Accueil', url: siteUrl }, { name: 'Boutique', url: `${siteUrl}/boutique` }, { name: product.name, url: canonical }])];
-  const fallback = `<main style="padding:8rem 2rem;max-width:900px;margin:auto"><article><p>${html(product.brand || 'STRUKTUR')}</p><h1>${html(product.name)}</h1><p>${html(description)}</p><p>${html((product.price_cents / 100).toFixed(2))} ${html(product.currency)}</p><h2>Questions fréquentes</h2>${answers.map((item) => `<h3>${html(item.question)}</h3><p>${html(item.answer)}</p>`).join('')}<a href="/boutique">Retour à la boutique</a></article></main>`;
+  const fallback = `<main style="padding:8rem 2rem;max-width:900px;margin:auto"><article><p>${html(product.brand || 'STRUKTUR')}</p><h1>${html(product.name)}</h1><p>${html(description)}</p><p>${html((catalogPriceCents(product) / 100).toFixed(2))} ${html(product.currency)}</p><h2>Questions fréquentes</h2>${answers.map((item) => `<h3>${html(item.question)}</h3><p>${html(item.answer)}</p>`).join('')}<a href="/boutique">Retour à la boutique</a></article></main>`;
   await writeRoute(`/produit/${product.slug}`, { title: text(product.seo_title) || `${product.name}${product.brand ? ` par ${product.brand}` : ''} | STRUKTUR`, description, canonical, image, type: 'product', jsonLd: schema }, fallback);
 
   const articleCanonical = `${siteUrl}/journal/${product.slug}`;
