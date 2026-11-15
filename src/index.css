@@ -186,6 +186,9 @@
 }
 
 .admin-light [class~="text-[#f2f0ec]"] { color: #181715; }
+.admin-light input[class~="text-white"],
+.admin-light select[class~="text-white"],
+.admin-light textarea[class~="text-white"] { color: #181715; }
 .admin-light [class~="placeholder:text-white/25"]::placeholder { color: rgb(24 23 21 / 0.32); }
 .admin-light [class~="hover:text-white"]:hover { color: #181715; }
 .admin-light [class~="hover:bg-white/5"]:hover { background-color: rgb(24 23 21 / 0.05); }
