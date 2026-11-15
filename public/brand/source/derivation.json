@@ -1,0 +1,30 @@
+{
+  "source": "source/struktur-kultur-2026-11-12.jpg",
+  "source_sha256": "afd6acc494538734aabfda8839d5773ab8179e93b4c4e2a2fa3414a1e04b1bde",
+  "source_size": [
+    1536,
+    1024
+  ],
+  "crop": [
+    112,
+    340,
+    1422,
+    579
+  ],
+  "svg_viewbox": [
+    112,
+    340,
+    1310,
+    239
+  ],
+  "embedded_jpeg_bytes_unchanged": true,
+  "lockup_size": [
+    1310,
+    239
+  ],
+  "favicon": "First S component from supplied lettering; source edge pixels retained; scaled for 32px icon.",
+  "og_size": [
+    1200,
+    630
+  ]
+}

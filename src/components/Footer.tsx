@@ -17,7 +17,7 @@ const Footer = () => {
           viewport={{ once: true, margin: "-10%" }}
           transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          <Logo variant="wordmark" className="h-8 text-theme-ink mb-6" />
+          <Logo className="mb-6 w-[320px] max-w-full sm:w-[350px]" />
           <p className="text-theme-ink/70 max-w-sm mb-8 font-light">
             Streetwear, sneakers & sélection premium au cœur de Grenoble. Un espace indépendant dédié à la culture urbaine.
           </p>

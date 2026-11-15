@@ -21,6 +21,9 @@ export interface ProductVariant {
     color?: string;
     colorCode?: string;
     size?: string;
+    color_not_applicable?: boolean;
+    source_size_missing?: boolean;
+    size_confirmation_required?: boolean;
     manufacturer_reference?: string;
     source_reference?: string;
     source_supplier_reference?: string;

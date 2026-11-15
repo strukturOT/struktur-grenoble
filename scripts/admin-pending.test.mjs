@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { canRemoveDraftVariant, confirmImportedVariants, editableVariantColor, editVariantColor, pendingProducts, variantColor } from '../src/lib/adminPending.mjs';
+import { canRemoveDraftVariant, confirmImportedVariants, editableVariantColor, editVariantColor, editVariantSize, newVariantAttributes, pendingProducts, variantColor } from '../src/lib/adminPending.mjs';
 import { variantWriteValues } from '../src/lib/adminVariantPatch.mjs';
 import { saveProductWithPhotoGuard } from '../src/lib/adminCatalog.mjs';
 
@@ -100,4 +100,53 @@ test('an archived product also stays unpublished when its variant update fails',
     assert.equal(input.status, 'draft');throw new Error('Variant update failed');
   }, async () => { published = true; }), /Variant update failed/);
   assert.equal(published, false);
+});
+
+test('book and room-fragrance formats can be confirmed without inventing a clothing color', () => {
+  const source = variant({ import_status: 'identity_review', color_not_applicable: true, source_reference: 'LJH11-A', source_signed_stock: 6 }, 6);
+  source.name = '50 ml';
+  const item = product('fragrance', {}, { variants: [source], images: [{ imageUrl: 'https://example.com/50ml.webp' }] });
+  assert.equal(pendingProducts([item], { reason: 'color' }).length, 0);
+  const [confirmed] = confirmImportedVariants([source], { confirmed: true, hasPhoto: true, publish: true });
+  assert.equal(confirmed.attributes.import_status, 'verified');
+  assert.equal(confirmed.attributes.colorway, undefined);
+  assert.equal(confirmed.attributes.admin_confirmation.color_not_applicable, true);
+  assert.equal(confirmed.stockQuantity, 6);
+  assert.equal(confirmed.attributes.source_reference, 'LJH11-A');
+});
+
+test('official sock photos never bypass missing physical pointures or aggregate stock review', () => {
+  const source = { ...variant({ import_status: 'verified', colorway: 'Violet clair', size_confirmation_required: true, source_size_missing: true, source_reference: 'P005801', source_aggregate_units: 6 }, 6), name: 'Pointures à confirmer' };
+  const item = product('socks', {}, { variants: [source], images: [{ imageUrl: 'https://example.com/socks.webp' }] });
+  assert.equal(pendingProducts([item], { reason: 'size' }).length, 1);
+  assert.throws(() => confirmImportedVariants([source], { confirmed: true, hasPhoto: true, publish: true }), /pointures/);
+  const corrected = { ...source, name: '36–40', attributes: editVariantSize(source.attributes, '36–40') };
+  const [confirmed] = confirmImportedVariants([corrected], { confirmed: true, hasPhoto: true, publish: true });
+  assert.equal(confirmed.attributes.size_confirmation_required, false);
+  assert.equal(confirmed.attributes.admin_confirmation.confirmed_size, '36–40');
+  assert.equal(confirmed.stockQuantity, 6);
+  assert.equal(confirmed.priceCents, source.priceCents);
+  assert.equal(confirmed.attributes.source_aggregate_units, 6);
+  const editedAgain = editVariantSize(confirmed.attributes, '41–46');
+  assert.equal(editedAgain.size_confirmation_required, true);
+  assert.equal(editedAgain.import_status, 'identity_review');
+  assert.equal(editedAgain.admin_confirmation, undefined);
+  assert.equal(editedAgain.verification_history.at(-1).admin_confirmation.confirmed_size, '36–40');
+});
+
+test('splitting aggregate sock stock into new rows keeps size confirmation without duplicating source codes', () => {
+  const aggregate = { ...variant({ import_status: 'identity_review', source_size_missing: true, size_confirmation_required: true, colorway: 'Vert', source_gencode: 'SOURCE-ONLY', source_aggregate_units: 6 }, 0), name: 'Pointures à confirmer' };
+  const added = { ...variant(newVariantAttributes([aggregate]), 6), name: '' };
+  assert.equal(added.attributes.colorway, 'Vert');
+  assert.equal(added.attributes.source_gencode, undefined);
+  assert.equal(added.attributes.source_aggregate_units, undefined);
+  assert.throws(() => confirmImportedVariants([aggregate, added], { confirmed: true, hasPhoto: true, publish: true }), /pointures/);
+  const split = [{ ...added, name: '36–40', stockQuantity: 3 }, { ...added, id: 'second-size', sku: 'OTHER-SKU', name: '41–46', stockQuantity: 3 }];
+  const result = confirmImportedVariants([aggregate, ...split], { confirmed: true, hasPhoto: true, publish: true });
+  assert.equal(result.reduce((sum, row) => sum + row.stockQuantity, 0), 6);
+  assert.equal(result[0].attributes.source_aggregate_units, 6);
+  assert.equal(result[0].attributes.source_gencode, 'SOURCE-ONLY');
+  assert.equal(result[1].attributes.admin_confirmation.confirmed_size, '36–40');
+  assert.equal(result[2].attributes.admin_confirmation.confirmed_size, '41–46');
+  assert.deepEqual(newVariantAttributes([variant({})]), {});
 });
