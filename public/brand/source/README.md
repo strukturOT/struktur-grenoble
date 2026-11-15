@@ -2,6 +2,6 @@
 
 `struktur-kultur-2026-11-12.jpg` is the unmodified logo artwork supplied by the boutique on 12 November 2026 at 16:38. Its SHA-256 and derivative dimensions are recorded in `derivation.json`.
 
-The wordmark SVGs embed those original JPEG bytes and crop only the empty black margins with `viewBox="112 340 1310 239"`. The orange lettering, italic `//KULTUR`, spacing, and black field are unchanged. These SVGs contain raster artwork, not replacement typography or a vector redraw. The legacy `-dark` and `-light` asset names resolve to this same supplied lockup.
+The transparent wordmark preserves the supplied STRUKTUR lettering and italic `//KULTUR` geometry, spacing, and relative placement. Native SVG alpha composition removes the black field and JPEG matte; a flat `#ff3c00` orange fill keeps the edges clean on light backgrounds. No replacement font or typesetting is used. The result is a 1310 × 239 transparent PNG embedded in the main SVG and both legacy wordmark aliases. A standalone copy is available as `../struktur-lockup-transparent.png`.
 
-The 1200 × 630 sharing image places that lockup on black with no additional wording. The square mark and favicon isolate the first S from the supplied artwork; they do not introduce a separate font or symbol.
+The 1200 × 630 sharing image uses the website’s `#faf9f7` canvas. The square mark and favicon isolate the first S from the supplied artwork on a transparent background; they do not introduce a separate font or symbol. The original source JPEG remains unchanged.

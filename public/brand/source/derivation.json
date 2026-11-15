@@ -5,26 +5,28 @@
     1536,
     1024
   ],
+  "source_file_unchanged": true,
   "crop": [
     112,
     340,
     1422,
     579
   ],
-  "svg_viewbox": [
-    112,
-    340,
-    1310,
-    239
-  ],
-  "embedded_jpeg_bytes_unchanged": true,
   "lockup_size": [
     1310,
     239
   ],
-  "favicon": "First S component from supplied lettering; source edge pixels retained; scaled for 32px icon.",
+  "transparent_background": true,
+  "derivation": "Original glyph coverage extracted with native SVG alpha composition; flat orange #ff3c00 ink, black field and JPEG matte removed. No replacement font or typesetting.",
+  "coverage": {
+    "channel": "red",
+    "slope": 1.12,
+    "intercept": -0.12
+  },
+  "favicon": "Original first S, transparent 200px master and 32px PNG.",
   "og_size": [
     1200,
     630
-  ]
+  ],
+  "og_background": "#faf9f7"
 }

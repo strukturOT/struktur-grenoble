@@ -3,7 +3,7 @@ type LogoProps = {
   className?: string;
 };
 
-/** Client artwork from 12 November 2026; no font substitution or recoloring. */
+/** Supplied lettering with a transparent background and clean orange edges. */
 export const Logo = ({ variant = 'wordmark', className = '' }: LogoProps) => (
   <img
     src={variant === 'mark' ? '/brand/struktur-mark.svg' : '/brand/struktur-lockup.svg'}
