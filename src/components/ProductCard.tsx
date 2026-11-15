@@ -1,15 +1,16 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import type { StoreProduct } from '../lib/commerce';
-import { formatMoney, productImage, productPrice } from '../lib/commerce';
+import { productImage } from '../lib/commerce';
+import { productPricing } from '../lib/promotions.mjs';
+import PriceDisplay from './PriceDisplay';
 
 const ProductCard = ({ product, index = 0 }: { product: StoreProduct; index?: number }) => {
   const image = productImage(product);
   const reduceMotion = useReducedMotion();
   const colorwayCount = new Set(product.variants.map((variant) => variant.attributes.colorway).filter(Boolean)).size;
   const inStock = product.variants.some((variant) => variant.stockQuantity > 0 && (variant.priceCents ?? product.priceCents) > 0);
-  const priceRange = new Set(product.variants.filter((variant) => !inStock || variant.stockQuantity > 0)
-    .map((variant) => variant.priceCents ?? product.priceCents).filter((price) => price > 0)).size > 1;
+  const pricing = productPricing(product);
 
   return (
     <motion.article
@@ -21,6 +22,7 @@ const ProductCard = ({ product, index = 0 }: { product: StoreProduct; index?: nu
     >
       <Link to={`/produit/${product.slug}`} className="block">
         <div className="relative aspect-[4/5] overflow-hidden bg-white">
+          {pricing.discounted && <span className="absolute left-3 top-3 z-10 bg-struktur-orange px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-white">{pricing.percentage > 0 ? `−${pricing.percentage} %` : 'Promotion'}</span>}
           {image ? (
             <img
               src={image}
@@ -49,7 +51,7 @@ const ProductCard = ({ product, index = 0 }: { product: StoreProduct; index?: nu
           </div>
           {product.brand && <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.04em] text-theme-ink/65 md:text-[11px]">{product.brand}</p>}
           <h2 className="break-words font-sans text-[13px] font-semibold leading-snug tracking-[-0.015em] transition-colors group-hover:text-struktur-orange md:text-base">{product.name}</h2>
-          <p className="mt-1.5 text-sm text-theme-ink md:text-base">{priceRange ? 'À partir de ' : ''}{formatMoney(productPrice(product), product.currency)}</p>
+          <p className="mt-1.5 text-sm text-theme-ink md:text-base"><PriceDisplay {...pricing} currency={product.currency} from={pricing.hasPriceRange} /></p>
         </div>
       </Link>
     </motion.article>

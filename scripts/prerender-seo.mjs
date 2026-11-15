@@ -4,8 +4,10 @@ import { catalogPriceCents } from './catalog-price.mjs';
 import { normalizeSiteOrigin } from './site-origin.mjs';
 import { buildProductStructuredData } from './product-schema.mjs';
 import { canonicalUrl, PRIVATE_ROUTES } from './seo-utils.mjs';
+import { productPricing, rowPromotion, variantPriceCents } from '../src/lib/promotions.mjs';
 
 const root = process.cwd();
+const pricingNow = Date.now();
 const distDir = path.join(root, 'dist');
 const indexHtml = await readFile(path.join(distDir, 'index.html'), 'utf8');
 let catalog;
@@ -21,6 +23,16 @@ const collectionContent = JSON.parse(await readFile(path.join(root, 'scripts/dat
 const html = (value) => String(value ?? '')
   .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
 const text = (value) => String(value ?? '').replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+const priceMarkup = (product, variant) => {
+  const pricing = variant
+    ? { priceCents: variantPriceCents(product, variant, pricingNow), originalPriceCents: variant.price_cents ?? product.price_cents }
+    : productPricing(product, pricingNow);
+  const money = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: product.currency });
+  const current = html(money.format(pricing.priceCents / 100));
+  return pricing.priceCents > 0 && pricing.priceCents < pricing.originalPriceCents
+    ? `<del>${html(money.format(pricing.originalPriceCents / 100))}</del> <strong>${current}</strong>`
+    : current;
+};
 const descriptionFor = (product) => {
   const seoDescription = text(product.seo_description);
   if (seoDescription) return seoDescription.length > 160 ? `${seoDescription.slice(0, 157).trimEnd()}…` : seoDescription;
@@ -32,7 +44,7 @@ const answersFor = (product) => {
   const variants = product.product_variants || [];
   const available = variants.filter((variant) => variant.stock_quantity > 0);
   const named = variants.map((variant) => variant.name).filter(Boolean);
-  const lowestPrice = catalogPriceCents(product);
+  const lowestPrice = catalogPriceCents(product, pricingNow);
   const formattedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: product.currency }).format(lowestPrice / 100);
   return [
     { question: `Quel est le prix de ${product.name} ?`, answer: `${product.name} est proposé à partir de ${formattedPrice}. Le prix affiché sur la fiche produit est mis à jour depuis le catalogue STRUKTUR.` },
@@ -135,7 +147,7 @@ for (const product of catalog.products) {
   const normalized = {
     id: product.id, name: product.name, slug: product.slug, brand: product.brand,
     description: product.description, seoDescription: product.seo_description,
-    priceCents: product.price_cents, currency: product.currency, category: product.categories,
+    priceCents: product.price_cents, promotion: rowPromotion(product), currency: product.currency, category: product.categories,
     images: product.product_images.map((image) => ({ imageUrl: image.image_url,
       colorway: product.brand?.toLowerCase() === 'saucony' && image.alt_text?.startsWith(`${product.name} — `)
         ? image.alt_text.slice(`${product.name} — `.length).split(' — ')[0] : null })),
@@ -143,11 +155,11 @@ for (const product of catalog.products) {
       name: variant.name, priceCents: variant.price_cents, stockQuantity: variant.stock_quantity,
       attributes: variant.attributes || {} })),
   };
-  const schema = [buildProductStructuredData(normalized, siteUrl), breadcrumb([{ name: 'Accueil', url: siteUrl }, { name: 'Boutique', url: `${siteUrl}/boutique` }, { name: product.name, url: canonical }])];
-  const variantRows = product.product_variants.map((variant) => `<tr><td><a href="${html(canonical)}?variante=${html(encodeURIComponent(variant.id))}">${html([variant.attributes?.colorway, variant.name].filter(Boolean).join(' — ') || variant.sku)}</a></td><td>${html(((variant.price_cents ?? product.price_cents) / 100).toFixed(2))} ${html(product.currency)}</td><td>${variant.stock_quantity > 0 ? 'En stock' : 'Indisponible'}</td></tr>`).join('');
+  const schema = [buildProductStructuredData(normalized, siteUrl, pricingNow), breadcrumb([{ name: 'Accueil', url: siteUrl }, { name: 'Boutique', url: `${siteUrl}/boutique` }, { name: product.name, url: canonical }])];
+  const variantRows = product.product_variants.map((variant) => `<tr><td><a href="${html(canonical)}?variante=${html(encodeURIComponent(variant.id))}">${html([variant.attributes?.colorway, variant.name].filter(Boolean).join(' — ') || variant.sku)}</a></td><td>${priceMarkup(product, variant)}</td><td>${variant.stock_quantity > 0 ? 'En stock' : 'Indisponible'}</td></tr>`).join('');
   const relatedProducts = catalog.products.filter((other) => other.id !== product.id && other.categories?.slug === product.categories?.slug).slice(0, 6);
   const relatedLinks = relatedProducts.map((other) => `<li><a href="/produit/${html(other.slug)}">${html(other.name)}</a></li>`).join('');
-  const fallback = `<main style="padding:8rem 2rem;max-width:900px;margin:auto"><article><nav aria-label="Fil d’Ariane"><a href="/">Accueil</a> / <a href="/boutique">Boutique</a>${product.categories ? ` / <a href="/categorie/${html(product.categories.slug)}">${html(product.categories.name)}</a>` : ''}</nav><p>${html(product.brand || 'STRUKTUR')}</p><h1>${html(product.name)}</h1>${product.product_images[0] ? `<img src="${html(product.product_images[0].image_url)}" alt="${html(product.product_images[0].alt_text || product.name)}" width="640" height="800" style="max-width:100%;height:auto;max-height:600px;object-fit:contain" />` : ''}<p>${html(text(product.description) || description)}</p><p>À partir de ${html((catalogPriceCents(product) / 100).toFixed(2))} ${html(product.currency)}</p><h2>Tailles et disponibilité</h2><table><thead><tr><th>Variante</th><th>Prix TTC</th><th>Disponibilité</th></tr></thead><tbody>${variantRows}</tbody></table>${relatedLinks ? `<h2>Dans la même collection</h2><ul>${relatedLinks}</ul>` : ''}<a href="/boutique">Retour à la boutique</a></article></main>`;
+  const fallback = `<main style="padding:8rem 2rem;max-width:900px;margin:auto"><article><nav aria-label="Fil d’Ariane"><a href="/">Accueil</a> / <a href="/boutique">Boutique</a>${product.categories ? ` / <a href="/categorie/${html(product.categories.slug)}">${html(product.categories.name)}</a>` : ''}</nav><p>${html(product.brand || 'STRUKTUR')}</p><h1>${html(product.name)}</h1>${product.product_images[0] ? `<img src="${html(product.product_images[0].image_url)}" alt="${html(product.product_images[0].alt_text || product.name)}" width="640" height="800" style="max-width:100%;height:auto;max-height:600px;object-fit:contain" />` : ''}<p>${html(text(product.description) || description)}</p><p>À partir de ${priceMarkup(product)}</p><h2>Tailles et disponibilité</h2><table><thead><tr><th>Variante</th><th>Prix TTC</th><th>Disponibilité</th></tr></thead><tbody>${variantRows}</tbody></table>${relatedLinks ? `<h2>Dans la même collection</h2><ul>${relatedLinks}</ul>` : ''}<a href="/boutique">Retour à la boutique</a></article></main>`;
   await writeRoute(`/produit/${product.slug}`, { title: text(product.seo_title) || `${product.name}${product.brand ? ` par ${product.brand}` : ''} | STRUKTUR`, description, canonical, image, type: 'product', jsonLd: schema }, fallback);
 
   const articleCanonical = `${siteUrl}/journal/${product.slug}`;

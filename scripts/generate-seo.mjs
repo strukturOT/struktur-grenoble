@@ -62,7 +62,7 @@ async function fetchRows(table, select, order, filters = {}) {
 }
 
 async function fetchCatalog() {
-  const select = 'id,name,slug,brand,description,seo_title,seo_description,price_cents,currency,status,featured,created_at,updated_at,categories(id,name,slug,description,image_url),product_images(image_url,alt_text,position,created_at),product_variants(id,name,sku,price_cents,stock_quantity,position,attributes,updated_at)';
+  const select = 'id,name,slug,brand,description,seo_title,seo_description,price_cents,promotion_type,promotion_value,promotion_enabled,promotion_starts_at,promotion_ends_at,currency,status,featured,created_at,updated_at,categories(id,name,slug,description,image_url),product_images(image_url,alt_text,position,created_at),product_variants(id,name,sku,price_cents,stock_quantity,position,attributes,updated_at)';
   return fetchRows('products', select, 'updated_at.desc', { status: 'eq.active' });
 }
 

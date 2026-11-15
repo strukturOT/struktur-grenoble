@@ -3,6 +3,9 @@ import { optimizeProductImage } from './imageOptimization';
 import { brandNames } from './brands';
 import { parseShippingSettings, type ShippingSettings } from '../../supabase/functions/_shared/shipping';
 import { variantWriteValues } from './adminVariantPatch.mjs';
+import { productPricing, rowPromotion, variantPricing, type ProductPromotion } from './promotions.mjs';
+
+export type { ProductPromotion } from './promotions.mjs';
 
 export type { ShippingSettings } from '../../supabase/functions/_shared/shipping';
 
@@ -61,6 +64,7 @@ export interface StoreProduct {
   seoTitle: string | null;
   seoDescription: string | null;
   priceCents: number;
+  promotion: ProductPromotion | null;
   currency: string;
   status: ProductStatus;
   featured: boolean;
@@ -80,6 +84,11 @@ interface ProductRow {
   seo_title: string | null;
   seo_description: string | null;
   price_cents: number;
+  promotion_type: 'percentage' | 'fixed_price' | null;
+  promotion_value: number | null;
+  promotion_enabled: boolean;
+  promotion_starts_at: string | null;
+  promotion_ends_at: string | null;
   currency: string;
   status: ProductStatus;
   featured: boolean;
@@ -92,7 +101,7 @@ interface ProductRow {
 }
 
 const productSelect = `
-  id, name, slug, brand, description, seo_title, seo_description, price_cents, currency, status, featured, category_id, created_at, updated_at,
+  id, name, slug, brand, description, seo_title, seo_description, price_cents, promotion_type, promotion_value, promotion_enabled, promotion_starts_at, promotion_ends_at, currency, status, featured, category_id, created_at, updated_at,
   categories (id, name, slug, description, image_url, storage_path, position),
   product_images (id, image_url, alt_text, position),
   product_variants (id, name, sku, price_cents, stock_quantity, position, attributes)
@@ -107,6 +116,7 @@ const mapProduct = (row: ProductRow): StoreProduct => ({
   seoTitle: row.seo_title,
   seoDescription: row.seo_description,
   priceCents: row.price_cents,
+  promotion: rowPromotion(row),
   currency: row.currency,
   status: row.status,
   featured: row.featured,
@@ -149,22 +159,10 @@ const mapProduct = (row: ProductRow): StoreProduct => ({
 export const formatMoney = (amountCents: number, currency = 'EUR') =>
   new Intl.NumberFormat('fr-FR', { style: 'currency', currency }).format(amountCents / 100);
 
-export const productPrice = (product: StoreProduct) => {
-  const pricedVariants = product.variants
-    .map((variant) => ({ price: variant.priceCents ?? product.priceCents, inStock: variant.stockQuantity > 0 }))
-    .filter(({ price }) => Number.isInteger(price) && price > 0);
-  const availablePrices = pricedVariants.filter(({ inStock }) => inStock).map(({ price }) => price);
-  const prices = availablePrices.length > 0 ? availablePrices : pricedVariants.map(({ price }) => price);
-
-  return prices.length > 0
-    ? Math.min(...prices)
-    : Number.isInteger(product.priceCents) && product.priceCents > 0 ? product.priceCents : 0;
-};
+export const productPrice = (product: StoreProduct) => productPricing(product).priceCents;
 
 export const productImage = (product: StoreProduct) => {
-  const availableColorway = product.variants.filter((variant) => variant.stockQuantity > 0
-    && (variant.priceCents ?? product.priceCents) > 0 && variant.attributes.colorway)
-    .sort((a, b) => (a.priceCents ?? product.priceCents) - (b.priceCents ?? product.priceCents) || a.position - b.position)[0]?.attributes.colorway;
+  const availableColorway = productPricing(product).variant?.attributes.colorway;
   return (availableColorway ? product.images.find((image) => image.colorway === availableColorway)?.imageUrl : null)
     ?? product.images[0]?.imageUrl ?? null;
 };
@@ -177,6 +175,8 @@ export interface CartVariantSnapshot {
   variantName: string | null;
   imageUrl: string | null;
   priceCents: number;
+  originalPriceCents: number;
+  promotionPercentage: number;
   currency: string;
   stockQuantity: number;
 }
@@ -199,6 +199,11 @@ export async function getCartVariantSnapshots(variantIds: string[]): Promise<Car
       name: string;
       brand: string | null;
       price_cents: number;
+      promotion_type: 'percentage' | 'fixed_price' | null;
+      promotion_value: number | null;
+      promotion_enabled: boolean;
+      promotion_starts_at: string | null;
+      promotion_ends_at: string | null;
       currency: string;
       product_images: Array<{ image_url: string; position: number; alt_text: string | null }>;
     };
@@ -208,7 +213,7 @@ export async function getCartVariantSnapshots(variantIds: string[]): Promise<Car
   const uniqueIds = [...new Set(variantIds)];
   for (let offset = 0; offset < uniqueIds.length; offset += 100) {
     const { data, error } = await supabase.from('product_variants')
-      .select('id, product_id, name, sku, price_cents, stock_quantity, attributes, products!inner(id, name, brand, price_cents, currency, product_images(image_url, position, alt_text))')
+      .select('id, product_id, name, sku, price_cents, stock_quantity, attributes, products!inner(id, name, brand, price_cents, promotion_type, promotion_value, promotion_enabled, promotion_starts_at, promotion_ends_at, currency, product_images(image_url, position, alt_text))')
       .in('id', uniqueIds.slice(offset, offset + 100))
       .eq('products.status', 'active')
       .not('products.slug', 'like', 'test-%');
@@ -220,6 +225,7 @@ export async function getCartVariantSnapshots(variantIds: string[]): Promise<Car
       const colorway = row.attributes?.colorway;
       const hasColorway = product.brand?.toLowerCase() === 'saucony' && colorway;
       const image = (hasColorway ? images.find((entry) => entry.alt_text?.startsWith(`${product.name} — ${colorway} — `)) : null) ?? images[0];
+      const pricing = variantPricing(product, row);
       snapshots.push({
         variantId: row.id,
         productId: product.id,
@@ -227,7 +233,9 @@ export async function getCartVariantSnapshots(variantIds: string[]): Promise<Car
         brand: product.brand,
         variantName: hasColorway ? `${colorway} · EU ${row.attributes?.size || row.name || ''}` : row.name,
         imageUrl: image?.image_url ?? null,
-        priceCents: row.price_cents ?? product.price_cents,
+        priceCents: pricing.priceCents,
+        originalPriceCents: pricing.originalPriceCents,
+        promotionPercentage: pricing.percentage,
         currency: product.currency,
         stockQuantity: row.stock_quantity,
       });
@@ -449,6 +457,28 @@ export async function getAdminProducts() {
   return { data: ((data ?? []) as unknown as ProductRow[]).map(mapProduct), error };
 }
 
+/** Update only promotion fields; catalogue prices, stock and merchant edits stay intact. */
+export async function saveProductPromotion(productId: string, promotion: ProductPromotion | null, expectedUpdatedAt?: string) {
+  if (!supabase) throw new Error('La boutique n’est pas configurée.');
+  if (promotion && (!['percentage', 'fixed_price'].includes(promotion.type) || !Number.isInteger(promotion.value) || promotion.value <= 0 || (promotion.type === 'percentage' && promotion.value >= 100))) {
+    throw new Error('Choisissez une réduction de 1 à 99 % ou un prix promotionnel positif.');
+  }
+  if (promotion && ((promotion.startsAt && !Number.isFinite(Date.parse(promotion.startsAt))) || (promotion.endsAt && !Number.isFinite(Date.parse(promotion.endsAt))) || (promotion.startsAt && promotion.endsAt && Date.parse(promotion.endsAt) <= Date.parse(promotion.startsAt)))) {
+    throw new Error('La fin de la promotion doit se situer après son début.');
+  }
+  let query = supabase.from('products').update({
+    promotion_type: promotion?.type ?? null,
+    promotion_value: promotion?.value ?? null,
+    promotion_enabled: promotion?.enabled ?? false,
+    promotion_starts_at: promotion?.startsAt ?? null,
+    promotion_ends_at: promotion?.endsAt ?? null,
+  }).eq('id', productId);
+  if (expectedUpdatedAt) query = query.eq('updated_at', expectedUpdatedAt);
+  const { data, error } = await query.select('id').maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error('Cette fiche a changé depuis son ouverture. Actualisez les données avant de modifier sa promotion.');
+}
+
 export interface NewCategoryInput {
   name: string;
   slug: string;
@@ -622,7 +652,7 @@ export async function getAdminOrders() {
 }
 
 export async function startStripeCheckout(
-  lines: Array<{ variantId: string; quantity: number }>,
+  lines: Array<{ variantId: string; quantity: number; expectedPriceCents?: number }>,
   checkoutKey: string,
   expectedShippingCents?: number,
 ) {

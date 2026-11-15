@@ -1,3 +1,5 @@
+import { variantPriceCents } from '../src/lib/promotions.mjs';
+
 const text = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
 
 const imageUrls = (images, siteUrl) => [...new Set(images.map((image) => {
@@ -11,7 +13,7 @@ export const isGtin13 = (value) => typeof value === 'string' && /^\d{13}$/.test(
   && [...value.slice(0, 12)].reduce((sum, digit, index) => sum + Number(digit) * (index % 2 ? 3 : 1), 0) % 10 === (10 - Number(value[12])) % 10;
 
 /** One product page, with a distinct, selectable URL and accurate offer for every variant. */
-export function buildProductStructuredData(product, siteUrl) {
+export function buildProductStructuredData(product, siteUrl, now = Date.now()) {
   const url = `${siteUrl}/produit/${encodeURIComponent(product.slug)}`;
   const description = text(product.description || product.seoDescription || product.name);
   const common = {
@@ -22,8 +24,8 @@ export function buildProductStructuredData(product, siteUrl) {
     category: product.category?.name,
   };
   const variants = product.variants.filter((variant) => variant.id
-    && Number.isInteger(variant.priceCents ?? product.priceCents)
-    && (variant.priceCents ?? product.priceCents) > 0);
+    && Number.isInteger(variantPriceCents(product, variant, now))
+    && variantPriceCents(product, variant, now) > 0);
   const colorOf = (variant) => text(variant.attributes?.colorway || variant.attributes?.color);
   const sizeOf = (variant) => text(variant.attributes?.size || variant.name);
   const variantsDifferBy = [];
@@ -34,7 +36,7 @@ export function buildProductStructuredData(product, siteUrl) {
     '@type': 'Offer',
     url: `${url}?variante=${encodeURIComponent(variant.id)}`,
     priceCurrency: product.currency,
-    price: ((variant.priceCents ?? product.priceCents) / 100).toFixed(2),
+    price: (variantPriceCents(product, variant, now) / 100).toFixed(2),
     availability: variant.stockQuantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
     itemCondition: 'https://schema.org/NewCondition',
     seller: { '@type': 'Organization', '@id': `${siteUrl}/#store`, name: 'STRUKTUR Grenoble' },

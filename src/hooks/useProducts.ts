@@ -9,8 +9,26 @@ interface ProductsState {
   error: string | null;
 }
 
+/** Re-render displayed prices when a saved schedule starts or ends, including after sleep. */
+function usePromotionClock(products: StoreProduct[]) {
+  const [clock, setClock] = useState(0);
+  const boundaries = products.flatMap((product) => product.promotion?.enabled
+    ? [product.promotion.startsAt, product.promotion.endsAt].filter((value): value is string => Boolean(value))
+    : []).join('|');
+  useEffect(() => {
+    const now = Date.now();
+    const next = boundaries.split('|').map(Date.parse).filter((time) => Number.isFinite(time) && time > now).sort((a, b) => a - b)[0];
+    const timer = next ? window.setTimeout(() => setClock(Date.now()), Math.min(next - now + 30, 2_147_000_000)) : undefined;
+    const resume = () => { if (document.visibilityState === 'visible') setClock(Date.now()); };
+    window.addEventListener('focus', resume);
+    document.addEventListener('visibilitychange', resume);
+    return () => { if (timer) window.clearTimeout(timer); window.removeEventListener('focus', resume); document.removeEventListener('visibilitychange', resume); };
+  }, [boundaries, clock]);
+}
+
 export function useProducts({ limit, featured, order = 'newest', poolSize }: { limit?: number; featured?: boolean; order?: 'newest' | 'mixed'; poolSize?: number } = {}) {
   const [state, setState] = useState<ProductsState>({ products: [], loading: isSupabaseConfigured, error: null });
+  usePromotionClock(state.products);
 
   useEffect(() => {
     let active = true;
@@ -41,6 +59,7 @@ export function useProduct(slug: string | undefined) {
     loading: isSupabaseConfigured,
     error: null,
   });
+  usePromotionClock(state.product ? [state.product] : []);
 
   useEffect(() => {
     let active = true;

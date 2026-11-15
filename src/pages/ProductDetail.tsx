@@ -5,7 +5,8 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useCart } from '../cart/CartProvider';
 import TextReveal from '../components/TextReveal';
 import { useProduct } from '../hooks/useProducts';
-import { formatMoney, productPrice } from '../lib/commerce';
+import { productPricing, variantPricing } from '../lib/promotions.mjs';
+import PriceDisplay from '../components/PriceDisplay';
 import { isSupabaseConfigured } from '../lib/supabase';
 import Seo from '../components/Seo';
 import { breadcrumbJsonLd, productJsonLd, productSeoDescription } from '../lib/productSeo';
@@ -43,16 +44,15 @@ const ProductDetail = () => {
   const hasColorways = product.brand?.toLowerCase() === 'saucony' && colorways.length > 0;
   const linkedVariant = product.variants.find((variant) => variant.id === selectedVariantId);
   const linkedColorway = linkedVariant?.attributes.colorway;
-  const firstAvailableColorway = product.variants.filter((variant) => variant.stockQuantity > 0
-    && (variant.priceCents ?? product.priceCents) > 0 && variant.attributes.colorway)
-    .sort((a, b) => (a.priceCents ?? product.priceCents) - (b.priceCents ?? product.priceCents) || a.position - b.position)[0]?.attributes.colorway;
+  const firstAvailableColorway = productPricing(product).variant?.attributes.colorway;
   const currentColorway = hasColorways ? (linkedColorway && colorways.includes(linkedColorway) ? linkedColorway : selectedColorway && colorways.includes(selectedColorway) ? selectedColorway : firstAvailableColorway || colorways[0]) : null;
   const colorVariants = hasColorways ? product.variants.filter((variant) => variant.attributes.colorway === currentColorway) : product.variants;
   const selectedVariant = colorVariants.find((variant) => variant.id === selectedVariantId);
   const manufacturerReferences = [...new Set((selectedVariant ? [selectedVariant] : colorVariants)
     .map((variant) => variant.attributes.manufacturer_reference).filter(Boolean))];
   const visibleImages = hasColorways ? product.images.filter((image) => image.colorway === currentColorway) : product.images;
-  const chosenPrice = selectedVariant ? selectedVariant.priceCents ?? product.priceCents : productPrice({ ...product, variants: colorVariants });
+  const pricing = selectedVariant ? variantPricing(product, selectedVariant) : productPricing({ ...product, variants: colorVariants });
+  const chosenPrice = pricing.priceCents;
   const isAvailable = (selectedVariant?.stockQuantity ?? 0) > 0 && chosenPrice > 0;
   const hasAvailableSizes = colorVariants.some((variant) => variant.stockQuantity > 0 && (variant.priceCents ?? product.priceCents) > 0);
   const isFootwear = /^(saucony|sorel)$/i.test(product.brand || '');
@@ -70,7 +70,7 @@ const ProductDetail = () => {
     if (!selectedVariant || !isAvailable) return;
     const selectedImage = visibleImages[0] ?? product.images[0];
     const variantName = hasColorways ? `${currentColorway} · EU ${selectedVariant.name || selectedVariant.attributes.size || ''}` : selectedVariant.name;
-    addLine({ variantId: selectedVariant.id, productId: product.id, name: product.name, brand: product.brand, variantName, imageUrl: selectedImage?.imageUrl ?? null, priceCents: chosenPrice, currency: product.currency });
+    addLine({ variantId: selectedVariant.id, productId: product.id, name: product.name, brand: product.brand, variantName, imageUrl: selectedImage?.imageUrl ?? null, priceCents: chosenPrice, originalPriceCents: pricing.originalPriceCents, promotionPercentage: pricing.percentage, currency: product.currency });
     setWasAdded(true);
   };
 
@@ -84,7 +84,7 @@ const ProductDetail = () => {
           {product.brand && <TextReveal text={product.brand} className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-struktur-orange" />}
           <TextReveal as="h1" text={product.name} className="text-3xl font-display leading-[1.08] md:text-4xl" delay={0.08} />
           {manufacturerReferences.length === 1 && <p className="mt-3 text-xs text-theme-ink/55">Référence fabricant : {manufacturerReferences[0]}</p>}
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className="mt-5 text-xl font-light md:text-2xl">{formatMoney(chosenPrice, product.currency)}</motion.p>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className="mt-5 text-xl font-light md:text-2xl"><PriceDisplay {...pricing} currency={product.currency} badge /></motion.p>
           {product.description && <p className="mt-8 max-w-lg text-base font-light leading-relaxed text-theme-ink/65">{product.description}</p>}
           {hasColorways && <section className="mt-9" aria-label="Choix du coloris"><div className="mb-4 flex items-end justify-between gap-4"><p className="text-xs font-medium uppercase tracking-[0.2em]">Choisir un coloris</p><p className="text-[10px] uppercase tracking-[0.12em] text-theme-ink/55">{currentColorway}</p></div><div className="grid grid-cols-3 gap-2 sm:grid-cols-4">{colorways.map((colorway) => { const swatchImage = product.images.find((image) => image.colorway === colorway); const active = colorway === currentColorway; return <button type="button" key={colorway} aria-label={`Choisir le coloris ${colorway}`} aria-pressed={active} onClick={() => { setSelectedColorway(colorway); chooseVariant(null); }} className={`group overflow-hidden border text-left transition-colors ${active ? 'border-theme-ink ring-1 ring-theme-ink' : 'border-theme-ink/15 hover:border-theme-ink/55'}`}><span className="block aspect-[1.35] bg-theme-surface p-1.5"><img src={swatchImage?.imageUrl} alt="" className="h-full w-full object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105" loading="lazy" /></span><span className="block px-2 py-2 text-[10px] leading-tight text-theme-ink/70">{colorway}</span></button>; })}</div></section>}
           <div className="mt-8 border-y border-theme-ink/10 py-6"><div className="mb-4 flex items-end justify-between"><p className="text-xs font-medium uppercase tracking-[0.2em]">{hasFormats ? 'Choisir un format' : 'Choisir une taille'}</p><p className="text-[10px] uppercase tracking-[0.15em] text-theme-ink/45">Stock en direct</p></div><div className="grid grid-cols-4 gap-2">{colorVariants.map((variant) => { const active = selectedVariant?.id === variant.id; const soldOut = variant.stockQuantity < 1; return <button type="button" key={variant.id} disabled={soldOut} aria-pressed={active} aria-label={`${hasColorways ? 'Pointure EU' : hasFormats ? 'Format' : 'Taille'} ${variant.attributes.size || variant.name || variant.sku}${soldOut ? ' — indisponible' : ''}`} onClick={() => chooseVariant(variant.id)} className={`min-h-12 border px-2 text-xs transition-colors ${active ? 'border-theme-ink bg-theme-ink text-theme-canvas' : 'border-theme-ink/20 hover:border-theme-ink/60'} ${soldOut ? 'cursor-not-allowed opacity-40 line-through' : ''}`}>{hasColorways ? `EU ${variant.attributes.size || variant.name}` : variant.name || variant.sku}</button>; })}</div>{hasColorways && colorVariants.every((variant) => variant.stockQuantity < 1) && <p className="mt-3 text-xs text-theme-ink/50">Aucune taille disponible dans ce coloris pour le moment.</p>}</div>

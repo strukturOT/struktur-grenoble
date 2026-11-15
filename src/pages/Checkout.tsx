@@ -7,6 +7,7 @@ import { usePendingCheckout } from '../cart/usePendingCheckout';
 import { useShippingSettings } from '../hooks/useShippingSettings';
 import { useAuth } from '../auth/AuthProvider';
 import { formatMoney, getCheckoutOrderBySession, isStripeCheckoutUrl, startStripeCheckout, type StoreOrder } from '../lib/commerce';
+import PriceDisplay from '../components/PriceDisplay';
 
 const wait = (milliseconds: number) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
 
@@ -107,7 +108,7 @@ const Checkout = () => {
       if (!currentShipping) throw new Error('Impossible de vérifier les frais de livraison. Réessayez avant le paiement.');
       if (currentShipping.amount_cents !== shipping?.amount_cents) throw new Error('Les frais de livraison ont changé. Vérifiez le nouveau total TTC, puis cliquez à nouveau pour payer.');
       const { url } = await startStripeCheckout(
-        verified.lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
+        verified.lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity, expectedPriceCents: line.priceCents })),
         verified.checkoutKey,
         currentShipping.amount_cents,
       );
@@ -129,7 +130,7 @@ const Checkout = () => {
           <div className="mt-10 border-y border-theme-ink/10">
             {lines.map((line) => {
               const problem = canResume ? null : cartLineProblem(line);
-              return <div key={line.variantId} className="flex items-center gap-4 border-b border-theme-ink/10 py-5 last:border-0"><div className="h-20 w-16 shrink-0 overflow-hidden bg-theme-surface">{line.imageUrl && <img src={line.imageUrl} alt="" className="h-full w-full object-cover" />}</div><div className="min-w-0 flex-1"><p className="font-display text-lg">{line.name}</p><p className="text-xs text-theme-ink/50">{line.variantName || 'Taille unique'} · Qté {line.quantity}</p>{problem && <p className="mt-2 text-xs leading-relaxed text-red-600">{problem}</p>}</div><p className="text-right text-sm">{!isRefreshing && !refreshError && line.availability === 'available' && line.priceCents > 0 ? formatMoney(line.priceCents * line.quantity, line.currency) : 'Prix à vérifier'}</p></div>;
+              return <div key={line.variantId} className="flex items-center gap-4 border-b border-theme-ink/10 py-5 last:border-0"><div className="h-20 w-16 shrink-0 overflow-hidden bg-theme-surface">{line.imageUrl && <img src={line.imageUrl} alt="" className="h-full w-full object-cover" />}</div><div className="min-w-0 flex-1"><p className="font-display text-lg">{line.name}</p><p className="text-xs text-theme-ink/50">{line.variantName || 'Taille unique'} · Qté {line.quantity}</p>{problem && <p className="mt-2 text-xs leading-relaxed text-red-600">{problem}</p>}</div><p className="text-right text-sm">{!isRefreshing && !refreshError && line.availability === 'available' && line.priceCents > 0 ? <PriceDisplay priceCents={line.priceCents * line.quantity} originalPriceCents={line.originalPriceCents ? line.originalPriceCents * line.quantity : undefined} currency={line.currency} /> : 'Prix à vérifier'}</p></div>;
             })}
           </div>
         </div>

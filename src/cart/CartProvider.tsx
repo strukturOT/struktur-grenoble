@@ -94,9 +94,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => { void refreshCart(); }, [contentsKey, refreshCart]);
   useEffect(() => {
     const refresh = () => { if (document.visibilityState === 'visible') void refreshCart(); };
+    const timer = window.setInterval(() => { if (linesRef.current.length) refresh(); }, 60_000);
     window.addEventListener('focus', refresh);
     document.addEventListener('visibilitychange', refresh);
     return () => {
+      window.clearInterval(timer);
       window.removeEventListener('focus', refresh);
       document.removeEventListener('visibilitychange', refresh);
     };

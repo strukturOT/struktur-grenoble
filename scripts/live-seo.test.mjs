@@ -193,6 +193,35 @@ test('variant deep links expose the selected size, price and availability in ini
   assert.match(body, /href="https:\/\/strukturkultur.fr\/produit\/nouvelle-piece"/);
 });
 
+test('live promotional HTML and every search offer match current variant prices, including sold-out links', async () => {
+  const p = { ...product(), promotion_type: 'percentage', promotion_value: 25, promotion_enabled: true };
+  const h = harness({ products: [p] });
+  const body = await (await h.handlers.product(h.context('/produit/nouvelle-piece?variante=variant-l', 'nouvelle-piece'))).text();
+  assert.match(body, /Variante sélectionnée : L · Indisponible/);
+  assert.match(body, /<del>140,00[^<]*<\/del> <strong>105,00/);
+  const group = schemaFrom(body)[0];
+  assert.equal(group.hasVariant[0].offers.price, '97.50');
+  assert.equal(group.hasVariant[1].offers.price, '105.00');
+  assert.equal(group.hasVariant[1].offers.availability, 'https://schema.org/OutOfStock');
+  const select = new URL(h.data.calls.find((call) => call.url.includes('/products?')).url).searchParams.get('select');
+  for (const field of ['promotion_type', 'promotion_value', 'promotion_enabled', 'promotion_starts_at', 'promotion_ends_at']) assert.ok(select.split(',').includes(field));
+  p.promotion_enabled = false;
+  const stopped = await (await h.handlers.product(h.context('/produit/nouvelle-piece?variante=variant-l', 'nouvelle-piece'))).text();
+  assert.doesNotMatch(stopped, /<del>/);
+  assert.equal(schemaFrom(stopped)[0].hasVariant[1].offers.price, '140.00');
+});
+
+test('future and expired promotions leave public HTML and search offers at their base price', async () => {
+  for (const dates of [{ promotion_starts_at: '2100-01-01T00:00:00Z' }, { promotion_ends_at: '2000-01-01T00:00:00Z' }]) {
+    const p = { ...product(), promotion_type: 'fixed_price', promotion_value: 8000, promotion_enabled: true, ...dates };
+    const h = harness({ products: [p] });
+    const body = await (await h.handlers.product(h.context('/produit/nouvelle-piece', 'nouvelle-piece'))).text();
+    assert.doesNotMatch(body, /<del>/);
+    assert.match(body, /À partir de 130,00/);
+    assert.equal(schemaFrom(body)[0].hasVariant[0].offers.price, '130.00');
+  }
+});
+
 test('human sitemap is normal canonical HTML and updates after publication without a build', async () => {
   const h = harness();
   assert.equal(STATIC_PUBLIC_ROUTES.length, 7);

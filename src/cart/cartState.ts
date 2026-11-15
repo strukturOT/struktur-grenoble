@@ -8,6 +8,8 @@ export interface CartLine {
   variantName: string | null;
   imageUrl: string | null;
   priceCents: number;
+  originalPriceCents?: number;
+  promotionPercentage?: number;
   currency: string;
   quantity: number;
   availability: 'checking' | 'available' | 'unavailable';

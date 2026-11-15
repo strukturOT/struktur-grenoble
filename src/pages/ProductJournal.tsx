@@ -1,7 +1,9 @@
 import { Link, useParams } from 'react-router-dom';
 import Seo from '../components/Seo';
 import { useProduct } from '../hooks/useProducts';
-import { formatMoney, productImage, productPrice } from '../lib/commerce';
+import { productImage } from '../lib/commerce';
+import { productPricing } from '../lib/promotions.mjs';
+import PriceDisplay from '../components/PriceDisplay';
 import { breadcrumbJsonLd, productAnswers, productSeoDescription } from '../lib/productSeo';
 import { SITE_URL } from '../lib/site';
 
@@ -27,7 +29,7 @@ export default function ProductJournal() {
           <section><p className="mb-3 text-xs uppercase tracking-[0.2em] text-struktur-orange">Bien choisir</p><h2 className="font-display text-3xl md:text-4xl">Variantes et disponibilité</h2><p className="mt-5 text-base font-light leading-8 text-theme-ink/70">Choisissez uniquement parmi les options actives sur la fiche produit. Le stock est contrôlé par variante : une option barrée est momentanément indisponible. Pour préserver la pièce, suivez toujours les instructions portées sur son étiquette d’entretien.</p></section>
           <section><p className="mb-3 text-xs uppercase tracking-[0.2em] text-struktur-orange">Questions fréquentes</p><h2 className="font-display text-3xl md:text-4xl">Réponses utiles</h2><div className="mt-7 divide-y divide-theme-ink/10 border-y border-theme-ink/10">{answers.map((item) => <details key={item.question} className="group py-5"><summary className="cursor-pointer list-none pr-8 font-display text-xl marker:content-none">{item.question}</summary><p className="mt-4 max-w-2xl text-sm font-light leading-7 text-theme-ink/65">{item.answer}</p></details>)}</div></section>
         </div>
-        <aside className="h-fit border border-theme-ink/10 p-6 md:sticky md:top-32"><p className="text-[10px] uppercase tracking-[0.2em] text-theme-ink/45">Prix actuel</p><p className="mt-2 font-display text-3xl">{formatMoney(productPrice(product), product.currency)}</p><p className="mt-6 text-[10px] uppercase tracking-[0.18em] text-theme-ink/45">Catégorie</p><p className="mt-2 text-sm">{product.category?.name || 'Sélection STRUKTUR'}</p><Link to={`/produit/${product.slug}`} className="mt-8 block bg-struktur-orange px-5 py-4 text-center text-xs font-medium uppercase tracking-[0.18em] text-white transition-colors hover:bg-theme-ink">Voir la fiche produit</Link></aside>
+        <aside className="h-fit border border-theme-ink/10 p-6 md:sticky md:top-32"><p className="text-[10px] uppercase tracking-[0.2em] text-theme-ink/45">Prix actuel</p><p className="mt-2 font-display text-3xl"><PriceDisplay {...productPricing(product)} currency={product.currency} badge /></p><p className="mt-6 text-[10px] uppercase tracking-[0.18em] text-theme-ink/45">Catégorie</p><p className="mt-2 text-sm">{product.category?.name || 'Sélection STRUKTUR'}</p><Link to={`/produit/${product.slug}`} className="mt-8 block bg-struktur-orange px-5 py-4 text-center text-xs font-medium uppercase tracking-[0.18em] text-white transition-colors hover:bg-theme-ink">Voir la fiche produit</Link></aside>
       </div>
     </article>
   );

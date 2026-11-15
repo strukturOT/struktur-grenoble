@@ -7,6 +7,7 @@ import { usePendingCheckout } from '../cart/usePendingCheckout';
 import { useShippingSettings } from '../hooks/useShippingSettings';
 import { useAuth } from '../auth/AuthProvider';
 import { formatMoney } from '../lib/commerce';
+import PriceDisplay from '../components/PriceDisplay';
 
 const Panier = () => {
   const { lines, checkoutKey, itemCount, setQuantity, removeLine, refreshCart, isRefreshing, refreshError, pricesUpdated, canCheckout } = useCart();
@@ -38,7 +39,7 @@ const Panier = () => {
             <div className="flex min-w-0 flex-1 flex-col justify-between">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>{line.brand && <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-struktur-orange">{line.brand}</p>}<h2 className="mt-1 text-xl font-display sm:text-2xl">{line.name}</h2>{line.variantName && <p className="mt-1 text-sm text-theme-ink/55">{line.variantName}</p>}</div>
-                <p className="text-sm">{verified && line.priceCents > 0 ? formatMoney(line.priceCents * line.quantity, line.currency) : 'Prix à vérifier'}</p>
+                <p className="text-right text-sm">{verified && line.priceCents > 0 ? <PriceDisplay priceCents={line.priceCents * line.quantity} originalPriceCents={line.originalPriceCents ? line.originalPriceCents * line.quantity : undefined} currency={line.currency} /> : 'Prix à vérifier'}</p>
               </div>
               {problem && <p role="status" className={`mt-3 text-xs leading-relaxed ${line.availability === 'checking' ? 'text-theme-ink/55' : 'text-red-600'}`}>{problem}</p>}
               <div className="mt-5 flex items-center justify-between gap-3">

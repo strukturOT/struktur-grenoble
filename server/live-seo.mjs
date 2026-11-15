@@ -1,5 +1,5 @@
 import { buildProductStructuredData } from '../scripts/product-schema.mjs';
-import { catalogPriceCents } from '../scripts/catalog-price.mjs';
+import { productPricing, rowPromotion, variantPriceCents } from '../src/lib/promotions.mjs';
 import { latestModified, productModified } from '../scripts/seo-utils.mjs';
 
 const html = (value) => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
@@ -7,7 +7,7 @@ const xml = html;
 const text = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
 const validSlug = (value) => typeof value === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
 const publicProduct = (product) => product.status === 'active' && validSlug(product.slug) && !product.slug.startsWith('test-');
-const PRODUCT_SELECT = 'id,name,slug,brand,description,seo_title,seo_description,price_cents,currency,status,featured,created_at,updated_at,category_id,categories(id,name,slug,description,image_url),product_images(image_url,alt_text,position,created_at),product_variants(id,name,sku,price_cents,stock_quantity,position,attributes,updated_at)';
+const PRODUCT_SELECT = 'id,name,slug,brand,description,seo_title,seo_description,price_cents,promotion_type,promotion_value,promotion_enabled,promotion_starts_at,promotion_ends_at,currency,status,featured,created_at,updated_at,category_id,categories(id,name,slug,description,image_url),product_images(image_url,alt_text,position,created_at),product_variants(id,name,sku,price_cents,stock_quantity,position,attributes,updated_at)';
 const SITEMAP_SELECT = 'id,slug,brand,category_id,status,updated_at,product_variants(updated_at),product_images(image_url,created_at)';
 const CATEGORY_SELECT = 'id,name,slug,description,image_url,updated_at';
 const pages = ['/', '/nouveautes', '/boutique', '/marques', '/le-shop', '/journal', '/plan-du-site'];
@@ -22,7 +22,7 @@ function normalizedProduct(product) {
   return {
     id: product.id, slug: product.slug, name: product.name, brand: product.brand,
     description: product.description, seoDescription: product.seo_description,
-    priceCents: product.price_cents, currency: product.currency, category: product.categories,
+    priceCents: product.price_cents, promotion: rowPromotion(product), currency: product.currency, category: product.categories,
     images: images.map((image) => ({ imageUrl: image.image_url, colorway: product.brand?.toLowerCase() === 'saucony' && image.alt_text?.startsWith(`${product.name} — `)
       ? image.alt_text.slice(`${product.name} — `.length).split(' — ')[0] : null })),
     variants: variants.map((variant) => ({ id: variant.id, name: variant.name, sku: variant.sku,
@@ -66,19 +66,23 @@ function imageForVariant(product, variant) {
   return images[0];
 }
 
-function preferredVariant(product) {
-  return [...(product.product_variants || [])]
-    .filter((variant) => variant.stock_quantity > 0 && (variant.price_cents ?? product.price_cents) > 0)
-    .sort((a, b) => (a.price_cents ?? product.price_cents) - (b.price_cents ?? product.price_cents) || (a.position || 0) - (b.position || 0))[0];
+function preferredVariant(product, now) {
+  return productPricing(product, now).variant;
 }
 
-function productMarkup(product, canonical, selected) {
-  const image = imageForVariant(product, selected || preferredVariant(product));
+function productMarkup(product, canonical, selected, now) {
+  const image = imageForVariant(product, selected || preferredVariant(product, now));
   const variants = [...(product.product_variants || [])].sort((a, b) => (a.position || 0) - (b.position || 0));
   const money = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: product.currency || 'EUR' });
-  const price = money.format((selected ? selected.price_cents ?? product.price_cents : catalogPriceCents(product)) / 100);
-  const rows = variants.map((variant) => `<tr><td><a href="${html(canonical)}?variante=${html(encodeURIComponent(variant.id))}">${html([variant.attributes?.colorway, variant.name].filter(Boolean).join(' — ') || variant.sku)}</a></td><td>${html(money.format((variant.price_cents ?? product.price_cents) / 100))}</td><td>${variant.stock_quantity > 0 ? 'En stock' : 'Indisponible'}</td></tr>`).join('');
-  return `<main style="padding:8rem 2rem;max-width:1000px;margin:auto"><article><nav aria-label="Fil d’Ariane"><a href="/">Accueil</a> / <a href="/boutique">Boutique</a>${product.categories ? ` / <a href="/categorie/${html(product.categories.slug)}">${html(product.categories.name)}</a>` : ''}</nav><p>${html(product.brand || 'STRUKTUR')}</p><h1>${html(product.name)}</h1>${image ? `<img src="${html(image.image_url)}" alt="${html(image.alt_text || product.name)}" width="640" height="800" style="max-width:100%;height:auto;max-height:600px;object-fit:contain" />` : ''}<p>${html(text(product.description) || descriptionFor(product))}</p>${selected ? `<p>Variante sélectionnée : ${html([selected.attributes?.colorway, selected.name || selected.sku].filter(Boolean).join(' — '))} · ${selected.stock_quantity > 0 ? 'En stock' : 'Indisponible'}</p>` : ''}<p>${selected ? '' : 'À partir de '}${html(price)} TTC</p><h2>Tailles et disponibilité</h2><table><thead><tr><th>Variante</th><th>Prix TTC</th><th>Disponibilité</th></tr></thead><tbody>${rows}</tbody></table><p>Sélectionnez une taille sur cette fiche pour ajouter la pièce au panier.</p><p><a href="/boutique">Toutes les pièces</a> · <a href="/le-shop">La boutique à Grenoble</a></p></article></main>`;
+  const pricingFor = (variant) => variant
+    ? { priceCents: variantPriceCents(product, variant, now), originalPriceCents: variant.price_cents ?? product.price_cents }
+    : productPricing(product, now);
+  const priceMarkup = (pricing) => pricing.priceCents > 0 && pricing.priceCents < pricing.originalPriceCents
+    ? `<del>${html(money.format(pricing.originalPriceCents / 100))}</del> <strong>${html(money.format(pricing.priceCents / 100))}</strong>`
+    : html(money.format(pricing.priceCents / 100));
+  const price = priceMarkup(pricingFor(selected));
+  const rows = variants.map((variant) => `<tr><td><a href="${html(canonical)}?variante=${html(encodeURIComponent(variant.id))}">${html([variant.attributes?.colorway, variant.name].filter(Boolean).join(' — ') || variant.sku)}</a></td><td>${priceMarkup(pricingFor(variant))}</td><td>${variant.stock_quantity > 0 ? 'En stock' : 'Indisponible'}</td></tr>`).join('');
+  return `<main style="padding:8rem 2rem;max-width:1000px;margin:auto"><article><nav aria-label="Fil d’Ariane"><a href="/">Accueil</a> / <a href="/boutique">Boutique</a>${product.categories ? ` / <a href="/categorie/${html(product.categories.slug)}">${html(product.categories.name)}</a>` : ''}</nav><p>${html(product.brand || 'STRUKTUR')}</p><h1>${html(product.name)}</h1>${image ? `<img src="${html(image.image_url)}" alt="${html(image.alt_text || product.name)}" width="640" height="800" style="max-width:100%;height:auto;max-height:600px;object-fit:contain" />` : ''}<p>${html(text(product.description) || descriptionFor(product))}</p>${selected ? `<p>Variante sélectionnée : ${html([selected.attributes?.colorway, selected.name || selected.sku].filter(Boolean).join(' — '))} · ${selected.stock_quantity > 0 ? 'En stock' : 'Indisponible'}</p>` : ''}<p>${selected ? '' : 'À partir de '}${price} TTC</p><h2>Tailles et disponibilité</h2><table><thead><tr><th>Variante</th><th>Prix TTC</th><th>Disponibilité</th></tr></thead><tbody>${rows}</tbody></table><p>Sélectionnez une taille sur cette fiche pour ajouter la pièce au panier.</p><p><a href="/boutique">Toutes les pièces</a> · <a href="/le-shop">La boutique à Grenoble</a></p></article></main>`;
 }
 
 function collectionMarkup(category, products, content) {
@@ -209,9 +213,10 @@ export function createLiveSeoHandlers(config, { fetch: fetcher = globalThis.fetc
         const product = (await rows('products', PRODUCT_SELECT, { status: 'eq.active', slug: `eq.${slug}` }, 1)).find((row) => publicProduct(row) && row.slug === slug);
         if (!product) return failure(context, 404);
         const canonical = `${siteUrl}/produit/${product.slug}`;
-        const schema = buildProductStructuredData(normalizedProduct(product), siteUrl);
+        const now = Date.now();
+        const schema = buildProductStructuredData(normalizedProduct(product), siteUrl, now);
         const selected = product.product_variants?.find((variant) => variant.id === new URL(context.request.url).searchParams.get('variante'));
-        return await pageResponse(context, { title: text(product.seo_title) || `${product.name}${product.brand ? ` par ${product.brand}` : ''} | STRUKTUR Grenoble`, description: descriptionFor(product), canonical, image: imageForVariant(product, selected || preferredVariant(product))?.image_url, type: 'product', jsonLd: [schema, breadcrumb([{ name: 'Accueil', url: siteUrl }, { name: 'Boutique', url: `${siteUrl}/boutique` }, { name: product.name, url: canonical }])] }, productMarkup(product, canonical, selected));
+        return await pageResponse(context, { title: text(product.seo_title) || `${product.name}${product.brand ? ` par ${product.brand}` : ''} | STRUKTUR Grenoble`, description: descriptionFor(product), canonical, image: imageForVariant(product, selected || preferredVariant(product, now))?.image_url, type: 'product', jsonLd: [schema, breadcrumb([{ name: 'Accueil', url: siteUrl }, { name: 'Boutique', url: `${siteUrl}/boutique` }, { name: product.name, url: canonical }])] }, productMarkup(product, canonical, selected, now));
       } catch { return failure(context, 503); }
     },
     async category(context) {

@@ -2,10 +2,12 @@ import Stripe from 'npm:stripe@18.5.0';
 import { corsHeaders, jsonResponse, safeError } from '../_shared/http.ts';
 import { adminClient, userClient } from '../_shared/supabase.ts';
 import { resolveShippingSettings } from '../_shared/shipping.ts';
+import { checkoutOrderError } from '../_shared/checkout-errors.ts';
 
 interface CheckoutLineInput {
   variantId: string;
   quantity: number;
+  expectedPriceCents?: number;
 }
 
 interface CheckoutRequest {
@@ -78,6 +80,7 @@ Deno.serve(async (request) => {
     const rpcLines = body.lines.map((line) => ({
       variant_id: line.variantId,
       quantity: line.quantity,
+      ...(line.expectedPriceCents !== undefined ? { expected_unit_price_cents: line.expectedPriceCents } : {}),
     }));
 
     const { data: orderResult, error: orderError } = await admin.rpc('create_pending_stripe_order', {
@@ -89,6 +92,8 @@ Deno.serve(async (request) => {
       p_currency: 'EUR',
     });
     const result = orderResult as { order_id?: string; created?: boolean } | null;
+    const pricingError = checkoutOrderError(orderError);
+    if (pricingError) return jsonResponse(request, { error: pricingError.message }, pricingError.status);
     if (orderError || !result?.order_id) throw orderError ?? new Error('Impossible de préparer la commande.');
     orderId = result.order_id;
     createdOrder = result.created === true;

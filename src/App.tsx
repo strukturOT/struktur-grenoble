@@ -45,6 +45,7 @@ function App() {
           <Route path="checkout" element={<Checkout />} />
           <Route path="admin" element={<RequireAdmin><Admin page="overview" /></RequireAdmin>} />
           <Route path="admin/catalogue" element={<RequireAdmin><Admin page="catalogue" /></RequireAdmin>} />
+          <Route path="admin/promotions" element={<RequireAdmin><Admin page="promotions" /></RequireAdmin>} />
           <Route path="admin/a-confirmer" element={<RequireAdmin><Admin page="pending" /></RequireAdmin>} />
           <Route path="admin/categories" element={<RequireAdmin><Admin page="categories" /></RequireAdmin>} />
           <Route path="admin/livraison" element={<RequireAdmin><Admin page="shipping" /></RequireAdmin>} />

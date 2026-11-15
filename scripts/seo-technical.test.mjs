@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { canonicalUrl, latestModified, productModified } from './seo-utils.mjs';
 import { buildProductStructuredData, isGtin13 } from './product-schema.mjs';
+import { catalogPriceCents } from './catalog-price.mjs';
 
 const site = 'https://strukturkultur.fr';
 const product = {
@@ -54,4 +55,39 @@ test('simple products have an exact offer and never invent a zero-price offer or
   assert.equal(isGtin13('supplier-ref'), false);
   const posBarcode = buildProductStructuredData({ ...product, variants: [{ ...product.variants[0], attributes: { ean: '1000000016284' } }] }, site);
   assert.equal(posBarcode.gtin13, undefined);
+});
+
+test('search offers apply the current percentage to each variant and stop at the promotion end', () => {
+  const promoted = { ...product, promotion: { type: 'percentage', value: 20, enabled: true,
+    startsAt: '2026-11-01T00:00:00Z', endsAt: '2026-11-16T00:00:00Z' } };
+  const current = buildProductStructuredData(promoted, site, Date.parse('2026-11-15T12:00:00Z'));
+  assert.equal(current.hasVariant[0].offers.price, '120.00');
+  assert.equal(current.hasVariant[1].offers.price, '136.00');
+  assert.equal(current.hasVariant[1].offers.availability, 'https://schema.org/OutOfStock');
+  const expired = buildProductStructuredData(promoted, site, Date.parse('2026-11-16T00:00:00Z'));
+  assert.equal(expired.hasVariant[0].offers.price, '150.00');
+  assert.equal(expired.hasVariant[1].offers.price, '170.00');
+});
+
+test('catalogue exports use available effective variant prices and base-price inheritance', () => {
+  const raw = { price_cents: 12000, promotion_type: 'percentage', promotion_value: 25, promotion_enabled: true,
+    product_variants: [{ id: 'sold-out', price_cents: 5000, stock_quantity: 0 },
+      { id: 'in-stock', price_cents: null, stock_quantity: 2 }] };
+  assert.equal(catalogPriceCents(raw), 9000);
+  assert.equal(catalogPriceCents({ ...raw, promotion_enabled: false }), 12000);
+  assert.equal(catalogPriceCents({ ...raw, product_variants: raw.product_variants.map((variant) => ({ ...variant, stock_quantity: 0 })) }), 3750);
+  const inherited = buildProductStructuredData({ ...product, promotion: { type: 'percentage', value: 25, enabled: true },
+    variants: [{ ...product.variants[0], priceCents: null }] }, site);
+  assert.equal(inherited.offers[0].price, '120.00');
+});
+
+test('fixed promotional prices never increase a cheaper variant or create a zero-price offer', () => {
+  const fixed = { ...product, promotion: { type: 'fixed_price', value: 8000, enabled: true }, variants: [
+    { ...product.variants[0], priceCents: 5000 }, product.variants[1],
+  ] };
+  const schema = buildProductStructuredData(fixed, site);
+  assert.equal(schema.hasVariant[0].offers.price, '50.00');
+  assert.equal(schema.hasVariant[1].offers.price, '80.00');
+  const invalid = buildProductStructuredData({ ...fixed, variants: [{ ...fixed.variants[0], priceCents: 0 }] }, site);
+  assert.equal(invalid.offers, undefined);
 });
