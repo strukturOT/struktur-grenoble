@@ -16,3 +16,8 @@ export function confirmationRedirectUrl(origin: string, nextPath: string): strin
   if (next !== '/compte') redirect.searchParams.set('next', next);
   return redirect.toString();
 }
+
+/** Return to the exact requested admin product after signing in. */
+export function adminSignInPath({ pathname, search = '', hash = '' }: { pathname: string; search?: string; hash?: string }): string {
+  return `/compte?next=${encodeURIComponent(safeAccountNext(`${pathname}${search}${hash}`))}`;
+}

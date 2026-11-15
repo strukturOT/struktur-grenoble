@@ -2,6 +2,7 @@ import { supabase } from './supabase';
 import { optimizeProductImage } from './imageOptimization';
 import { brandNames } from './brands';
 import { parseShippingSettings, type ShippingSettings } from '../../supabase/functions/_shared/shipping';
+import { variantWriteValues } from './adminVariantPatch.mjs';
 
 export type { ShippingSettings } from '../../supabase/functions/_shared/shipping';
 
@@ -15,7 +16,9 @@ export interface ProductVariant {
   stockQuantity: number;
   position: number;
   attributes: {
+    [key: string]: unknown;
     colorway?: string;
+    color?: string;
     colorCode?: string;
     size?: string;
     manufacturer_reference?: string;
@@ -305,6 +308,7 @@ export interface NewProductInput {
   brand: string;
   description: string;
   priceCents: number;
+  preserveBasePrice?: boolean;
   currency: string;
   variants: Array<{
     id?: string;
@@ -312,6 +316,8 @@ export interface NewProductInput {
     sku: string;
     priceCents: number | null;
     stockQuantity: number;
+    preserveStockQuantity?: boolean;
+    preservePriceCents?: boolean;
     attributes?: ProductVariant['attributes'];
   }>;
   status: ProductStatus;
@@ -389,7 +395,7 @@ export async function updateProduct(productId: string, input: NewProductInput, i
       slug: input.slug,
       brand: input.brand || null,
       description: input.description || null,
-      price_cents: input.priceCents,
+      ...(!input.preserveBasePrice ? { price_cents: input.priceCents } : {}),
       currency: input.currency.toUpperCase(),
       status: input.status,
       featured: input.featured,
@@ -399,14 +405,7 @@ export async function updateProduct(productId: string, input: NewProductInput, i
   if (productError) throw productError;
 
   for (const [position, variant] of input.variants.entries()) {
-    const values = {
-      name: variant.name || null,
-      sku: variant.sku,
-      price_cents: variant.priceCents ?? input.priceCents,
-      stock_quantity: variant.stockQuantity,
-      attributes: variant.attributes ?? {},
-      position,
-    };
+    const values = variantWriteValues({ ...variant, priceCents: variant.priceCents ?? input.priceCents }, position);
     const { error } = variant.id
       ? await supabase.from('product_variants').update(values).eq('id', variant.id).eq('product_id', productId)
       : await supabase.from('product_variants').insert({ ...values, product_id: productId });

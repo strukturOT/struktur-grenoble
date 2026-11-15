@@ -6,4 +6,4 @@ export interface AdminCatalogFilters {
 }
 export function hasCatalogImage(product: Pick<StoreProduct, 'images'> | null | undefined): boolean;
 export function filterAdminCatalog(products: StoreProduct[], filters?: AdminCatalogFilters): StoreProduct[];
-export function saveProductWithPhotoGuard(product: Pick<StoreProduct, 'images'> | null, input: NewProductInput, newImage: File | null, save: (input: NewProductInput) => Promise<string>, publish: (productId: string) => Promise<void>): Promise<string>;
+export function saveProductWithPhotoGuard(product: (Pick<StoreProduct, 'images'> & Partial<Pick<StoreProduct, 'status'>>) | null, input: NewProductInput, newImage: File | null, save: (input: NewProductInput) => Promise<string>, publish: (productId: string) => Promise<void>): Promise<string>;

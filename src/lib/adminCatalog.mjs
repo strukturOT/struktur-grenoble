@@ -6,8 +6,9 @@ export const hasCatalogImage = (product) => Boolean(product?.images?.some((image
 export async function saveProductWithPhotoGuard(product, input, newImage, save, publish) {
   const needsPhoto = input.status === 'active' && !hasCatalogImage(product);
   if (needsPhoto && !newImage) throw new Error('Ajoutez une photo du bon modèle avant de publier ce produit, ou conservez-le en brouillon.');
-  const productId = await save({ ...input, status: needsPhoto ? 'draft' : input.status });
-  if (needsPhoto) await publish(productId);
+  const publishAfterSave = input.status === 'active' && (needsPhoto || product?.status !== 'active');
+  const productId = await save({ ...input, status: publishAfterSave ? 'draft' : input.status });
+  if (publishAfterSave) await publish(productId);
   return productId;
 }
 
