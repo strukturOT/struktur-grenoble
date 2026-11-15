@@ -37,7 +37,7 @@ const privatePaths = ['/admin', '/compte', '/panier', '/checkout'];
 
 export default function RouteSeo() {
   const { pathname } = useLocation();
-  if (pathname === '/plan-du-site' || pathname.startsWith('/produit/') || pathname.startsWith('/categorie/') || pathname.startsWith('/journal/')) return null;
+  if (pathname === '/plan-du-site' || pathname === '/cgv' || pathname === '/mentions-legales' || pathname.startsWith('/produit/') || pathname.startsWith('/categorie/') || pathname.startsWith('/journal/')) return null;
 
   const page = pages[pathname];
   if (page) {
@@ -68,7 +68,7 @@ export default function RouteSeo() {
         inLanguage: 'fr-FR',
       },
     ] : undefined;
-    return <Seo {...page} path={pathname} jsonLd={jsonLd} />;
+    return <Seo {...page} path={pathname} jsonLd={jsonLd} noIndex={pathname === '/lookbook'} />;
   }
 
   // Unknown routes must not have an index directive racing the 404 component.

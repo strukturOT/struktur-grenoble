@@ -80,18 +80,27 @@ const staticPages = [
   { route: '/nouveautes', title: 'Nouveautés streetwear & sneakers | STRUKTUR Grenoble', description: 'Découvrez les dernières pièces streetwear, sneakers et accessoires disponibles chez STRUKTUR Grenoble.', heading: 'Nouveautés', copy: 'La sélection du moment, mise à jour depuis le catalogue STRUKTUR.' },
   { route: '/boutique', title: 'Boutique streetwear & sneakers | STRUKTUR Grenoble', description: 'Achetez la sélection STRUKTUR : vêtements, sneakers et accessoires de marques indépendantes, avec stock affiché en direct.', heading: 'Boutique', copy: 'Vêtements, sneakers et accessoires sélectionnés par STRUKTUR Grenoble.' },
   { route: '/marques', title: 'Marques streetwear sélectionnées | STRUKTUR Grenoble', description: 'Explorez les marques streetwear, outdoor et lifestyle sélectionnées par STRUKTUR au cœur de Grenoble.', heading: 'Marques', copy: 'Une sélection indépendante de marques streetwear et lifestyle.' },
-  { route: '/lookbook', title: 'Lookbook streetwear Grenoble | STRUKTUR', description: 'Silhouettes, matières et culture urbaine : le lookbook éditorial de STRUKTUR Grenoble.', heading: 'Lookbook', copy: 'Les silhouettes et l’univers éditorial de STRUKTUR Grenoble.' },
+  { route: '/lookbook', title: 'Lookbook streetwear Grenoble | STRUKTUR', description: 'Silhouettes, matières et culture urbaine : le lookbook éditorial de STRUKTUR Grenoble.', heading: 'Lookbook', copy: 'Les silhouettes et l’univers éditorial de STRUKTUR Grenoble.', noIndex: true },
   { route: '/le-shop', title: 'Le shop STRUKTUR | 45 rue Lesdiguières, Grenoble', description: 'Découvrez STRUKTUR, concept store indépendant au 45 rue Lesdiguières à Grenoble : adresse, horaires et univers.', heading: 'Le shop', copy: 'STRUKTUR vous accueille au 45 rue Lesdiguières, 38000 Grenoble.' },
   { route: '/journal', title: 'Journal & guides produits | STRUKTUR Grenoble', description: 'Guides d’achat, détails, tailles et réponses utiles sur chaque pièce sélectionnée par STRUKTUR Grenoble.', heading: 'Journal', copy: 'Guides factuels pour découvrir les pièces du catalogue STRUKTUR.' },
+  { route: '/cgv', title: 'Conditions générales de vente | STRUKTUR Grenoble', description: 'Conditions générales de vente de la boutique STRUKTUR Grenoble.', heading: 'Conditions générales de vente', legalKey: 'legal_cgv', noIndex: true },
+  { route: '/mentions-legales', title: 'Mentions légales | STRUKTUR Grenoble', description: 'Mentions légales de la boutique STRUKTUR Grenoble.', heading: 'Mentions légales', legalKey: 'legal_mentions', noIndex: true },
   { route: '/plan-du-site', title: 'Plan du site | STRUKTUR Grenoble', description: 'Retrouvez les pages, les collections et tous les produits publiés dans la boutique STRUKTUR Grenoble.', heading: 'Plan du site', copy: 'Retrouvez les pages principales, les collections et toutes les pièces publiées dans notre boutique.' },
 ];
+
+const brandKey = (name) => String(name || '').normalize('NFC').trim().replace(/\s+/g, ' ').toLocaleLowerCase('fr');
+const brands = [...new Map(catalog.products.filter((product) => product.brand?.trim()).map((product) => [brandKey(product.brand), product.brand.normalize('NFC').trim()])).values()].sort(new Intl.Collator('fr', { sensitivity: 'base', numeric: true }).compare);
+const brandHref = (name) => {
+  const category = catalog.categories.find((item) => brandKey(item.name) === brandKey(name));
+  return category ? `/categorie/${category.slug}` : `/boutique?marque=${encodeURIComponent(name)}`;
+};
 
 for (const page of staticPages) {
   const canonical = `${siteUrl}${page.route}`;
   const links = page.route === '/journal'
     ? catalog.products.map((product) => `<li><a href="/journal/${html(product.slug)}">Guide ${html(product.name)}</a></li>`).join('')
     : page.route === '/marques'
-      ? catalog.categories.map((category) => `<li><a href="/categorie/${html(category.slug)}">${html(category.name)}</a></li>`).join('')
+      ? brands.map((brand) => `<li><a href="${html(brandHref(brand))}">${html(brand)}</a></li>`).join('')
    : page.route === '/boutique'
       ? [
           ...catalog.categories.map((category) => `<li><a href="/categorie/${html(category.slug)}">${html(category.name)}</a></li>`),
@@ -99,17 +108,23 @@ for (const page of staticPages) {
         ].join('')
       : '';
   let fallback = `<main style="padding:8rem 2rem;max-width:900px;margin:auto"><h1>${html(page.heading)}</h1><p>${html(page.copy)}</p>${links ? `<ul>${links}</ul>` : ''}</main>`;
+  if (page.legalKey) {
+    const setting = (catalog.legalPages || []).find((item) => item.key === page.legalKey);
+    const content = typeof setting?.value?.content === 'string' ? setting.value.content.trim() : '';
+    const paragraphs = content ? content.split(/\n\s*\n/).map((paragraph) => `<p style="white-space:pre-wrap">${html(paragraph)}</p>`).join('') : '<p>Le texte de cette rubrique sera publié prochainement par la boutique.</p><p>Pour toute question, vous pouvez joindre STRUKTUR au <a href="tel:+33786380736">07 86 38 07 36</a> ou vous rendre au 45 Rue Lesdiguières, 38000 Grenoble.</p>';
+    fallback = `<main style="padding:8rem 2rem;max-width:900px;margin:auto"><h1>${html(page.heading)}</h1>${paragraphs}</main>`;
+  }
   let jsonLd = breadcrumb([{ name: 'Accueil', url: siteUrl }, { name: page.heading, url: canonical }]);
   if (page.route === '/plan-du-site') {
     const compare = new Intl.Collator('fr', { sensitivity: 'base', numeric: true }).compare;
     const sorted = [...catalog.products].sort((a, b) => compare(a.name, b.name));
-    const mainLinks = `<li><a href="/">Accueil</a></li>${staticPages.filter((item) => item.route !== page.route).map((item) => `<li><a href="${item.route}">${html(item.heading)}</a></li>`).join('')}`;
+    const mainLinks = `<li><a href="/">Accueil</a></li><li><a href="/categorie/outlet">Outlet</a></li>${staticPages.filter((item) => item.route !== page.route && item.route !== '/lookbook').map((item) => `<li><a href="${item.route}">${html(item.heading)}</a></li>`).join('')}`;
     const collections = catalog.categories.map((category) => `<li><a href="/categorie/${html(category.slug)}">${html(category.name)}</a></li>`).join('');
     const products = sorted.map((product) => `<li><a href="/produit/${html(product.slug)}">${html(product.name)}</a></li>`).join('');
     fallback = `<main style="padding:8rem 2rem;max-width:1100px;margin:auto"><h1>Plan du site</h1><p>${html(page.copy)}</p><h2>Pages principales</h2><ul>${mainLinks}</ul><h2>Collections</h2><ul>${collections}</ul><h2>Tous les produits</h2><p>${sorted.length} produits publiés</p><ul>${products}</ul></main>`;
     jsonLd = [{ '@context': 'https://schema.org', '@type': 'CollectionPage', '@id': `${canonical}#directory`, name: 'Plan du site STRUKTUR Grenoble', url: canonical, mainEntity: { '@type': 'ItemList', numberOfItems: sorted.length, itemListElement: sorted.map((product, index) => ({ '@type': 'ListItem', position: index + 1, name: product.name, url: `${siteUrl}/produit/${product.slug}` })) } }, jsonLd];
   }
-  await writeRoute(page.route, { title: page.title, description: page.description, canonical, jsonLd }, fallback);
+  await writeRoute(page.route, { title: page.title, description: page.description, canonical, jsonLd, noIndex: page.noIndex || false }, fallback);
 }
 
 for (const product of catalog.products) {
@@ -128,12 +143,11 @@ for (const product of catalog.products) {
       name: variant.name, priceCents: variant.price_cents, stockQuantity: variant.stock_quantity,
       attributes: variant.attributes || {} })),
   };
-  const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: answers.map((item) => ({ '@type': 'Question', name: item.question, acceptedAnswer: { '@type': 'Answer', text: item.answer } })) };
-  const schema = [buildProductStructuredData(normalized, siteUrl), faqSchema, breadcrumb([{ name: 'Accueil', url: siteUrl }, { name: 'Boutique', url: `${siteUrl}/boutique` }, { name: product.name, url: canonical }])];
+  const schema = [buildProductStructuredData(normalized, siteUrl), breadcrumb([{ name: 'Accueil', url: siteUrl }, { name: 'Boutique', url: `${siteUrl}/boutique` }, { name: product.name, url: canonical }])];
   const variantRows = product.product_variants.map((variant) => `<tr><td><a href="${html(canonical)}?variante=${html(encodeURIComponent(variant.id))}">${html([variant.attributes?.colorway, variant.name].filter(Boolean).join(' — ') || variant.sku)}</a></td><td>${html(((variant.price_cents ?? product.price_cents) / 100).toFixed(2))} ${html(product.currency)}</td><td>${variant.stock_quantity > 0 ? 'En stock' : 'Indisponible'}</td></tr>`).join('');
   const relatedProducts = catalog.products.filter((other) => other.id !== product.id && other.categories?.slug === product.categories?.slug).slice(0, 6);
   const relatedLinks = relatedProducts.map((other) => `<li><a href="/produit/${html(other.slug)}">${html(other.name)}</a></li>`).join('');
-  const fallback = `<main style="padding:8rem 2rem;max-width:900px;margin:auto"><article><nav aria-label="Fil d’Ariane"><a href="/">Accueil</a> / <a href="/boutique">Boutique</a>${product.categories ? ` / <a href="/categorie/${html(product.categories.slug)}">${html(product.categories.name)}</a>` : ''}</nav><p>${html(product.brand || 'STRUKTUR')}</p><h1>${html(product.name)}</h1>${product.product_images[0] ? `<img src="${html(product.product_images[0].image_url)}" alt="${html(product.product_images[0].alt_text || product.name)}" width="640" height="800" style="max-width:100%;height:auto;max-height:600px;object-fit:contain" />` : ''}<p>${html(text(product.description) || description)}</p><p>À partir de ${html((catalogPriceCents(product) / 100).toFixed(2))} ${html(product.currency)}</p><h2>Tailles et disponibilité</h2><table><thead><tr><th>Variante</th><th>Prix TTC</th><th>Disponibilité</th></tr></thead><tbody>${variantRows}</tbody></table><h2>Questions fréquentes</h2>${answers.map((item) => `<h3>${html(item.question)}</h3><p>${html(item.answer)}</p>`).join('')}${relatedLinks ? `<h2>Dans la même collection</h2><ul>${relatedLinks}</ul>` : ''}<a href="/boutique">Retour à la boutique</a></article></main>`;
+  const fallback = `<main style="padding:8rem 2rem;max-width:900px;margin:auto"><article><nav aria-label="Fil d’Ariane"><a href="/">Accueil</a> / <a href="/boutique">Boutique</a>${product.categories ? ` / <a href="/categorie/${html(product.categories.slug)}">${html(product.categories.name)}</a>` : ''}</nav><p>${html(product.brand || 'STRUKTUR')}</p><h1>${html(product.name)}</h1>${product.product_images[0] ? `<img src="${html(product.product_images[0].image_url)}" alt="${html(product.product_images[0].alt_text || product.name)}" width="640" height="800" style="max-width:100%;height:auto;max-height:600px;object-fit:contain" />` : ''}<p>${html(text(product.description) || description)}</p><p>À partir de ${html((catalogPriceCents(product) / 100).toFixed(2))} ${html(product.currency)}</p><h2>Tailles et disponibilité</h2><table><thead><tr><th>Variante</th><th>Prix TTC</th><th>Disponibilité</th></tr></thead><tbody>${variantRows}</tbody></table>${relatedLinks ? `<h2>Dans la même collection</h2><ul>${relatedLinks}</ul>` : ''}<a href="/boutique">Retour à la boutique</a></article></main>`;
   await writeRoute(`/produit/${product.slug}`, { title: text(product.seo_title) || `${product.name}${product.brand ? ` par ${product.brand}` : ''} | STRUKTUR`, description, canonical, image, type: 'product', jsonLd: schema }, fallback);
 
   const articleCanonical = `${siteUrl}/journal/${product.slug}`;
@@ -153,7 +167,7 @@ for (const category of catalog.categories) {
   const categoryProducts = products.map((product) => `<li><a href="/produit/${html(product.slug)}">${html(product.name)}</a></li>`).join('');
   const related = (content?.relatedSlugs || []).filter((slug) => catalog.categories.some((item) => item.slug === slug)).map((slug) => `<li><a href="/categorie/${html(slug)}">${html(collectionContent[slug]?.name || catalog.categories.find((item) => item.slug === slug).name)}</a></li>`).join('');
   const fallback = `<main style="padding:8rem 2rem;max-width:900px;margin:auto"><nav aria-label="Fil d’Ariane"><a href="/">Accueil</a> / <a href="/boutique">Boutique</a></nav><h1>${html(category.name)} à Grenoble</h1><p>${html(category.description || content?.intro || description)}</p>${content?.detail ? `<p>${html(content.detail)}</p>` : ''}<h2>Produits de la collection</h2><ul>${categoryProducts || '<li>Consultez la boutique pour découvrir la sélection à venir.</li>'}</ul>${related ? `<h2>À découvrir aussi</h2><ul>${related}</ul>` : ''}<a href="/boutique">Toutes les collections</a></main>`;
-  await writeRoute(`/categorie/${category.slug}`, { title: content?.title || `${category.name} | STRUKTUR Grenoble`, description, canonical, image: category.image_url, jsonLd: schema }, fallback);
+  await writeRoute(`/categorie/${category.slug}`, { title: content?.title || `${category.name} | STRUKTUR Grenoble`, description, canonical, image: category.image_url, jsonLd: schema, noIndex: products.length === 0 }, fallback);
 }
 
 const homeCanonical = siteUrl;
@@ -177,7 +191,7 @@ const homeSchema = [{
 }];
 const homeLinks = catalog.categories.map((category) => '<li><a href="/categorie/' + html(category.slug) + '">' + html(category.name) + '</a></li>').join('');
 const homeProducts = catalog.products.map((product) => '<li><a href="/produit/' + html(product.slug) + '">' + html(product.name) + '</a></li>').join('');
-const homeFallback = '<main style="padding:8rem 2rem;max-width:1100px;margin:auto"><h1>STRUKTUR Grenoble — concept store streetwear &amp; sneakers</h1><p>Une sélection indépendante de vêtements, sneakers et accessoires au 45 rue Lesdiguières, 38000 Grenoble.</p><nav aria-label="Navigation principale"><a href="/nouveautes">Nouveautés</a> · <a href="/boutique">Boutique</a> · <a href="/marques">Marques</a> · <a href="/lookbook">Lookbook</a> · <a href="/le-shop">Le shop à Grenoble</a> · <a href="/journal">Journal &amp; guides</a></nav><h2>Collections</h2><ul>' + homeLinks + '</ul><h2>Produits du catalogue</h2><ul>' + homeProducts + '</ul></main>';
+const homeFallback = '<main style="padding:8rem 2rem;max-width:1100px;margin:auto"><h1>STRUKTUR Grenoble — concept store streetwear &amp; sneakers</h1><p>Une sélection indépendante de vêtements, sneakers et accessoires au 45 rue Lesdiguières, 38000 Grenoble.</p><nav aria-label="Navigation principale"><a href="/nouveautes">Nouveautés</a> · <a href="/boutique">Boutique</a> · <a href="/marques">Marques</a> · <a href="/categorie/outlet">Outlet</a> · <a href="/le-shop">Le shop à Grenoble</a> · <a href="/journal">Journal &amp; guides</a></nav><h2>Collections</h2><ul>' + homeLinks + '</ul><h2>Produits du catalogue</h2><ul>' + homeProducts + '</ul></main>';
 const homeHtml = applyHead(indexHtml, {
   title: 'STRUKTUR Grenoble | Boutique streetwear, sneakers & accessoires',
   description: 'Découvrez les vêtements, sneakers et accessoires de la sélection STRUKTUR. Boutique en ligne et au 45 rue Lesdiguières, Grenoble.',

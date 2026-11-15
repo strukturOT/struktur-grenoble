@@ -19,6 +19,8 @@ export interface ProductVariant {
     colorCode?: string;
     size?: string;
     manufacturer_reference?: string;
+    source_reference?: string;
+    source_supplier_reference?: string;
     source_gencode?: string;
     import_status?: 'media_required' | 'verified' | 'stock_zero' | 'identity_review';
     import_notes?: string;
@@ -274,12 +276,13 @@ export async function getPublishedCategories() {
   if (!supabase) return { data: [] as StoreCategory[], error: null };
   const { data, error } = await supabase
     .from('categories')
-    .select('id, name, slug, description, image_url, storage_path, position, products!inner(id)')
+    .select('id, name, slug, description, image_url, storage_path, position, products(id)')
     .eq('products.status', 'active')
     .not('products.slug', 'like', 'test-%')
     .order('position', { ascending: true })
     .order('name', { ascending: true });
-  return { data: ((data ?? []) as unknown as Array<Parameters<typeof mapCategory>[0]>).map(mapCategory), error };
+  const categories = ((data ?? []) as unknown as Array<Parameters<typeof mapCategory>[0]>).map(mapCategory);
+  return { data: categories.filter((category) => category.productCount > 0 || category.slug === 'outlet'), error };
 }
 
 export async function getPublishedProduct(slug: string) {

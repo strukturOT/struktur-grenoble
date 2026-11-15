@@ -8,7 +8,7 @@ import { useProduct } from '../hooks/useProducts';
 import { formatMoney, productPrice } from '../lib/commerce';
 import { isSupabaseConfigured } from '../lib/supabase';
 import Seo from '../components/Seo';
-import { breadcrumbJsonLd, productAnswers, productJsonLd, productSeoDescription } from '../lib/productSeo';
+import { breadcrumbJsonLd, productJsonLd, productSeoDescription } from '../lib/productSeo';
 import { SITE_URL } from '../lib/site';
 
 const ProductDetail = () => {
@@ -56,7 +56,6 @@ const ProductDetail = () => {
   const isAvailable = (selectedVariant?.stockQuantity ?? 0) > 0 && chosenPrice > 0;
   const hasAvailableSizes = colorVariants.some((variant) => variant.stockQuantity > 0 && (variant.priceCents ?? product.priceCents) > 0);
   const isFootwear = /^(saucony|sorel)$/i.test(product.brand || '');
-  const answers = productAnswers(product);
   const productUrl = `${SITE_URL}/produit/${product.slug}`;
   const chooseVariant = (variantId: string | null) => {
     const next = new URLSearchParams(searchParams);
@@ -64,15 +63,6 @@ const ProductDetail = () => {
     else next.delete('variante');
     setSearchParams(next, { replace: true, preventScrollReset: true });
     setWasAdded(false);
-  };
-  const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: answers.map((item) => ({
-      '@type': 'Question',
-      name: item.question,
-      acceptedAnswer: { '@type': 'Answer', text: item.answer },
-    })),
   };
 
   const handleAddToCart = () => {
@@ -85,7 +75,7 @@ const ProductDetail = () => {
 
   return (
     <div className="mx-auto min-h-screen max-w-7xl px-6 pb-24 pt-28 md:px-12 md:pb-32 md:pt-36">
-      <Seo title={product.seoTitle?.trim() || `${product.name}${product.brand ? ` par ${product.brand}` : ''} | STRUKTUR`} description={productSeoDescription(product)} path={`/produit/${product.slug}`} image={visibleImages[0]?.imageUrl ?? product.images[0]?.imageUrl} type="product" noIndex={product.slug.toLowerCase().startsWith('test-')} jsonLd={[productJsonLd(product, SITE_URL), faqSchema, breadcrumbJsonLd([{ name: 'Accueil', url: SITE_URL }, { name: 'Boutique', url: `${SITE_URL}/boutique` }, { name: product.name, url: productUrl }])]} />
+      <Seo title={product.seoTitle?.trim() || `${product.name}${product.brand ? ` par ${product.brand}` : ''} | STRUKTUR`} description={productSeoDescription(product)} path={`/produit/${product.slug}`} image={visibleImages[0]?.imageUrl ?? product.images[0]?.imageUrl} type="product" noIndex={product.slug.toLowerCase().startsWith('test-')} jsonLd={[productJsonLd(product, SITE_URL), breadcrumbJsonLd([{ name: 'Accueil', url: SITE_URL }, { name: 'Boutique', url: `${SITE_URL}/boutique` }, { name: product.name, url: productUrl }])]} />
       <nav aria-label="Fil d’Ariane" className="mb-7 flex flex-wrap items-center gap-2 text-xs text-theme-ink/60"><Link to="/" className="hover:text-struktur-orange">Accueil</Link><span aria-hidden="true">/</span><Link to="/boutique" className="hover:text-struktur-orange">Boutique</Link>{product.category && <><span aria-hidden="true">/</span><Link to={`/categorie/${product.category.slug}`} className="hover:text-struktur-orange">{product.category.name}</Link></>}<span aria-hidden="true">/</span><span aria-current="page">{product.name}</span></nav>
       <div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-16">
         <div className="min-w-0 md:col-span-7"><div role="region" aria-label="Photos du produit" tabIndex={0} className="capsule-rail flex snap-x snap-mandatory gap-3 overflow-x-auto md:grid md:gap-6 md:overflow-visible">{visibleImages.length > 0 ? visibleImages.map((image, index) => <motion.div key={image.id} initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className={`w-full shrink-0 snap-start overflow-hidden bg-white ${isFootwear ? 'aspect-square' : 'aspect-[4/5]'}`}><img src={image.imageUrl} alt={image.altText || `${product.name}, vue ${index + 1}`} width={1000} height={isFootwear ? 1000 : 1250} fetchPriority={index === 0 ? 'high' : 'low'} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" className="h-full w-full object-contain" /></motion.div>) : <div className="flex aspect-[4/5] items-end bg-theme-surface p-6 text-xs text-theme-ink/50">Visuel à venir</div>}</div>{visibleImages.length > 1 && <p className="mt-3 text-xs text-theme-ink/60 md:hidden">Glisser pour voir les photos</p>}</div>
@@ -101,12 +91,6 @@ const ProductDetail = () => {
           {wasAdded && <Link to="/panier" className="mt-4 block py-2 text-center text-sm underline underline-offset-4">Voir mon panier</Link>}
         </div></div>
       </div>
-      <section className="mt-20 border-t border-theme-ink/10 pt-14 md:mt-28 md:pt-20">
-        <div className="grid gap-12 md:grid-cols-[0.8fr_1.2fr] md:gap-20">
-          <div><p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-struktur-orange">Guide d’achat</p><h2 className="font-display text-4xl md:text-5xl">Questions sur cette pièce</h2><p className="mt-5 max-w-md text-sm font-light leading-7 text-theme-ink/60">Prix, variantes et disponibilité sont synchronisés avec le catalogue de la boutique.</p><Link to={`/journal/${product.slug}`} className="mt-7 inline-block border-b border-theme-ink/30 pb-1 text-xs uppercase tracking-[0.18em] transition-colors hover:border-struktur-orange hover:text-struktur-orange">Lire le guide complet</Link></div>
-          <div className="divide-y divide-theme-ink/10 border-y border-theme-ink/10">{answers.map((item) => <details key={item.question} className="py-5"><summary className="cursor-pointer list-none pr-8 font-display text-xl marker:content-none">{item.question}</summary><p className="mt-4 max-w-2xl text-sm font-light leading-7 text-theme-ink/65">{item.answer}</p></details>)}</div>
-        </div>
-      </section>
     </div>
   );
 };

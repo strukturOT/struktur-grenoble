@@ -9,3 +9,5 @@ export const sitemapIndex = (context) => handlers.sitemap(context, 'index');
 export const sitemapProducts = (context) => handlers.sitemap(context, 'products');
 export const sitemapCategories = (context) => handlers.sitemap(context, 'categories');
 export const htmlSitemap = (context) => handlers.htmlSitemap(context);
+export const cgvPage = (context) => handlers.legal(context, 'cgv');
+export const legalMentionsPage = (context) => handlers.legal(context, 'mentions-legales');

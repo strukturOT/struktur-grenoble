@@ -10,7 +10,11 @@ const publicProduct = (product) => product.status === 'active' && validSlug(prod
 const PRODUCT_SELECT = 'id,name,slug,brand,description,seo_title,seo_description,price_cents,currency,status,featured,created_at,updated_at,category_id,categories(id,name,slug,description,image_url),product_images(image_url,alt_text,position,created_at),product_variants(id,name,sku,price_cents,stock_quantity,position,attributes,updated_at)';
 const SITEMAP_SELECT = 'id,slug,brand,category_id,status,updated_at,product_variants(updated_at),product_images(image_url,created_at)';
 const CATEGORY_SELECT = 'id,name,slug,description,image_url,updated_at';
-const pages = ['/', '/nouveautes', '/boutique', '/marques', '/lookbook', '/le-shop', '/journal', '/plan-du-site'];
+const pages = ['/', '/nouveautes', '/boutique', '/marques', '/le-shop', '/journal', '/plan-du-site'];
+const legalPages = {
+  cgv: { key: 'legal_cgv', title: 'Conditions générales de vente' },
+  'mentions-legales': { key: 'legal_mentions', title: 'Mentions légales' },
+};
 
 function normalizedProduct(product) {
   const images = [...(product.product_images || [])].sort((a, b) => (a.position || 0) - (b.position || 0));
@@ -102,11 +106,11 @@ export function createLiveSeoHandlers(config, { fetch: fetcher = globalThis.fetc
     if (unavailable) headers.set('Retry-After', '60');
     return headers;
   };
-  async function rows(table, select, filters = {}, maximum = 50000) {
+  async function rows(table, select, filters = {}, maximum = 50000, order = 'id.asc') {
     const all = [];
     const pageSize = Math.min(500, maximum);
     for (let offset = 0; offset < maximum; offset += pageSize) {
-      const params = new URLSearchParams({ select, order: 'id.asc', limit: String(pageSize), offset: String(offset), ...filters });
+      const params = new URLSearchParams({ select, order, limit: String(pageSize), offset: String(offset), ...filters });
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
@@ -170,14 +174,30 @@ export function createLiveSeoHandlers(config, { fetch: fetcher = globalThis.fetc
         const compare = new Intl.Collator('fr', { sensitivity: 'base', numeric: true }).compare;
         const products = [...sourceProducts].sort((a, b) => compare(a.name, b.name));
         const visibleCategories = categories.filter((category) => validSlug(category.slug) && products.some((product) => inCategory(product, category))).sort((a, b) => compare(a.name, b.name));
-        const names = { '/': 'Accueil', '/nouveautes': 'Nouveautés', '/boutique': 'Boutique', '/marques': 'Marques', '/lookbook': 'Lookbook', '/le-shop': 'Le shop à Grenoble', '/journal': 'Journal et guides' };
-        const pageLinks = pages.filter((path) => path !== '/plan-du-site').map((path) => `<li><a href="${path}">${names[path]}</a></li>`).join('');
+        const names = { '/': 'Accueil', '/nouveautes': 'Nouveautés', '/boutique': 'Boutique', '/marques': 'Marques', '/categorie/outlet': 'Outlet', '/le-shop': 'Le shop à Grenoble', '/journal': 'Journal et guides', '/cgv': 'CGV', '/mentions-legales': 'Mentions légales' };
+        const pageLinks = [...pages.filter((path) => path !== '/plan-du-site'), '/categorie/outlet', '/cgv', '/mentions-legales'].map((path) => `<li><a href="${path}">${names[path]}</a></li>`).join('');
         const categoryLinks = visibleCategories.map((category) => `<li><a href="/categorie/${html(category.slug)}">${html(category.name)}</a></li>`).join('');
         const productLinks = products.map((product) => `<li><a href="/produit/${html(product.slug)}">${html(product.name)}</a>${product.brand ? ` — ${html(product.brand)}` : ''}</li>`).join('');
         const markup = `<main style="padding:8rem 2rem;max-width:1100px;margin:auto"><h1>Plan du site</h1><p>Retrouvez les pages principales, les collections et toutes les pièces publiées dans notre boutique.</p><nav aria-labelledby="site-main-pages"><h2 id="site-main-pages">Pages principales</h2><ul>${pageLinks}</ul></nav><nav aria-labelledby="site-collections"><h2 id="site-collections">Collections</h2><ul>${categoryLinks}</ul></nav><section aria-labelledby="site-products"><h2 id="site-products">Tous les produits</h2><p>${products.length} produit${products.length !== 1 ? 's' : ''} publié${products.length !== 1 ? 's' : ''}</p><ul>${productLinks}</ul></section></main>`;
         const canonical = `${siteUrl}/plan-du-site`;
         const schema = [{ '@context': 'https://schema.org', '@type': 'CollectionPage', '@id': `${canonical}#directory`, name: 'Plan du site STRUKTUR Grenoble', url: canonical, mainEntity: { '@type': 'ItemList', numberOfItems: products.length, itemListElement: products.map((product, index) => ({ '@type': 'ListItem', position: index + 1, name: product.name, url: `${siteUrl}/produit/${product.slug}` })) } }, breadcrumb([{ name: 'Accueil', url: siteUrl }, { name: 'Plan du site', url: canonical }])];
         return await pageResponse(context, { title: 'Plan du site | STRUKTUR Grenoble', description: 'Retrouvez les pages, les collections et tous les produits publiés dans la boutique STRUKTUR Grenoble.', canonical, jsonLd: schema }, markup);
+      } catch { return failure(context, 503); }
+    },
+    async legal(context, slug) {
+      const method = methodResponse(context.request); if (method) return method;
+      const redirect = normalizeRoute(context.request, slug); if (redirect) return redirect;
+      const page = legalPages[slug];
+      if (!page) return failure(context, 404);
+      try {
+        const setting = (await rows('site_settings', 'key,value', { key: `eq.${page.key}` }, 1, 'key.asc'))[0];
+        const content = typeof setting?.value?.content === 'string' ? setting.value.content.trim() : '';
+        const paragraphs = content
+          ? content.split(/\n\s*\n/).map((paragraph) => `<p style="white-space:pre-wrap">${html(paragraph)}</p>`).join('')
+          : '<p>Le texte de cette rubrique sera publié prochainement par la boutique.</p><p>Pour toute question, vous pouvez joindre STRUKTUR au <a href="tel:+33786380736">07 86 38 07 36</a> ou vous rendre au 45 Rue Lesdiguières, 38000 Grenoble.</p>';
+        const canonical = `${siteUrl}/${slug}`;
+        const markup = `<main style="padding:8rem 2rem;max-width:900px;margin:auto"><h1>${page.title}</h1>${paragraphs}</main>`;
+        return await pageResponse(context, { title: `${page.title} | STRUKTUR Grenoble`, description: `${page.title} de la boutique STRUKTUR Grenoble.`, canonical, noIndex: true, jsonLd: breadcrumb([{ name: 'Accueil', url: siteUrl }, { name: page.title, url: canonical }]) }, markup);
       } catch { return failure(context, 503); }
     },
     async product(context) {

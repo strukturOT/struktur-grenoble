@@ -19,6 +19,12 @@ test('publication, stock and text filters compose and clearing them restores eve
   assert.deepEqual(filterAdminCatalog(products, { stock: 'empty' }).map((p) => p.id), ['two']);
   assert.equal(filterAdminCatalog(products).length, products.length);
 });
+
+test('new workbook references remain searchable without being labelled manufacturer identifiers', () => {
+  const imported = [{ id: 'nn07', name: 'Adam', brand: 'NN07', status: 'draft', variants: [{ name: 'M', sku: 'NN07-POS1', stockQuantity: 2, attributes: { source_reference: '2363209248', source_supplier_reference: 'SUPPLIER-ADAM' } }] }];
+  assert.deepEqual(filterAdminCatalog(imported, { query: 'NN07 2363209248' }).map((product) => product.id), ['nn07']);
+  assert.deepEqual(filterAdminCatalog(imported, { query: 'SUPPLIER-ADAM' }).map((product) => product.id), ['nn07']);
+});
 test('publication requires an actual image, including for imported drafts', () => {
   assert.equal(hasCatalogImage(products[0]), false);
   assert.equal(hasCatalogImage(products[1]), true);

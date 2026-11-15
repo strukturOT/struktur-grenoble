@@ -36,7 +36,7 @@ export const navigation = [
   { name: 'Nouveautés', path: '/nouveautes' },
   { name: 'Boutique', path: '/boutique' },
   { name: 'Marques', path: '/marques' },
-  { name: 'Lookbook', path: '/lookbook' },
+  { name: 'Outlet', path: '/categorie/outlet' },
   { name: 'Le Shop', path: '/le-shop' },
 ];
 

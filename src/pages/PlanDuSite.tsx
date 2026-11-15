@@ -8,8 +8,9 @@ import { breadcrumbJsonLd } from '../lib/productSeo';
 const mainPages = [
   { path: '/', name: 'Accueil' }, { path: '/nouveautes', name: 'Nouveautés' },
   { path: '/boutique', name: 'Boutique' }, { path: '/marques', name: 'Marques' },
-  { path: '/lookbook', name: 'Lookbook' }, { path: '/le-shop', name: 'Le shop à Grenoble' },
+  { path: '/categorie/outlet', name: 'Outlet' }, { path: '/le-shop', name: 'Le shop à Grenoble' },
   { path: '/journal', name: 'Journal et guides' },
+  { path: '/cgv', name: 'CGV' }, { path: '/mentions-legales', name: 'Mentions légales' },
 ];
 const collator = new Intl.Collator('fr', { sensitivity: 'base', numeric: true });
 const searchable = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('fr');

@@ -120,7 +120,6 @@ export default function Hero() {
       <div className="hero-shade pointer-events-none absolute inset-0 z-10" />
       <div className="relative z-20 mx-auto flex h-full max-w-[1600px] flex-col justify-end px-5 pb-24 pt-6 md:px-10 md:pb-28 lg:px-14">
         <motion.div key={campaign.title} initial={motionEnabled ? { opacity: 0, y: 8 } : false} animate={{ opacity: 1, y: 0 }} transition={{ duration: motionEnabled ? 0.5 : 0 }} aria-live="off">
-          <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.1em] text-white/85 md:mb-5 md:text-xs">{campaign.label}</p>
           <h2 className="max-w-5xl text-balance font-display text-[clamp(3rem,8vw,8rem)] font-medium leading-[0.98]">{campaign.title}</h2>
           <div className="mt-5 md:mt-8">
             <Link to={campaign.href} className="inline-flex min-h-12 items-center justify-center bg-white px-9 py-4 text-sm font-semibold uppercase tracking-[0.08em] text-black transition-colors hover:bg-struktur-orange hover:text-white">

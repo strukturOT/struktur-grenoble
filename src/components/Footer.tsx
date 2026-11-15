@@ -80,6 +80,8 @@ const Footer = () => {
           <Link to="/boutique" className="hover:text-theme-ink transition-colors">La Boutique</Link>
           <Link to="/journal" className="hover:text-theme-ink transition-colors">Journal</Link>
           <Link to="/plan-du-site" className="hover:text-theme-ink transition-colors">Plan du site</Link>
+          <Link to="/cgv" className="hover:text-theme-ink transition-colors">CGV</Link>
+          <Link to="/mentions-legales" className="hover:text-theme-ink transition-colors">Mentions légales</Link>
         </div>
       </motion.div>
     </footer>

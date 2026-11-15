@@ -6,7 +6,9 @@
     "/sitemap.xml",
     "/sitemap-products.xml",
     "/sitemap-categories.xml",
-    "/plan-du-site"
+    "/plan-du-site",
+    "/cgv",
+    "/mentions-legales"
   ],
   "exclude": []
 }

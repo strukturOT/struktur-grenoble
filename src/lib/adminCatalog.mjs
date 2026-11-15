@@ -18,7 +18,7 @@ export function filterAdminCatalog(products, { status = 'all', stock = 'all', qu
     const available = product.variants.some((variant) => variant.stockQuantity > 0);
     if (stock === 'available' && !available || stock === 'empty' && available) return false;
     if (!terms.length) return true;
-    const haystack = searchText([product.name, product.brand, ...product.variants.flatMap((variant) => [variant.name, variant.sku, variant.attributes?.manufacturer_reference, variant.attributes?.source_gencode])].join(' '));
+    const haystack = searchText([product.name, product.brand, ...product.variants.flatMap((variant) => [variant.name, variant.sku, variant.attributes?.manufacturer_reference, variant.attributes?.source_reference, variant.attributes?.source_supplier_reference, variant.attributes?.source_gencode])].join(' '));
     return terms.every((term) => haystack.includes(term));
   });
 }

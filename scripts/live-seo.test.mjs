@@ -13,8 +13,8 @@ const product = () => ({
     { id: 'variant-l', name: 'L', sku: 'MODEL-L', price_cents: 14000, stock_quantity: 0, attributes: { size: 'L' }, updated_at: '2026-11-02T00:00:00Z' },
   ],
 });
-function harness({ products = [], categories = [category], fail = false, isIndexable = true } = {}) {
-  const data = { products, categories, fail, calls: [] };
+function harness({ products = [], categories = [category], settings = [], fail = false, isIndexable = true } = {}) {
+  const data = { products, categories, site_settings: settings, fail, calls: [] };
   const config = { siteUrl: 'https://strukturkultur.fr', isIndexable, supabaseUrl: 'https://public-catalogue.example', supabaseKey: 'PUBLIC_FIXTURE', productRedirects: { '/produit/ancien-modele': '/produit/nouvelle-piece' } };
   const fetcher = async (url, options) => {
     data.calls.push({ url, options });
@@ -23,7 +23,7 @@ function harness({ products = [], categories = [category], fail = false, isIndex
     let values = data[parsed.pathname.split('/').at(-1)];
     if (!values) return new Response('not found', { status: 404 });
     values = values.filter((row) => {
-      for (const key of ['slug', 'status', 'category_id']) {
+      for (const key of ['slug', 'status', 'category_id', 'key']) {
         const filter = parsed.searchParams.get(key);
         if (filter?.startsWith('eq.') && row[key] !== filter.slice(3)) return false;
         if (filter === 'not.like.test-%' && row[key]?.startsWith('test-')) return false;
@@ -58,7 +58,7 @@ test('a newly published product absent from static files becomes crawlable immed
   assert.match(body, /href="https:\/\/strukturkultur.fr\/produit\/nouvelle-piece"/);
   assert.match(body, /Nouvelle pièce &lt;test&gt;/);
   assert.match(body, /src="\/assets\/app.js"/);
-  assert.doesNotMatch(body, /Private shell|PUBLIC_FIXTURE/);
+  assert.doesNotMatch(body, /Private shell|PUBLIC_FIXTURE|FAQPage|Questions fréquentes|Guide d’achat/);
   const group = schemaFrom(body)[0];
   assert.equal(group['@type'], 'ProductGroup');
   assert.equal(group.hasVariant[0].offers.price, '130.00');
@@ -195,8 +195,9 @@ test('variant deep links expose the selected size, price and availability in ini
 
 test('human sitemap is normal canonical HTML and updates after publication without a build', async () => {
   const h = harness();
-  assert.equal(STATIC_PUBLIC_ROUTES.length, 8);
+  assert.equal(STATIC_PUBLIC_ROUTES.length, 7);
   assert.ok(STATIC_PUBLIC_ROUTES.includes('/plan-du-site'));
+  assert.ok(!STATIC_PUBLIC_ROUTES.includes('/lookbook'));
   const first = await h.handlers.htmlSitemap(h.context('/plan-du-site'));
   assert.equal(first.status, 200);
   assert.equal(schemaFrom(await first.text())[0].mainEntity.numberOfItems, 0);
@@ -211,7 +212,10 @@ test('human sitemap is normal canonical HTML and updates after publication witho
   assert.equal((body.match(/<a href="\/produit\/nouvelle-piece">/g) || []).length, 1);
   assert.match(body, /href="\/categorie\/marque"/);
   assert.equal(schemaFrom(body)[0].mainEntity.numberOfItems, 1);
-  assert.doesNotMatch(body, /xml-stylesheet|sitemap\.xsl|archived-piece|test-demo/);
+  assert.doesNotMatch(body, /xml-stylesheet|sitemap\.xsl|archived-piece|test-demo|\/lookbook/);
+  assert.match(body, /href="\/categorie\/outlet"/);
+  assert.match(body, /href="\/cgv"/);
+  assert.match(body, /href="\/mentions-legales"/);
   h.data.products.push({ ...product(), id: 'newer-product', slug: 'published-later', name: 'A later publication' });
   const updated = await (await h.handlers.htmlSitemap(h.context('/plan-du-site'))).text();
   assert.match(updated, /href="\/produit\/published-later"/);
@@ -238,4 +242,33 @@ test('human sitemap keeps preview noindex and backend failures retryable', async
   assert.equal(failure.status, 503);
   assert.equal(failure.headers.get('Retry-After'), '60');
   assert.match(failure.headers.get('X-Robots-Tag'), /noindex/);
+});
+
+test('legal pages stay available without copy and reflect escaped admin edits without exposing other settings', async () => {
+  const h = harness({ settings: [{ key: 'shipping', value: { label: 'PRIVATE_FIXTURE' } }] });
+  const pending = await h.handlers.legal(h.context('/cgv'), 'cgv');
+  assert.equal(pending.status, 200);
+  assert.match(pending.headers.get('X-Robots-Tag'), /noindex/);
+  const pendingBody = await pending.text();
+  assert.match(pendingBody, /sera publié prochainement par la boutique/);
+  assert.doesNotMatch(pendingBody, /PRIVATE_FIXTURE/);
+  h.data.site_settings.push({ key: 'legal_cgv', value: { content: 'Conditions rédigées par la boutique.\n\n<script>alert("x")</script>' } });
+  const updated = await h.handlers.legal(h.context('/cgv'), 'cgv');
+  const body = await updated.text();
+  assert.equal(updated.headers.get('Cache-Control'), 'no-store');
+  assert.match(body, /Conditions rédigées par la boutique/);
+  assert.match(body, /&lt;script&gt;alert\(&quot;x&quot;\)&lt;\/script&gt;/);
+  assert.doesNotMatch(body, /<script>alert|sera publié prochainement|PRIVATE_FIXTURE/);
+  assert.equal(h.data.calls.at(-1).url.includes('order=key.asc'), true);
+  assert.equal((await h.handlers.legal(h.context('/mentions-legales'), 'mentions-legales')).status, 200);
+  assert.equal((await h.handlers.legal(h.context('/unknown'), 'unknown')).status, 404);
+  const head = await h.handlers.legal(h.context('/cgv', undefined, { method: 'HEAD' }), 'cgv');
+  assert.equal(head.status, 200);
+  assert.equal(await head.text(), '');
+  const post = await h.handlers.legal(h.context('/cgv', undefined, { method: 'POST' }), 'cgv');
+  assert.equal(post.status, 405);
+  h.data.fail = true;
+  const failure = await h.handlers.legal(h.context('/cgv'), 'cgv');
+  assert.equal(failure.status, 503);
+  assert.equal(failure.headers.get('Retry-After'), '60');
 });

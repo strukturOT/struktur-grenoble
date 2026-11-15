@@ -27,7 +27,7 @@ export default function CategoryPage() {
 
   return (
     <div className="mx-auto min-h-screen max-w-[1600px] px-4 pb-20 pt-28 md:px-10 md:pb-28 md:pt-36 lg:px-14">
-      {category && <Seo title={title} description={description} path={`/categorie/${category.slug}`} image={category.imageUrl} jsonLd={[
+      {category && <Seo title={title} description={description} path={`/categorie/${category.slug}`} image={category.imageUrl} noIndex={!loading && products.length === 0} jsonLd={[
         breadcrumbJsonLd([{ name: 'Accueil', url: SITE_URL }, { name: 'Boutique', url: `${SITE_URL}/boutique` }, { name: category.name, url: `${SITE_URL}/categorie/${category.slug}` }]),
         { '@context': 'https://schema.org', '@type': 'CollectionPage', '@id': `${SITE_URL}/categorie/${category.slug}#collection`, url: `${SITE_URL}/categorie/${category.slug}`, name: title, description, mainEntity: { '@type': 'ItemList', name: category.name, numberOfItems: products.length, itemListElement: products.map((product, index) => ({ '@type': 'ListItem', position: index + 1, name: product.name, url: `${SITE_URL}/produit/${product.slug}` })) } },
       ]} />}

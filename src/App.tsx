@@ -19,6 +19,7 @@ const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const Journal = lazy(() => import('./pages/Journal'));
 const ProductJournal = lazy(() => import('./pages/ProductJournal'));
 const PlanDuSite = lazy(() => import('./pages/PlanDuSite'));
+const LegalPage = lazy(() => import('./pages/LegalPage'));
 
 function App() {
   return (
@@ -37,6 +38,8 @@ function App() {
           <Route path="journal/:slug" element={<ProductJournal />} />
           <Route path="le-shop" element={<LeShop />} />
           <Route path="plan-du-site" element={<PlanDuSite />} />
+          <Route path="cgv" element={<LegalPage document="cgv" />} />
+          <Route path="mentions-legales" element={<LegalPage document="mentions" />} />
           <Route path="compte" element={<Compte />} />
           <Route path="panier" element={<Panier />} />
           <Route path="checkout" element={<Checkout />} />
@@ -44,6 +47,7 @@ function App() {
           <Route path="admin/catalogue" element={<RequireAdmin><Admin page="catalogue" /></RequireAdmin>} />
           <Route path="admin/categories" element={<RequireAdmin><Admin page="categories" /></RequireAdmin>} />
           <Route path="admin/livraison" element={<RequireAdmin><Admin page="shipping" /></RequireAdmin>} />
+          <Route path="admin/informations-legales" element={<RequireAdmin><Admin page="legal" /></RequireAdmin>} />
           <Route path="admin/commandes" element={<RequireAdmin><Admin page="orders" /></RequireAdmin>} />
           <Route path="admin/messages" element={<RequireAdmin><Admin page="messages" /></RequireAdmin>} />
           <Route path="admin/clients" element={<RequireAdmin><Admin page="clients" /></RequireAdmin>} />
