@@ -122,7 +122,7 @@ export default function Hero() {
         <motion.div key={campaign.title} initial={motionEnabled ? { opacity: 0, y: 8 } : false} animate={{ opacity: 1, y: 0 }} transition={{ duration: motionEnabled ? 0.5 : 0 }} aria-live="off">
           <h2 className="max-w-5xl text-balance font-display text-[clamp(3rem,8vw,8rem)] font-medium leading-[0.98]">{campaign.title}</h2>
           <div className="mt-5 md:mt-8">
-            <Link to={campaign.href} className="inline-flex min-h-12 items-center justify-center bg-white px-9 py-4 text-sm font-semibold uppercase tracking-[0.08em] text-black transition-colors hover:bg-struktur-orange hover:text-white">
+            <Link to={campaign.href} className="inline-flex min-h-12 items-center justify-center bg-white px-9 py-4 text-sm font-semibold uppercase tracking-[0.06em] text-black transition-colors hover:bg-struktur-orange hover:text-white">
               Shop now
             </Link>
           </div>

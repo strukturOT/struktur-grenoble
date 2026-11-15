@@ -6,18 +6,18 @@ import { useCategories, useProducts } from '../hooks/useProducts';
 import { breadcrumbJsonLd } from '../lib/productSeo';
 import { SITE_URL } from '../lib/site';
 import { collectionContent } from '../data/collectionContent';
+import { productInCategory } from '../lib/catalogMembership.mjs';
 
 export default function CategoryPage() {
   const { slug } = useParams();
   const { categories, loading: categoriesLoading } = useCategories();
   const { products: sourceProducts, loading: productsLoading, error } = useProducts({ order: 'mixed' });
   const category = categories.find((item) => item.slug === slug) ?? null;
-  const products = category ? sourceProducts.filter((product) => product.category?.id === category.id
-    || (category.slug === 'dickies' && product.brand?.toLocaleLowerCase('fr') === 'dickies')) : [];
+  const products = category ? sourceProducts.filter((product) => productInCategory(product, category)) : [];
   const loading = categoriesLoading || productsLoading;
 
   if (!loading && !category) {
-    return <div className="flex min-h-screen flex-col items-center justify-center px-6 text-center"><Seo title="Catégorie introuvable | STRUKTUR" description="Cette catégorie n’est pas disponible." path={`/categorie/${slug || ''}`} noIndex /><h1 className="font-display text-4xl">Catégorie introuvable</h1><Link to="/boutique" className="mt-8 border-b border-struktur-orange pb-1 text-xs uppercase tracking-widest text-struktur-orange">Retour à la boutique</Link></div>;
+    return <div className="flex min-h-screen flex-col items-center justify-center px-6 text-center"><Seo title="Catégorie introuvable | STRUKTUR" description="Cette catégorie n’est pas disponible." path={`/categorie/${slug || ''}`} noIndex /><h1 className="font-display text-4xl">Catégorie introuvable</h1><Link to="/boutique" className="mt-8 border-b border-struktur-orange pb-1 text-xs uppercase tracking-[0.06em] text-struktur-orange">Retour à la boutique</Link></div>;
   }
 
   const content = category ? collectionContent[category.slug] : undefined;

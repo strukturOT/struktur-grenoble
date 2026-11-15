@@ -14,7 +14,7 @@ export default function Marques() {
 
   return (
     <main className="mx-auto min-h-screen max-w-[1200px] px-6 pb-20 pt-28 md:px-12 md:pb-28 md:pt-36">
-      <header className="mb-12 md:mb-16">
+      <header className="mb-8 md:mb-10">
         <h1 className="font-display text-4xl font-medium md:text-6xl">Marques.</h1>
       </header>
 
@@ -25,17 +25,17 @@ export default function Marques() {
           ))}
         </div>
       ) : brands.length ? (
-        <div aria-label="Marques par ordre alphabétique" className="space-y-12 md:space-y-16">
+        <div aria-label="Marques par ordre alphabétique" className="space-y-6 md:space-y-8">
           {[...groupedBrands].map(([letter, names]) => (
-            <section key={letter} aria-labelledby={`brands-${letter}`} className="md:grid md:grid-cols-[80px_1fr] md:gap-8">
-              <h2 id={`brands-${letter}`} className="mb-5 text-sm font-medium md:pt-3 md:text-base">{letter}</h2>
-              <ul className="space-y-1 md:space-y-2">
+            <section key={letter} aria-labelledby={`brands-${letter}`} className="md:grid md:grid-cols-[48px_1fr] md:gap-6">
+              <h2 id={`brands-${letter}`} className="mb-2 text-sm font-medium md:pt-3 md:text-base">{letter}</h2>
+              <ul className="space-y-0">
                 {names.map((brand) => (
                   <li key={brand}>
                     <Link
                       to={brandHref(brand)}
                       aria-label={`${brand} — voir les produits`}
-                      className="inline-flex min-h-12 max-w-full items-center break-words py-2 font-display text-3xl font-semibold leading-tight tracking-tight transition-colors hover:text-struktur-orange focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-theme-ink sm:text-4xl md:text-5xl"
+                      className="inline-flex min-h-11 max-w-full items-center break-words py-1 font-display text-3xl font-semibold leading-tight tracking-tight transition-colors hover:text-struktur-orange focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-theme-ink sm:text-4xl"
                     >
                       {brand}
                     </Link>

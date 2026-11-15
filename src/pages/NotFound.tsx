@@ -13,13 +13,13 @@ const NotFound = () => {
       />
       <TextReveal 
         text="PAGE INTROUVABLE" 
-        className="text-2xl md:text-4xl font-display tracking-widest uppercase mb-12" 
+        className="text-2xl md:text-4xl font-display tracking-[0.06em] uppercase mb-12"
         delay={0.15}
       />
       <div className="mt-8">
         <Link 
           to="/"
-          className="inline-block border border-theme-ink/20 px-8 py-4 text-xs tracking-[0.2em] uppercase font-medium hover:bg-theme-ink hover:text-theme-canvas transition-colors"
+          className="inline-block border border-theme-ink/20 px-8 py-4 text-xs tracking-[0.06em] uppercase font-medium hover:bg-theme-ink hover:text-theme-canvas transition-colors"
         >
           Retour à l'accueil
         </Link>

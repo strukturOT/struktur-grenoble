@@ -23,9 +23,9 @@ function harness({ products = [], categories = [category], settings = [], fail =
     let values = data[parsed.pathname.split('/').at(-1)];
     if (!values) return new Response('not found', { status: 404 });
     values = values.filter((row) => {
-      for (const key of ['slug', 'status', 'category_id', 'key']) {
+      for (const key of ['slug', 'status', 'category_id', 'is_outlet', 'key']) {
         const filter = parsed.searchParams.get(key);
-        if (filter?.startsWith('eq.') && row[key] !== filter.slice(3)) return false;
+        if (filter?.startsWith('eq.') && row[key] !== (key === 'is_outlet' ? filter.slice(3) === 'true' : filter.slice(3))) return false;
         if (filter === 'not.like.test-%' && row[key]?.startsWith('test-')) return false;
       }
       const or = parsed.searchParams.get('or');
@@ -125,6 +125,67 @@ test('categories published after build have live items, and empty categories are
   const fallback = await (await h.handlers.category(h.context('/categorie/marque', 'marque'))).text();
   assert.match(fallback, /Introduction de collection/);
   assert.equal((await h.handlers.category(h.context('/categorie/unknown', 'unknown'))).status, 404);
+});
+
+test('Outlet membership publishes alongside the original category, without altering product metadata or prices', async () => {
+  const outlet = { id: 'outlet-id', slug: 'outlet', name: 'Outlet', updated_at: '2026-01-01T00:00:00Z' };
+  const p = { ...product(), is_outlet: true, updated_at: '2026-11-15T12:00:00Z' };
+  const before = structuredClone(p);
+  const h = harness({ products: [p], categories: [category, outlet] });
+  const response = await h.handlers.category(h.context('/categorie/outlet', 'outlet'));
+  const body = await response.text();
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('X-Robots-Tag'), null);
+  assert.equal(schemaFrom(body)[0].mainEntity.numberOfItems, 1);
+  assert.match(body, /href="\/produit\/nouvelle-piece"/);
+  assert.equal(new URL(h.data.calls.find((call) => call.url.includes('/products?')).url).searchParams.get('is_outlet'), 'eq.true');
+  const originalCategory = await (await h.handlers.category(h.context('/categorie/marque', 'marque'))).text();
+  assert.equal(schemaFrom(originalCategory)[0].mainEntity.numberOfItems, 1);
+  const productBody = await (await h.handlers.product(h.context('/produit/nouvelle-piece', 'nouvelle-piece'))).text();
+  assert.equal(schemaFrom(productBody)[0].category, 'Marque');
+  assert.equal(schemaFrom(productBody)[0].hasVariant[0].offers.price, '130.00');
+  assert.match(productBody, /href="\/categorie\/marque"/);
+  assert.deepEqual(p, before);
+  const categorySitemap = await (await h.handlers.sitemap(h.context('/sitemap-categories.xml'), 'categories')).text();
+  assert.match(categorySitemap, /<loc>https:\/\/strukturkultur.fr\/categorie\/outlet<\/loc><lastmod>2026-11-15T12:00:00.000Z<\/lastmod>/);
+  const directory = await (await h.handlers.htmlSitemap(h.context('/plan-du-site'))).text();
+  const collectionLinks = directory.match(/<nav aria-labelledby="site-collections">([\s\S]*?)<\/nav>/)[1];
+  assert.match(collectionLinks, /href="\/categorie\/outlet"/);
+  assert.match(collectionLinks, /href="\/categorie\/marque"/);
+});
+
+test('an explicit false removes legacy Outlet-category membership from pages, directories and XML', async () => {
+  const outlet = { id: 'outlet-id', slug: 'outlet', name: 'Outlet' };
+  const p = { ...product(), category_id: outlet.id, categories: outlet, is_outlet: false };
+  const h = harness({ products: [p], categories: [outlet] });
+  const response = await h.handlers.category(h.context('/categorie/outlet', 'outlet'));
+  const body = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('X-Robots-Tag'), /noindex/);
+  assert.equal(schemaFrom(body)[0].mainEntity.numberOfItems, 0);
+  assert.doesNotMatch(body, /href="\/produit\/nouvelle-piece"/);
+  const sitemap = await (await h.handlers.sitemap(h.context('/sitemap-categories.xml'), 'categories')).text();
+  assert.doesNotMatch(sitemap, /<loc>https:\/\/strukturkultur.fr\/categorie\/outlet<\/loc>/);
+  const directory = await (await h.handlers.htmlSitemap(h.context('/plan-du-site'))).text();
+  assert.doesNotMatch(directory.match(/<nav aria-labelledby="site-collections">([\s\S]*?)<\/nav>/)[1], /\/categorie\/outlet/);
+});
+
+test('Outlet lists count each flagged public product once and update immediately when membership changes', async () => {
+  const outlet = { id: 'outlet-id', slug: 'outlet', name: 'Outlet' };
+  const h = harness({ products: [
+    { ...product(), is_outlet: true },
+    { ...product(), id: 'legacy-id', slug: 'legacy-outlet', category_id: outlet.id, categories: outlet, is_outlet: true },
+    { ...product(), id: 'draft-id', slug: 'draft-outlet', status: 'draft', is_outlet: true },
+    { ...product(), id: 'test-id', slug: 'test-outlet', is_outlet: true },
+  ], categories: [category, outlet] });
+  const body = await (await h.handlers.category(h.context('/categorie/outlet', 'outlet'))).text();
+  assert.equal(schemaFrom(body)[0].mainEntity.numberOfItems, 2);
+  assert.equal((body.match(/href="\/produit\/legacy-outlet"/g) || []).length, 1);
+  assert.doesNotMatch(body, /draft-outlet|test-outlet/);
+  h.data.products[0].is_outlet = false;
+  const updated = await (await h.handlers.category(h.context('/categorie/outlet', 'outlet'))).text();
+  assert.equal(schemaFrom(updated)[0].mainEntity.numberOfItems, 1);
+  assert.doesNotMatch(updated, /href="\/produit\/nouvelle-piece"/);
 });
 
 test('default colour image matches the available starting price, while explicit variant links retain their own price', async () => {

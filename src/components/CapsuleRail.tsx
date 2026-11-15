@@ -36,7 +36,7 @@ export default function CapsuleRail() {
     <section id="capsules" aria-labelledby="capsules-title" className="scroll-mt-24 py-12 md:py-20">
       <div className="mx-auto mb-6 flex max-w-[1600px] items-center justify-between gap-4 px-4 md:mb-9 md:px-10 lg:px-14">
         <div>
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.1em] text-theme-ink/60">À découvrir</p>
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.06em] text-theme-ink/60">À découvrir</p>
           <h2 id="capsules-title" className="font-display text-3xl font-medium md:text-5xl">Les capsules.</h2>
         </div>
         <div className="flex gap-2">

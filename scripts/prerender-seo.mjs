@@ -5,6 +5,7 @@ import { normalizeSiteOrigin } from './site-origin.mjs';
 import { buildProductStructuredData } from './product-schema.mjs';
 import { canonicalUrl, PRIVATE_ROUTES } from './seo-utils.mjs';
 import { productPricing, rowPromotion, variantPriceCents } from '../src/lib/promotions.mjs';
+import { productInCategory } from '../src/lib/catalogMembership.mjs';
 
 const root = process.cwd();
 const pricingNow = Date.now();
@@ -171,7 +172,7 @@ for (const category of catalog.categories) {
   const canonical = `${siteUrl}/categorie/${category.slug}`;
   const content = collectionContent[category.slug];
   const description = text(content?.description || category.description) || `Découvrez la sélection ${category.name} disponible chez STRUKTUR Grenoble.`;
-  const products = catalog.products.filter((product) => product.categories?.slug === category.slug || category.slug === 'dickies' && product.brand?.toLocaleLowerCase('fr') === 'dickies');
+  const products = catalog.products.filter((product) => productInCategory(product, category));
   const schema = [
     breadcrumb([{ name: 'Accueil', url: siteUrl }, { name: 'Boutique', url: `${siteUrl}/boutique` }, { name: category.name, url: canonical }]),
     { '@context': 'https://schema.org', '@type': 'CollectionPage', '@id': `${canonical}#collection`, url: canonical, name: content?.title || category.name, description, mainEntity: { '@type': 'ItemList', name: category.name, numberOfItems: products.length, itemListElement: products.map((product, index) => ({ '@type': 'ListItem', position: index + 1, url: `${siteUrl}/produit/${product.slug}`, name: product.name })) } },

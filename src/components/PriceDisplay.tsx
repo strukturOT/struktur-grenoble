@@ -16,6 +16,6 @@ export default function PriceDisplay({ priceCents, originalPriceCents, currency 
     {from && <span className="text-[0.8em] font-normal text-theme-ink/65">À partir de</span>}
     {discounted && <del className="text-[0.8em] font-normal text-theme-ink/50"><span className="sr-only">Prix habituel : </span>{formatMoney(originalPriceCents!, currency)}</del>}
     <span className={discounted ? 'font-semibold text-struktur-orange' : ''}>{discounted && <span className="sr-only">Prix promotionnel : </span>}{formatMoney(priceCents, currency)}</span>
-    {discounted && badge && <span className="self-center bg-struktur-orange px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-white">{percentage > 0 ? `−${percentage} %` : 'Promotion'}</span>}
+    {discounted && badge && <span className="self-center bg-struktur-orange px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-white">{percentage > 0 ? `−${percentage} %` : 'Promotion'}</span>}
   </span>;
 }

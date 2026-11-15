@@ -13,7 +13,7 @@ const ParallaxImage = ({ item, yOffset, className }: { item: any, yOffset: any, 
       </motion.div>
       <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 z-10 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
         <span className="text-white text-xs md:text-sm font-medium bg-black/50 px-2 py-1 backdrop-blur-sm w-fit">{item.label}</span>
-        <span className="text-white/80 text-[10px] md:text-xs uppercase tracking-widest bg-black/50 px-2 py-1 backdrop-blur-sm w-fit">{item.location}</span>
+        <span className="text-white/80 text-[10px] md:text-xs uppercase tracking-[0.06em] bg-black/50 px-2 py-1 backdrop-blur-sm w-fit">{item.location}</span>
       </div>
     </div>
   );

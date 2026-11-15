@@ -10,7 +10,7 @@ const NewArrivals = () => {
     <section aria-labelledby="home-selection-title" className="mx-auto max-w-[1600px] px-4 pb-16 pt-12 md:px-10 md:pb-24 md:pt-20 lg:px-14">
       <div className="mb-7 flex items-end justify-between gap-5 md:mb-10">
         <div>
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.1em] text-theme-ink/60">En ce moment</p>
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.06em] text-theme-ink/60">En ce moment</p>
           <h2 id="home-selection-title" className="font-display text-3xl font-medium md:text-5xl">La sélection.</h2>
         </div>
         <Link to="/nouveautes" className="inline-flex min-h-11 shrink-0 items-center gap-2 text-xs font-medium transition-colors hover:text-struktur-orange">Les nouveautés <ArrowUpRight size={16} aria-hidden="true" /></Link>

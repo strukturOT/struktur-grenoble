@@ -1,14 +1,15 @@
 import { buildProductStructuredData } from '../scripts/product-schema.mjs';
 import { productPricing, rowPromotion, variantPriceCents } from '../src/lib/promotions.mjs';
 import { latestModified, productModified } from '../scripts/seo-utils.mjs';
+import { productInCategory } from '../src/lib/catalogMembership.mjs';
 
 const html = (value) => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
 const xml = html;
 const text = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
 const validSlug = (value) => typeof value === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
 const publicProduct = (product) => product.status === 'active' && validSlug(product.slug) && !product.slug.startsWith('test-');
-const PRODUCT_SELECT = 'id,name,slug,brand,description,seo_title,seo_description,price_cents,promotion_type,promotion_value,promotion_enabled,promotion_starts_at,promotion_ends_at,currency,status,featured,created_at,updated_at,category_id,categories(id,name,slug,description,image_url),product_images(image_url,alt_text,position,created_at),product_variants(id,name,sku,price_cents,stock_quantity,position,attributes,updated_at)';
-const SITEMAP_SELECT = 'id,slug,brand,category_id,status,updated_at,product_variants(updated_at),product_images(image_url,created_at)';
+const PRODUCT_SELECT = 'id,name,slug,brand,description,seo_title,seo_description,price_cents,promotion_type,promotion_value,promotion_enabled,promotion_starts_at,promotion_ends_at,currency,status,featured,is_outlet,created_at,updated_at,category_id,categories(id,name,slug,description,image_url),product_images(image_url,alt_text,position,created_at),product_variants(id,name,sku,price_cents,stock_quantity,position,attributes,updated_at)';
+const SITEMAP_SELECT = 'id,slug,brand,category_id,is_outlet,status,updated_at,product_variants(updated_at),product_images(image_url,created_at)';
 const CATEGORY_SELECT = 'id,name,slug,description,image_url,updated_at';
 const pages = ['/', '/nouveautes', '/boutique', '/marques', '/le-shop', '/journal', '/plan-du-site'];
 const legalPages = {
@@ -130,10 +131,10 @@ export function createLiveSeoHandlers(config, { fetch: fetcher = globalThis.fetc
     throw new Error('Catalogue exceeds this sitemap limit');
   }
   const activeProducts = async (select = SITEMAP_SELECT, filters = {}) => (await rows('products', select, { status: 'eq.active', slug: 'not.like.test-%', ...filters })).filter(publicProduct);
-  const categoryProducts = async (category, select) => activeProducts(select, category.slug === 'dickies'
-    ? { or: `(category_id.eq.${category.id},brand.ilike.Dickies)` }
-    : { category_id: `eq.${category.id}` });
-  const inCategory = (product, category) => product.category_id === category.id || category.slug === 'dickies' && product.brand?.toLowerCase() === 'dickies';
+  const categoryProducts = async (category, select) => (await activeProducts(select, category.slug === 'outlet'
+    ? { is_outlet: 'eq.true' }
+    : category.slug === 'dickies' ? { or: `(category_id.eq.${category.id},brand.ilike.Dickies)` }
+      : { category_id: `eq.${category.id}` })).filter((product) => productInCategory(product, category));
 
   async function shell(context) {
     const assetUrl = new URL('/app-shell', context.request.url);
@@ -174,10 +175,10 @@ export function createLiveSeoHandlers(config, { fetch: fetcher = globalThis.fetc
       const method = methodResponse(context.request); if (method) return method;
       const redirect = normalizeRoute(context.request, 'plan-du-site'); if (redirect) return redirect;
       try {
-        const [sourceProducts, categories] = await Promise.all([activeProducts('id,name,slug,brand,category_id,status'), rows('categories', CATEGORY_SELECT)]);
+        const [sourceProducts, categories] = await Promise.all([activeProducts('id,name,slug,brand,category_id,is_outlet,status'), rows('categories', CATEGORY_SELECT)]);
         const compare = new Intl.Collator('fr', { sensitivity: 'base', numeric: true }).compare;
         const products = [...sourceProducts].sort((a, b) => compare(a.name, b.name));
-        const visibleCategories = categories.filter((category) => validSlug(category.slug) && products.some((product) => inCategory(product, category))).sort((a, b) => compare(a.name, b.name));
+        const visibleCategories = categories.filter((category) => validSlug(category.slug) && products.some((product) => productInCategory(product, category))).sort((a, b) => compare(a.name, b.name));
         const names = { '/': 'Accueil', '/nouveautes': 'Nouveautés', '/boutique': 'Boutique', '/marques': 'Marques', '/categorie/outlet': 'Outlet', '/le-shop': 'Le shop à Grenoble', '/journal': 'Journal et guides', '/cgv': 'CGV', '/mentions-legales': 'Mentions légales' };
         const pageLinks = [...pages.filter((path) => path !== '/plan-du-site'), '/categorie/outlet', '/cgv', '/mentions-legales'].map((path) => `<li><a href="${path}">${names[path]}</a></li>`).join('');
         const categoryLinks = visibleCategories.map((category) => `<li><a href="/categorie/${html(category.slug)}">${html(category.name)}</a></li>`).join('');
@@ -226,7 +227,7 @@ export function createLiveSeoHandlers(config, { fetch: fetcher = globalThis.fetc
       try {
         const category = (await rows('categories', CATEGORY_SELECT, { slug: `eq.${context.params.slug}` }, 1)).find((row) => row.slug === context.params.slug);
         if (!category) return failure(context, 404);
-        const products = await categoryProducts(category, 'id,name,slug,brand,category_id,status');
+        const products = await categoryProducts(category, 'id,name,slug,brand,category_id,is_outlet,status');
         const content = collectionContent[category.slug];
         const canonical = `${siteUrl}/categorie/${category.slug}`;
         const title = content?.title || `${category.name} | STRUKTUR Grenoble`;
@@ -244,9 +245,9 @@ export function createLiveSeoHandlers(config, { fetch: fetcher = globalThis.fetc
           body = sitemapUrlset(products.map((product) => ({ loc: `${siteUrl}/produit/${product.slug}`, lastmod: productModified(product), images: (product.product_images || []).map((image) => image.image_url) })), siteUrl);
         } else {
           const [products, categories] = await Promise.all([activeProducts(), rows('categories', CATEGORY_SELECT)]);
-          const visibleCategories = categories.filter((category) => validSlug(category.slug) && products.some((product) => inCategory(product, category)));
+          const visibleCategories = categories.filter((category) => validSlug(category.slug) && products.some((product) => productInCategory(product, category)));
           if (kind === 'categories') {
-            body = sitemapUrlset(visibleCategories.map((category) => ({ loc: `${siteUrl}/categorie/${category.slug}`, lastmod: latestModified(category.updated_at, collectionContent[category.slug]?.modifiedAt, products.filter((product) => inCategory(product, category)).map(productModified)), images: category.image_url ? [category.image_url] : [] })), siteUrl);
+            body = sitemapUrlset(visibleCategories.map((category) => ({ loc: `${siteUrl}/categorie/${category.slug}`, lastmod: latestModified(category.updated_at, collectionContent[category.slug]?.modifiedAt, products.filter((product) => productInCategory(product, category)).map(productModified)), images: category.image_url ? [category.image_url] : [] })), siteUrl);
           } else {
             const children = ['sitemap-pages.xml', ...(visibleCategories.length ? ['sitemap-categories.xml'] : []), ...(products.length ? ['sitemap-products.xml'] : [])];
             body = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${children.map((name) => `<sitemap><loc>${xml(`${siteUrl}/${name}`)}</loc></sitemap>`).join('\n')}\n</sitemapindex>\n`;

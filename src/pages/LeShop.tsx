@@ -49,7 +49,7 @@ const LeShop = () => {
       <div className="px-6 md:px-12 max-w-7xl mx-auto mb-24 md:mb-40">
         <div className="flex flex-col md:flex-row gap-12 md:gap-24 items-center">
           <div className="w-full md:w-5/12 order-2 md:order-1">
-            <TextReveal text="L'Espace" className="text-xs tracking-[0.3em] uppercase text-struktur-orange font-semibold mb-6" />
+            <TextReveal text="L'Espace" className="text-xs tracking-[0.06em] uppercase text-struktur-orange font-semibold mb-6" />
             <TextReveal text="Briques apparentes et sélection pointue." className="text-3xl md:text-5xl font-display leading-[1.1] mb-6" delay={0.1} />
             <TextReveal 
               text="Plus qu'un simple magasin, Struktur est pensé comme un lieu de vie et d'échange autour de la culture urbaine. Chaque pièce est sélectionnée pour son histoire, sa coupe et sa matière."
@@ -102,7 +102,7 @@ const LeShop = () => {
               href={storeInfo.googleReviews}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block border border-theme-section-ink/20 text-theme-section-ink px-8 py-4 text-xs tracking-[0.2em] uppercase font-medium hover:bg-theme-section-ink hover:text-theme-section transition-colors"
+              className="inline-block border border-theme-section-ink/20 text-theme-section-ink px-8 py-4 text-xs tracking-[0.06em] uppercase font-medium hover:bg-theme-section-ink hover:text-theme-section transition-colors"
             >
               Voir les avis Google
             </a>
@@ -110,7 +110,7 @@ const LeShop = () => {
 
           <div className="w-full md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-12">
             <div>
-              <h4 className="text-xs tracking-[0.2em] uppercase text-theme-section-ink/50 mb-4 border-b border-theme-section-ink/10 pb-2">Adresse</h4>
+              <h4 className="text-xs tracking-[0.06em] uppercase text-theme-section-ink/50 mb-4 border-b border-theme-section-ink/10 pb-2">Adresse</h4>
               <p className="text-lg font-light text-theme-section-ink mb-1">{storeInfo.address.street}</p>
               <p className="text-lg font-light text-theme-section-ink/70 mb-4">{storeInfo.address.postal} {storeInfo.address.city}</p>
               <a 
@@ -124,7 +124,7 @@ const LeShop = () => {
             </div>
 
             <div>
-              <h4 className="text-xs tracking-[0.2em] uppercase text-theme-section-ink/50 mb-4 border-b border-theme-section-ink/10 pb-2">Contact</h4>
+              <h4 className="text-xs tracking-[0.06em] uppercase text-theme-section-ink/50 mb-4 border-b border-theme-section-ink/10 pb-2">Contact</h4>
               <p className="text-lg font-light text-theme-section-ink mb-4">{storeInfo.phone}</p>
               <a 
                 href={storeInfo.instagram} 
@@ -137,7 +137,7 @@ const LeShop = () => {
             </div>
 
             <div className="sm:col-span-2">
-              <h4 className="text-xs tracking-[0.2em] uppercase text-theme-section-ink/50 mb-4 border-b border-theme-section-ink/10 pb-2">Horaires d'ouverture</h4>
+              <h4 className="text-xs tracking-[0.06em] uppercase text-theme-section-ink/50 mb-4 border-b border-theme-section-ink/10 pb-2">Horaires d'ouverture</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-2">
                 {storeInfo.hours.map((dayInfo, idx) => (
                   <div key={idx} className="flex justify-between items-center py-1">
@@ -177,7 +177,7 @@ const ContactForm = () => {
     }
   };
 
-  return <section className="bg-[#161617] px-6 py-24 text-[#f2f0ec] md:px-12 md:py-32"><div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24"><div><p className="text-xs font-semibold uppercase tracking-[0.28em] text-struktur-orange">Contact</p><h2 className="mt-5 text-5xl font-display leading-none md:text-6xl">Une question<br />sur une pièce ?</h2><p className="mt-6 max-w-sm font-light leading-relaxed text-white/55">Écrivez directement à l’équipe. Votre message arrive dans l’espace de gestion Struktur.</p></div><form onSubmit={submit} className="grid gap-5 sm:grid-cols-2"><label className="text-[10px] uppercase tracking-[0.16em] text-white/50">Nom<input required value={fullName} onChange={(event) => setFullName(event.target.value)} className="mt-2 w-full border border-white/15 bg-transparent px-4 py-3 text-base normal-case tracking-normal outline-none transition-colors focus:border-struktur-orange" /></label><label className="text-[10px] uppercase tracking-[0.16em] text-white/50">E-mail<input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full border border-white/15 bg-transparent px-4 py-3 text-base normal-case tracking-normal outline-none transition-colors focus:border-struktur-orange" /></label><label className="sm:col-span-2 text-[10px] uppercase tracking-[0.16em] text-white/50">Message<textarea required minLength={2} maxLength={5000} value={message} onChange={(event) => setMessage(event.target.value)} rows={5} className="mt-2 w-full resize-y border border-white/15 bg-transparent px-4 py-3 text-base normal-case tracking-normal outline-none transition-colors focus:border-struktur-orange" /></label>{state === 'sent' && <p className="sm:col-span-2 text-sm text-green-300">Message envoyé. Nous vous répondrons rapidement.</p>}{state === 'error' && <p className="sm:col-span-2 text-sm text-struktur-orange">L’envoi a échoué. Réessayez dans un instant.</p>}<button disabled={state === 'sending'} className="w-fit bg-struktur-orange px-7 py-4 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-[#ff5511] disabled:opacity-50">{state === 'sending' ? 'Envoi…' : 'Envoyer le message'}</button></form></div></section>;
+  return <section className="bg-[#161617] px-6 py-24 text-[#f2f0ec] md:px-12 md:py-32"><div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24"><div><p className="text-xs font-semibold uppercase tracking-[0.06em] text-struktur-orange">Contact</p><h2 className="mt-5 text-5xl font-display leading-none md:text-6xl">Une question<br />sur une pièce ?</h2><p className="mt-6 max-w-sm font-light leading-relaxed text-white/55">Écrivez directement à l’équipe. Votre message arrive dans l’espace de gestion Struktur.</p></div><form onSubmit={submit} className="grid gap-5 sm:grid-cols-2"><label className="text-[10px] uppercase tracking-[0.06em] text-white/50">Nom<input required value={fullName} onChange={(event) => setFullName(event.target.value)} className="mt-2 w-full border border-white/15 bg-transparent px-4 py-3 text-base normal-case tracking-normal outline-none transition-colors focus:border-struktur-orange" /></label><label className="text-[10px] uppercase tracking-[0.06em] text-white/50">E-mail<input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full border border-white/15 bg-transparent px-4 py-3 text-base normal-case tracking-normal outline-none transition-colors focus:border-struktur-orange" /></label><label className="sm:col-span-2 text-[10px] uppercase tracking-[0.06em] text-white/50">Message<textarea required minLength={2} maxLength={5000} value={message} onChange={(event) => setMessage(event.target.value)} rows={5} className="mt-2 w-full resize-y border border-white/15 bg-transparent px-4 py-3 text-base normal-case tracking-normal outline-none transition-colors focus:border-struktur-orange" /></label>{state === 'sent' && <p className="sm:col-span-2 text-sm text-green-300">Message envoyé. Nous vous répondrons rapidement.</p>}{state === 'error' && <p className="sm:col-span-2 text-sm text-struktur-orange">L’envoi a échoué. Réessayez dans un instant.</p>}<button disabled={state === 'sending'} className="w-fit bg-struktur-orange px-7 py-4 text-xs font-medium uppercase tracking-[0.06em] transition-colors hover:bg-[#ff5511] disabled:opacity-50">{state === 'sending' ? 'Envoi…' : 'Envoyer le message'}</button></form></div></section>;
 };
 
 export default LeShop;

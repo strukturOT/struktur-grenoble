@@ -61,14 +61,14 @@ const Footer = () => {
           <p className="text-theme-ink/70 mb-2">{storeInfo.address.street}</p>
           <p className="text-theme-ink/70 mb-6">{storeInfo.address.postal} {storeInfo.address.city}</p>
           <a href={`tel:+33${storeInfo.phone.replace(/\s/g, '').slice(1)}`} className="mb-4 block w-fit text-sm text-theme-ink/70 underline underline-offset-4 hover:text-struktur-orange">{storeInfo.phone}</a>
-          <a href={storeInfo.googleMaps} target="_blank" rel="noopener noreferrer" className="text-sm text-struktur-orange uppercase tracking-widest hover:text-theme-ink transition-colors inline-block pb-1 border-b border-struktur-orange/30 hover:border-theme-ink">
+          <a href={storeInfo.googleMaps} target="_blank" rel="noopener noreferrer" className="text-sm text-struktur-orange uppercase tracking-[0.06em] hover:text-theme-ink transition-colors inline-block pb-1 border-b border-struktur-orange/30 hover:border-theme-ink">
             Itinéraire
           </a>
         </motion.div>
       </div>
 
       <motion.div 
-        className="max-w-7xl mx-auto pt-8 border-t border-theme-ink/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-theme-ink/50 uppercase tracking-widest"
+        className="max-w-7xl mx-auto pt-8 border-t border-theme-ink/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-theme-ink/50 uppercase tracking-[0.06em]"
         initial={reduceMotion ? false : { opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}

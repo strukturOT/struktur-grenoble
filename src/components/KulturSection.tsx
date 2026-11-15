@@ -23,7 +23,7 @@ const KulturSection = () => {
         <div className="w-full md:w-5/12 pt-8 md:pt-24 order-2 md:order-1">
           <TextReveal 
             text="STRUKTUR / KULTUR" 
-            className="text-xs tracking-[0.25em] uppercase text-struktur-orange font-semibold mb-6"
+            className="text-xs tracking-[0.06em] uppercase text-struktur-orange font-semibold mb-6"
             delay={0.2}
           />
           
@@ -41,7 +41,7 @@ const KulturSection = () => {
 
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.6 }}>
             <MagneticButton to="/marques">
-              <span className="text-xs tracking-widest uppercase border-b border-theme-ink/30 pb-1 hover:border-struktur-orange transition-colors">Découvrir nos marques</span>
+              <span className="text-xs tracking-[0.06em] uppercase border-b border-theme-ink/30 pb-1 hover:border-struktur-orange transition-colors">Découvrir nos marques</span>
             </MagneticButton>
           </motion.div>
         </div>

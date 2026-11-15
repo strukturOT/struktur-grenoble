@@ -34,12 +34,12 @@ const ProductCard = ({ product, index = 0 }: { product: StoreProduct; index?: nu
               height={1000}
             />
           ) : (
-            <div className="flex h-full items-end bg-theme-surface p-5 text-[10px] uppercase tracking-[0.22em] text-theme-ink/35">
+            <div className="flex h-full items-end bg-theme-surface p-5 text-[10px] uppercase tracking-[0.06em] text-theme-ink/35">
               Visuel à venir
             </div>
           )}
           <div className="absolute inset-0 hidden items-center justify-center bg-black/35 opacity-0 transition-opacity duration-500 group-hover:opacity-100 md:flex">
-            <span className="translate-y-5 bg-white px-7 py-3.5 text-xs font-medium uppercase tracking-[0.18em] text-black transition-transform duration-500 group-hover:translate-y-0 group-hover:bg-struktur-orange group-hover:text-white">
+            <span className="translate-y-5 bg-white px-7 py-3.5 text-xs font-medium uppercase tracking-[0.06em] text-black transition-transform duration-500 group-hover:translate-y-0 group-hover:bg-struktur-orange group-hover:text-white">
               Voir le produit
             </span>
           </div>

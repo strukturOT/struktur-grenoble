@@ -4,6 +4,7 @@ import ProductGrid from '../components/ProductGrid';
 import { useCategories, useProducts } from '../hooks/useProducts';
 import { productPrice } from '../lib/commerce';
 import { brandKey, brandNames } from '../lib/brands';
+import { productInCategory } from '../lib/catalogMembership.mjs';
 
 export default function Boutique() {
   const { products, loading, error } = useProducts({ order: 'mixed' });
@@ -13,8 +14,8 @@ export default function Boutique() {
   const activeCategory = categories.find((category) => category.slug === searchParams.get('categorie')) ?? null;
   const brandParam = searchParams.get('marque');
   const activeBrand = brandParam ? brandNames(products).find((brand) => brandKey(brand) === brandKey(brandParam)) || brandParam.trim() : null;
-  const availableCategories = activeBrand ? categories.filter((category) => products.some((product) => brandKey(product.brand) === brandKey(activeBrand) && product.category?.id === category.id)) : categories;
-  let visibleProducts = activeCategory ? products.filter((product) => product.category?.id === activeCategory.id) : products;
+  const availableCategories = activeBrand ? categories.filter((category) => products.some((product) => brandKey(product.brand) === brandKey(activeBrand) && productInCategory(product, category))) : categories;
+  let visibleProducts = activeCategory ? products.filter((product) => productInCategory(product, activeCategory)) : products;
   if (activeBrand) visibleProducts = visibleProducts.filter((product) => brandKey(product.brand) === brandKey(activeBrand));
   if (sort === 'price-low') visibleProducts = [...visibleProducts].sort((a, b) => productPrice(a) - productPrice(b));
   if (sort === 'price-high') visibleProducts = [...visibleProducts].sort((a, b) => productPrice(b) - productPrice(a));

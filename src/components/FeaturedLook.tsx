@@ -19,7 +19,7 @@ const FeaturedLook = () => {
         <div>
           <TextReveal 
             text="Featured Look"
-            className="text-xs tracking-[0.3em] uppercase text-struktur-orange font-semibold mb-2"
+            className="text-xs tracking-[0.06em] uppercase text-struktur-orange font-semibold mb-2"
             delay={0}
           />
           <TextReveal 
@@ -52,7 +52,7 @@ const FeaturedLook = () => {
       <div className="flex justify-center md:justify-end">
         <Link 
           to="/lookbook"
-          className="group flex items-center gap-4 text-xs tracking-[0.2em] uppercase font-medium border border-theme-ink/20 px-8 py-4 hover:bg-theme-ink hover:text-theme-canvas transition-colors"
+          className="group flex items-center gap-4 text-xs tracking-[0.06em] uppercase font-medium border border-theme-ink/20 px-8 py-4 hover:bg-theme-ink hover:text-theme-canvas transition-colors"
         >
           Voir le lookbook
           <span className="transform group-hover:translate-x-2 transition-transform duration-300">→</span>

@@ -65,6 +65,7 @@ export interface StoreProduct {
   seoDescription: string | null;
   priceCents: number;
   promotion: ProductPromotion | null;
+  isOutlet: boolean;
   currency: string;
   status: ProductStatus;
   featured: boolean;
@@ -89,6 +90,7 @@ interface ProductRow {
   promotion_enabled: boolean;
   promotion_starts_at: string | null;
   promotion_ends_at: string | null;
+  is_outlet: boolean;
   currency: string;
   status: ProductStatus;
   featured: boolean;
@@ -101,7 +103,7 @@ interface ProductRow {
 }
 
 const productSelect = `
-  id, name, slug, brand, description, seo_title, seo_description, price_cents, promotion_type, promotion_value, promotion_enabled, promotion_starts_at, promotion_ends_at, currency, status, featured, category_id, created_at, updated_at,
+  id, name, slug, brand, description, seo_title, seo_description, price_cents, promotion_type, promotion_value, promotion_enabled, promotion_starts_at, promotion_ends_at, is_outlet, currency, status, featured, category_id, created_at, updated_at,
   categories (id, name, slug, description, image_url, storage_path, position),
   product_images (id, image_url, alt_text, position),
   product_variants (id, name, sku, price_cents, stock_quantity, position, attributes)
@@ -117,6 +119,7 @@ const mapProduct = (row: ProductRow): StoreProduct => ({
   seoDescription: row.seo_description,
   priceCents: row.price_cents,
   promotion: rowPromotion(row),
+  isOutlet: row.is_outlet,
   currency: row.currency,
   status: row.status,
   featured: row.featured,
@@ -288,14 +291,18 @@ const mapCategory = (row: { id: string; name: string; slug: string; description:
 
 export async function getPublishedCategories() {
   if (!supabase) return { data: [] as StoreCategory[], error: null };
-  const { data, error } = await supabase
+  const [categoryResult, outletResult] = await Promise.all([supabase
     .from('categories')
     .select('id, name, slug, description, image_url, storage_path, position, products(id)')
     .eq('products.status', 'active')
     .not('products.slug', 'like', 'test-%')
     .order('position', { ascending: true })
-    .order('name', { ascending: true });
-  const categories = ((data ?? []) as unknown as Array<Parameters<typeof mapCategory>[0]>).map(mapCategory);
+    .order('name', { ascending: true }),
+    supabase.from('products').select('id', { count: 'exact', head: true }).eq('status', 'active').eq('is_outlet', true).not('slug', 'like', 'test-%'),
+  ]);
+  const error = categoryResult.error || outletResult.error;
+  const categories = ((categoryResult.data ?? []) as unknown as Array<Parameters<typeof mapCategory>[0]>).map(mapCategory)
+    .map((category) => category.slug === 'outlet' ? { ...category, productCount: outletResult.count ?? 0 } : category);
   return { data: categories.filter((category) => category.productCount > 0 || category.slug === 'outlet'), error };
 }
 
@@ -320,6 +327,8 @@ export interface NewProductInput {
   description: string;
   priceCents: number;
   preserveBasePrice?: boolean;
+  isOutlet?: boolean;
+  preserveOutlet?: boolean;
   currency: string;
   variants: Array<{
     id?: string;
@@ -352,6 +361,7 @@ export async function createProduct(input: NewProductInput, imageFile?: File | n
       status: input.status,
       featured: input.featured,
       category_id: input.categoryId,
+      is_outlet: input.isOutlet ?? false,
     })
     .select('id')
     .single();
@@ -411,6 +421,7 @@ export async function updateProduct(productId: string, input: NewProductInput, i
       status: input.status,
       featured: input.featured,
       category_id: input.categoryId,
+      ...(!input.preserveOutlet && input.isOutlet !== undefined ? { is_outlet: input.isOutlet } : {}),
     })
     .eq('id', productId);
   if (productError) throw productError;
@@ -479,6 +490,16 @@ export async function saveProductPromotion(productId: string, promotion: Product
   if (!data) throw new Error('Cette fiche a changé depuis son ouverture. Actualisez les données avant de modifier sa promotion.');
 }
 
+/** Atomic Outlet membership edit; original category, prices and inventory stay intact. */
+export async function setProductsOutlet(productIds: string[], isOutlet: boolean) {
+  if (!supabase) throw new Error('La boutique n’est pas configurée.');
+  const ids = [...new Set(productIds)];
+  if (!ids.length || ids.length > 1000 || typeof isOutlet !== 'boolean') throw new Error('Sélectionnez entre 1 et 1 000 produits.');
+  const { data, error } = await supabase.rpc('set_products_outlet', { p_product_ids: ids, p_is_outlet: isOutlet });
+  if (error) throw new Error('Impossible de modifier la sélection Outlet. Actualisez le catalogue et réessayez.');
+  if (data !== ids.length) throw new Error('La sélection a changé. Actualisez le catalogue avant de réessayer.');
+}
+
 export interface NewCategoryInput {
   name: string;
   slug: string;
@@ -488,12 +509,15 @@ export interface NewCategoryInput {
 
 export async function getAdminCategories() {
   if (!supabase) return { data: [] as StoreCategory[], error: null };
-  const { data, error } = await supabase
+  const [categoryResult, outletResult] = await Promise.all([supabase
     .from('categories')
     .select('id, name, slug, description, image_url, storage_path, position, products(id)')
     .order('position', { ascending: true })
-    .order('name', { ascending: true });
-  return { data: ((data ?? []) as unknown as Array<Parameters<typeof mapCategory>[0]>).map(mapCategory), error };
+    .order('name', { ascending: true }),
+    supabase.from('products').select('id', { count: 'exact', head: true }).eq('is_outlet', true),
+  ]);
+  return { data: ((categoryResult.data ?? []) as unknown as Array<Parameters<typeof mapCategory>[0]>).map(mapCategory)
+    .map((category) => category.slug === 'outlet' ? { ...category, productCount: outletResult.count ?? 0 } : category), error: categoryResult.error || outletResult.error };
 }
 
 async function uploadCategoryImage(categoryId: string, file: File) {
@@ -521,6 +545,9 @@ export async function createCategory(input: NewCategoryInput, imageFile?: File |
 
 export async function updateCategory(categoryId: string, input: NewCategoryInput, imageFile?: File | null, previousStoragePath?: string | null) {
   if (!supabase) throw new Error('Supabase n’est pas configuré.');
+  const { data: previous, error: previousError } = await supabase.from('categories').select('slug').eq('id', categoryId).single();
+  if (previousError) throw previousError;
+  if (previous.slug === 'outlet' && input.slug !== 'outlet') throw new Error('La rubrique Outlet doit conserver son adresse. Vous pouvez modifier son titre et son visuel.');
   const { error } = await supabase.from('categories').update({ name: input.name, slug: input.slug, description: input.description || null, position: input.position }).eq('id', categoryId);
   if (error) throw error;
   if (imageFile) {
@@ -533,6 +560,7 @@ export async function updateCategory(categoryId: string, input: NewCategoryInput
 
 export async function deleteCategory(category: StoreCategory) {
   if (!supabase) throw new Error('Supabase n’est pas configuré.');
+  if (category.slug === 'outlet') throw new Error('La rubrique Outlet reste disponible. Retirez ses produits depuis le catalogue si nécessaire.');
   const { error } = await supabase.from('categories').delete().eq('id', category.id);
   if (error) throw error;
   if (category.storagePath) await supabase.storage.from('category-images').remove([category.storagePath]);

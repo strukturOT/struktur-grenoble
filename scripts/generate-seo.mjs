@@ -4,6 +4,7 @@ import { catalogPriceCents } from './catalog-price.mjs';
 import { loadEnv } from 'vite';
 import { resolveSiteConfig } from './site-origin.mjs';
 import { PRIVATE_ROUTES, latestModified, productModified } from './seo-utils.mjs';
+import { productInCategory } from '../src/lib/catalogMembership.mjs';
 
 const root = process.cwd();
 const publicDir = path.join(root, 'public');
@@ -62,7 +63,7 @@ async function fetchRows(table, select, order, filters = {}) {
 }
 
 async function fetchCatalog() {
-  const select = 'id,name,slug,brand,description,seo_title,seo_description,price_cents,promotion_type,promotion_value,promotion_enabled,promotion_starts_at,promotion_ends_at,currency,status,featured,created_at,updated_at,categories(id,name,slug,description,image_url),product_images(image_url,alt_text,position,created_at),product_variants(id,name,sku,price_cents,stock_quantity,position,attributes,updated_at)';
+  const select = 'id,name,slug,brand,description,seo_title,seo_description,price_cents,promotion_type,promotion_value,promotion_enabled,promotion_starts_at,promotion_ends_at,currency,status,featured,is_outlet,category_id,created_at,updated_at,categories(id,name,slug,description,image_url),product_images(image_url,alt_text,position,created_at),product_variants(id,name,sku,price_cents,stock_quantity,position,attributes,updated_at)';
   return fetchRows('products', select, 'updated_at.desc', { status: 'eq.active' });
 }
 
@@ -101,14 +102,8 @@ products = products.map((product) => ({
 })).filter((product) => !product.slug.toLowerCase().startsWith('test-'));
 if (!products.length && (env.CI || env.CF_PAGES)) throw new Error('[seo] Refusing to publish an unexpectedly empty catalogue.');
 
-const productCounts = new Map();
-for (const product of products) {
-  const slug = product.categories?.slug;
-  if (slug) productCounts.set(slug, (productCounts.get(slug) || 0) + 1);
-}
-productCounts.set('dickies', products.filter((product) => product.brand?.toLocaleLowerCase('fr') === 'dickies').length);
 categories = categories
-  .map((category) => ({ ...category, content: collectionContent[category.slug], product_count: productCounts.get(category.slug) || 0 }))
+  .map((category) => ({ ...category, content: collectionContent[category.slug], product_count: products.filter((product) => productInCategory(product, category)).length }))
   .filter((category) => category.product_count > 0 || category.slug === 'outlet');
 
 await mkdir(publicDir, { recursive: true });
@@ -145,7 +140,7 @@ const staticRoutes = ['/', '/nouveautes', '/boutique', '/marques', '/le-shop', '
 // Static pages have no reliable content-change timestamp in the source data; omit
 // lastmod rather than falsely claiming that every page changed on each build.
 await writeFile(path.join(publicDir, 'sitemap-pages.xml'), urlSet(staticRoutes.map((route) => urlEntry({ loc: absolute(route) }))));
-await writeFile(path.join(publicDir, 'sitemap-categories.xml'), urlSet(categories.filter((category) => category.product_count > 0).map((category) => urlEntry({ loc: absolute(`/categorie/${category.slug}`), lastmod: latestModified(category.updated_at, category.content?.modifiedAt, products.filter((product) => product.categories?.slug === category.slug || category.slug === 'dickies' && product.brand?.toLocaleLowerCase('fr') === 'dickies').map(productModified)), images: category.image_url ? [{ url: category.image_url }] : [] })), true));
+await writeFile(path.join(publicDir, 'sitemap-categories.xml'), urlSet(categories.filter((category) => category.product_count > 0).map((category) => urlEntry({ loc: absolute(`/categorie/${category.slug}`), lastmod: latestModified(category.updated_at, category.content?.modifiedAt, products.filter((product) => productInCategory(product, category)).map(productModified)), images: category.image_url ? [{ url: category.image_url }] : [] })), true));
 await writeFile(path.join(publicDir, 'sitemap-products.xml'), urlSet(products.map((product) => urlEntry({ loc: absolute(`/produit/${product.slug}`), lastmod: productModified(product), images: product.product_images.map((image) => ({ url: image.image_url })) })), true));
 // These automated guides repeat the product facts and canonicalize to the
 // product page. Retain their user-facing URLs, but do not submit duplicates.

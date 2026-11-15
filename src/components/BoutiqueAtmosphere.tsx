@@ -34,7 +34,7 @@ const BoutiqueAtmosphere = () => {
 
         <div className="w-full lg:w-1/2 flex flex-col justify-center lg:pl-12 relative z-20 mt-6 lg:mt-0">
           <div className="mb-2">
-            <span className="text-xs tracking-[0.3em] uppercase text-struktur-orange font-semibold">
+            <span className="text-xs tracking-[0.06em] uppercase text-struktur-orange font-semibold">
               Inside Struktur
             </span>
           </div>

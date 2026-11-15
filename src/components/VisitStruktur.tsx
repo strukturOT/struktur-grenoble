@@ -12,7 +12,7 @@ const VisitStruktur = () => {
         <div className="w-full md:w-1/2">
           <TextReveal 
             text="Visit Struktur"
-            className="text-xs tracking-[0.3em] uppercase text-struktur-orange font-semibold mb-4 md:mb-6"
+            className="text-xs tracking-[0.06em] uppercase text-struktur-orange font-semibold mb-4 md:mb-6"
             delay={0}
           />
           <TextReveal 
@@ -37,7 +37,7 @@ const VisitStruktur = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <h4 className="text-xs tracking-[0.2em] uppercase text-theme-ink/50 mb-4 border-b border-theme-ink/10 pb-2">Adresse</h4>
+            <h4 className="text-xs tracking-[0.06em] uppercase text-theme-ink/50 mb-4 border-b border-theme-ink/10 pb-2">Adresse</h4>
             <p className="text-lg font-light text-theme-ink mb-1">{storeInfo.address.street}</p>
             <p className="text-lg font-light text-theme-ink/70 mb-4">{storeInfo.address.postal} {storeInfo.address.city}</p>
             <a 
@@ -57,7 +57,7 @@ const VisitStruktur = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.5 }}
           >
-            <h4 className="text-xs tracking-[0.2em] uppercase text-theme-ink/50 mb-4 border-b border-theme-ink/10 pb-2">Contact</h4>
+            <h4 className="text-xs tracking-[0.06em] uppercase text-theme-ink/50 mb-4 border-b border-theme-ink/10 pb-2">Contact</h4>
             <p className="text-lg font-light text-theme-ink mb-4">{storeInfo.phone}</p>
             <a 
               href={storeInfo.instagram} 
@@ -77,7 +77,7 @@ const VisitStruktur = () => {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="sm:col-span-2"
           >
-            <h4 className="text-xs tracking-[0.2em] uppercase text-theme-ink/50 mb-4 border-b border-theme-ink/10 pb-2">Horaires d'ouverture</h4>
+            <h4 className="text-xs tracking-[0.06em] uppercase text-theme-ink/50 mb-4 border-b border-theme-ink/10 pb-2">Horaires d'ouverture</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
               {storeInfo.hours.map((dayInfo, idx) => (
                 <div key={idx} className="flex justify-between items-center py-1">

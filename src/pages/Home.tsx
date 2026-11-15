@@ -11,7 +11,7 @@ const Home = () => {
       <section aria-labelledby="home-store-title" className="border-t border-theme-ink/10 px-5 py-16 md:px-10 md:py-24 lg:px-14">
         <div className="mx-auto grid max-w-[1488px] gap-10 md:grid-cols-2 md:gap-20">
           <div>
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-struktur-orange">Le concept store</p>
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.06em] text-struktur-orange">Le concept store</p>
             <h2 id="home-store-title" className="max-w-xl font-display text-3xl leading-tight md:text-5xl">Streetwear et sneakers au cœur de Grenoble.</h2>
             <p className="mt-6 max-w-xl text-base leading-7 text-theme-ink/70">STRUKTUR réunit vêtements, sneakers et accessoires au {storeInfo.address.street}, {storeInfo.address.postal} {storeInfo.address.city}. Découvrez les collections en ligne, comparez les modèles et retrouvez les tailles disponibles sur chaque fiche.</p>
             <Link to="/le-shop" className="mt-6 inline-flex min-h-11 items-center border-b border-theme-ink/30 text-sm hover:border-struktur-orange hover:text-struktur-orange">Adresse, horaires et contact</Link>

@@ -28,7 +28,7 @@ const StorefrontState = ({ error, emptyLabel = 'La sélection arrive bientôt.' 
       <p className="mx-auto mt-3 max-w-md text-sm font-light leading-relaxed text-theme-ink/60">
         Revenez prochainement, ou passez directement nous voir à Grenoble.
       </p>
-      <Link to="/le-shop" className="mt-6 inline-block border-b border-theme-ink/30 pb-1 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:border-struktur-orange hover:text-struktur-orange">
+      <Link to="/le-shop" className="mt-6 inline-block border-b border-theme-ink/30 pb-1 text-xs font-medium uppercase tracking-[0.06em] transition-colors hover:border-struktur-orange hover:text-struktur-orange">
         Voir le shop
       </Link>
     </div>
